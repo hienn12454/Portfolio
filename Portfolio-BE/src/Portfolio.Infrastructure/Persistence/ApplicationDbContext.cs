@@ -8,7 +8,12 @@ namespace Portfolio.Infrastructure.Persistence;
 public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
     : DbContext(options), IApplicationDbContext
 {
+    public DbSet<Article> Articles => Set<Article>();
+    public DbSet<ContactInfo> ContactInfos => Set<ContactInfo>();
+    public DbSet<PageContent> PageContents => Set<PageContent>();
     public DbSet<Project> Projects => Set<Project>();
+    public DbSet<Skill> Skills => Set<Skill>();
+    public DbSet<User> Users => Set<User>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

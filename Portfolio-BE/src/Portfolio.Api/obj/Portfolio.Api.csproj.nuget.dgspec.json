@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\TUF\\Desktop\\Github\\Portfolio\\src\\Portfolio.Api\\Portfolio.Api.csproj": {}
+    "C:\\Users\\TUF\\Desktop\\Github\\Portfolio\\Portfolio-BE\\src\\Portfolio.Api\\Portfolio.Api.csproj": {}
   },
   "projects": {
-    "C:\\Users\\TUF\\Desktop\\Github\\Portfolio\\src\\Portfolio.Api\\Portfolio.Api.csproj": {
+    "C:\\Users\\TUF\\Desktop\\Github\\Portfolio\\Portfolio-BE\\src\\Portfolio.Api\\Portfolio.Api.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\TUF\\Desktop\\Github\\Portfolio\\src\\Portfolio.Api\\Portfolio.Api.csproj",
+        "projectUniqueName": "C:\\Users\\TUF\\Desktop\\Github\\Portfolio\\Portfolio-BE\\src\\Portfolio.Api\\Portfolio.Api.csproj",
         "projectName": "Portfolio.Api",
-        "projectPath": "C:\\Users\\TUF\\Desktop\\Github\\Portfolio\\src\\Portfolio.Api\\Portfolio.Api.csproj",
+        "projectPath": "C:\\Users\\TUF\\Desktop\\Github\\Portfolio\\Portfolio-BE\\src\\Portfolio.Api\\Portfolio.Api.csproj",
         "packagesPath": "C:\\Users\\TUF\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\TUF\\Desktop\\Github\\Portfolio\\src\\Portfolio.Api\\obj\\",
+        "outputPath": "C:\\Users\\TUF\\Desktop\\Github\\Portfolio\\Portfolio-BE\\src\\Portfolio.Api\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -32,11 +32,11 @@
           "net9.0": {
             "targetAlias": "net9.0",
             "projectReferences": {
-              "C:\\Users\\TUF\\Desktop\\Github\\Portfolio\\src\\Portfolio.Application\\Portfolio.Application.csproj": {
-                "projectPath": "C:\\Users\\TUF\\Desktop\\Github\\Portfolio\\src\\Portfolio.Application\\Portfolio.Application.csproj"
+              "C:\\Users\\TUF\\Desktop\\Github\\Portfolio\\Portfolio-BE\\src\\Portfolio.Application\\Portfolio.Application.csproj": {
+                "projectPath": "C:\\Users\\TUF\\Desktop\\Github\\Portfolio\\Portfolio-BE\\src\\Portfolio.Application\\Portfolio.Application.csproj"
               },
-              "C:\\Users\\TUF\\Desktop\\Github\\Portfolio\\src\\Portfolio.Infrastructure\\Portfolio.Infrastructure.csproj": {
-                "projectPath": "C:\\Users\\TUF\\Desktop\\Github\\Portfolio\\src\\Portfolio.Infrastructure\\Portfolio.Infrastructure.csproj"
+              "C:\\Users\\TUF\\Desktop\\Github\\Portfolio\\Portfolio-BE\\src\\Portfolio.Infrastructure\\Portfolio.Infrastructure.csproj": {
+                "projectPath": "C:\\Users\\TUF\\Desktop\\Github\\Portfolio\\Portfolio-BE\\src\\Portfolio.Infrastructure\\Portfolio.Infrastructure.csproj"
               }
             }
           }
@@ -57,6 +57,10 @@
         "net9.0": {
           "targetAlias": "net9.0",
           "dependencies": {
+            "Microsoft.AspNetCore.Authentication.JwtBearer": {
+              "target": "Package",
+              "version": "[9.0.8, )"
+            },
             "Microsoft.AspNetCore.OpenApi": {
               "target": "Package",
               "version": "[9.0.15, )"
@@ -67,9 +71,13 @@
               "target": "Package",
               "version": "[9.0.8, )"
             },
+            "Svix": {
+              "target": "Package",
+              "version": "[1.63.0, )"
+            },
             "Swashbuckle.AspNetCore": {
               "target": "Package",
-              "version": "[10.1.7, )"
+              "version": "[6.6.2, )"
             }
           },
           "imports": [
@@ -95,14 +103,14 @@
         }
       }
     },
-    "C:\\Users\\TUF\\Desktop\\Github\\Portfolio\\src\\Portfolio.Application\\Portfolio.Application.csproj": {
+    "C:\\Users\\TUF\\Desktop\\Github\\Portfolio\\Portfolio-BE\\src\\Portfolio.Application\\Portfolio.Application.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\TUF\\Desktop\\Github\\Portfolio\\src\\Portfolio.Application\\Portfolio.Application.csproj",
+        "projectUniqueName": "C:\\Users\\TUF\\Desktop\\Github\\Portfolio\\Portfolio-BE\\src\\Portfolio.Application\\Portfolio.Application.csproj",
         "projectName": "Portfolio.Application",
-        "projectPath": "C:\\Users\\TUF\\Desktop\\Github\\Portfolio\\src\\Portfolio.Application\\Portfolio.Application.csproj",
+        "projectPath": "C:\\Users\\TUF\\Desktop\\Github\\Portfolio\\Portfolio-BE\\src\\Portfolio.Application\\Portfolio.Application.csproj",
         "packagesPath": "C:\\Users\\TUF\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\TUF\\Desktop\\Github\\Portfolio\\src\\Portfolio.Application\\obj\\",
+        "outputPath": "C:\\Users\\TUF\\Desktop\\Github\\Portfolio\\Portfolio-BE\\src\\Portfolio.Application\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -123,8 +131,8 @@
           "net9.0": {
             "targetAlias": "net9.0",
             "projectReferences": {
-              "C:\\Users\\TUF\\Desktop\\Github\\Portfolio\\src\\Portfolio.Domain\\Portfolio.Domain.csproj": {
-                "projectPath": "C:\\Users\\TUF\\Desktop\\Github\\Portfolio\\src\\Portfolio.Domain\\Portfolio.Domain.csproj"
+              "C:\\Users\\TUF\\Desktop\\Github\\Portfolio\\Portfolio-BE\\src\\Portfolio.Domain\\Portfolio.Domain.csproj": {
+                "projectPath": "C:\\Users\\TUF\\Desktop\\Github\\Portfolio\\Portfolio-BE\\src\\Portfolio.Domain\\Portfolio.Domain.csproj"
               }
             }
           }
@@ -174,14 +182,14 @@
         }
       }
     },
-    "C:\\Users\\TUF\\Desktop\\Github\\Portfolio\\src\\Portfolio.Domain\\Portfolio.Domain.csproj": {
+    "C:\\Users\\TUF\\Desktop\\Github\\Portfolio\\Portfolio-BE\\src\\Portfolio.Domain\\Portfolio.Domain.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\TUF\\Desktop\\Github\\Portfolio\\src\\Portfolio.Domain\\Portfolio.Domain.csproj",
+        "projectUniqueName": "C:\\Users\\TUF\\Desktop\\Github\\Portfolio\\Portfolio-BE\\src\\Portfolio.Domain\\Portfolio.Domain.csproj",
         "projectName": "Portfolio.Domain",
-        "projectPath": "C:\\Users\\TUF\\Desktop\\Github\\Portfolio\\src\\Portfolio.Domain\\Portfolio.Domain.csproj",
+        "projectPath": "C:\\Users\\TUF\\Desktop\\Github\\Portfolio\\Portfolio-BE\\src\\Portfolio.Domain\\Portfolio.Domain.csproj",
         "packagesPath": "C:\\Users\\TUF\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\TUF\\Desktop\\Github\\Portfolio\\src\\Portfolio.Domain\\obj\\",
+        "outputPath": "C:\\Users\\TUF\\Desktop\\Github\\Portfolio\\Portfolio-BE\\src\\Portfolio.Domain\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -239,14 +247,14 @@
         }
       }
     },
-    "C:\\Users\\TUF\\Desktop\\Github\\Portfolio\\src\\Portfolio.Infrastructure\\Portfolio.Infrastructure.csproj": {
+    "C:\\Users\\TUF\\Desktop\\Github\\Portfolio\\Portfolio-BE\\src\\Portfolio.Infrastructure\\Portfolio.Infrastructure.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\TUF\\Desktop\\Github\\Portfolio\\src\\Portfolio.Infrastructure\\Portfolio.Infrastructure.csproj",
+        "projectUniqueName": "C:\\Users\\TUF\\Desktop\\Github\\Portfolio\\Portfolio-BE\\src\\Portfolio.Infrastructure\\Portfolio.Infrastructure.csproj",
         "projectName": "Portfolio.Infrastructure",
-        "projectPath": "C:\\Users\\TUF\\Desktop\\Github\\Portfolio\\src\\Portfolio.Infrastructure\\Portfolio.Infrastructure.csproj",
+        "projectPath": "C:\\Users\\TUF\\Desktop\\Github\\Portfolio\\Portfolio-BE\\src\\Portfolio.Infrastructure\\Portfolio.Infrastructure.csproj",
         "packagesPath": "C:\\Users\\TUF\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\TUF\\Desktop\\Github\\Portfolio\\src\\Portfolio.Infrastructure\\obj\\",
+        "outputPath": "C:\\Users\\TUF\\Desktop\\Github\\Portfolio\\Portfolio-BE\\src\\Portfolio.Infrastructure\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -267,11 +275,11 @@
           "net9.0": {
             "targetAlias": "net9.0",
             "projectReferences": {
-              "C:\\Users\\TUF\\Desktop\\Github\\Portfolio\\src\\Portfolio.Application\\Portfolio.Application.csproj": {
-                "projectPath": "C:\\Users\\TUF\\Desktop\\Github\\Portfolio\\src\\Portfolio.Application\\Portfolio.Application.csproj"
+              "C:\\Users\\TUF\\Desktop\\Github\\Portfolio\\Portfolio-BE\\src\\Portfolio.Application\\Portfolio.Application.csproj": {
+                "projectPath": "C:\\Users\\TUF\\Desktop\\Github\\Portfolio\\Portfolio-BE\\src\\Portfolio.Application\\Portfolio.Application.csproj"
               },
-              "C:\\Users\\TUF\\Desktop\\Github\\Portfolio\\src\\Portfolio.Domain\\Portfolio.Domain.csproj": {
-                "projectPath": "C:\\Users\\TUF\\Desktop\\Github\\Portfolio\\src\\Portfolio.Domain\\Portfolio.Domain.csproj"
+              "C:\\Users\\TUF\\Desktop\\Github\\Portfolio\\Portfolio-BE\\src\\Portfolio.Domain\\Portfolio.Domain.csproj": {
+                "projectPath": "C:\\Users\\TUF\\Desktop\\Github\\Portfolio\\Portfolio-BE\\src\\Portfolio.Domain\\Portfolio.Domain.csproj"
               }
             }
           }
@@ -302,13 +310,13 @@
               "target": "Package",
               "version": "[9.0.8, )"
             },
-            "Microsoft.EntityFrameworkCore.SqlServer": {
-              "target": "Package",
-              "version": "[9.0.8, )"
-            },
             "Microsoft.Extensions.Configuration.Json": {
               "target": "Package",
               "version": "[9.0.8, )"
+            },
+            "Npgsql.EntityFrameworkCore.PostgreSQL": {
+              "target": "Package",
+              "version": "[9.0.4, )"
             }
           },
           "imports": [
