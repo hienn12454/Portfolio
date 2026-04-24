@@ -1,9 +1,10 @@
 import { getJson } from "./httpClient";
 
 const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL ?? "http://localhost:5000").replace(/\/+$/, "");
+const CLERK_JWT_TEMPLATE = import.meta.env.VITE_CLERK_JWT_TEMPLATE;
 
 async function createAuthHeaders(getToken) {
-  const token = await getToken();
+  const token = CLERK_JWT_TEMPLATE ? await getToken({ template: CLERK_JWT_TEMPLATE }) : await getToken();
   if (!token) {
     throw new Error("Missing Clerk token.");
   }

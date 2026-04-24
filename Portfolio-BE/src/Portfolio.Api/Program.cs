@@ -9,10 +9,26 @@ using Portfolio.Infrastructure;
 var builder = WebApplication.CreateBuilder(args);
 var clerkAuthority = builder.Configuration["Clerk:Authority"];
 var clerkAudience = builder.Configuration["Clerk:Audience"];
+var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? Array.Empty<string>();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("FrontendPolicy", policy =>
+    {
+        if (allowedOrigins.Length == 0)
+        {
+            policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
+            return;
+        }
+
+        policy.WithOrigins(allowedOrigins)
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
+});
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -50,6 +66,7 @@ app.UseSwaggerUI();
 await app.ApplyDatabaseMigrationsAsync();
 
 app.UseHttpsRedirection();
+app.UseCors("FrontendPolicy");
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();

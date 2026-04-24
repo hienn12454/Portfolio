@@ -13,6 +13,10 @@ Set these in Azure App Service -> Configuration -> Application settings.
   - Use the audience from your Clerk JWT template
 - `Clerk__WebhookSecret`
   - `whsec_...` from Clerk Webhooks page
+- `Cors__AllowedOrigins__0`
+  - Example: `https://gray-beach-0ae56a600.7.azurestaticapps.net`
+- `Cors__AllowedOrigins__1`
+  - Example: `https://hiennt.website`
 
 ## Required - Clerk URL config (Backend)
 
@@ -33,7 +37,17 @@ Set these in Azure App Service -> Configuration -> Application settings.
 
 - `VITE_API_BASE_URL`
 - `VITE_CLERK_PUBLISHABLE_KEY`
+- `VITE_CLERK_JWT_TEMPLATE`
+  - Example: `portfoliobe-api`
 - `VITE_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL`
 - `VITE_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL`
 
 Note: For Vite, `VITE_*` vars must exist during frontend build.
+
+## Required - Clerk Dashboard
+
+- Add `https://gray-beach-0ae56a600.7.azurestaticapps.net` to allowed origins / redirect URLs.
+- Add `https://hiennt.website` to allowed origins / redirect URLs.
+- Ensure JWT template audience matches `Clerk__Audience` in backend.
+- Ensure backend webhook endpoint is configured:
+  - `https://portfoliobe.azurewebsites.net/api/webhooks/clerk`

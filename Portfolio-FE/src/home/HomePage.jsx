@@ -499,6 +499,7 @@ export function HomePage() {
 
   return (
     <main className="site">
+      <div className="glitch-grid" aria-hidden="true" />
       <header className="topbar">
         <div className="container topbar__content">
           <span className="brand">{content.brand}</span>
