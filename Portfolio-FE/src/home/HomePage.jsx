@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Show, SignInButton, SignUpButton, UserButton, useAuth } from "@clerk/react";
+import { Show, UserButton, useAuth, useClerk } from "@clerk/react";
 import { Link } from "react-router-dom";
 import { usePublicPortfolioData } from "./usePublicPortfolioData";
 
@@ -47,6 +47,8 @@ const contentByLanguage = {
       signIn: "Sign in",
       signUp: "Sign up"
     },
+    themeDark: "Dark",
+    themeLight: "Light",
     contactFormTitle: "Send a quick message",
     contactFormFields: {
       name: "Name",
@@ -102,6 +104,8 @@ const contentByLanguage = {
       signIn: "Đăng nhập",
       signUp: "Đăng ký"
     },
+    themeDark: "Tối",
+    themeLight: "Sáng",
     contactFormTitle: "Gửi tin nhắn nhanh",
     contactFormFields: {
       name: "Họ và tên",
@@ -393,11 +397,13 @@ const faqsByLanguage = {
 
 export function HomePage() {
   const { isSignedIn } = useAuth();
+  const { openSignIn, openSignUp } = useClerk();
   const { page, contact, articles, skills: apiSkills } = usePublicPortfolioData();
   const displayEmail = contact?.email || "your-email@example.com";
   const [language, setLanguage] = useState("en");
   const [projectCategory, setProjectCategory] = useState("all");
   const [projectView, setProjectView] = useState("detailed");
+  const [theme, setTheme] = useState("dark");
   const [openedFaqIndex, setOpenedFaqIndex] = useState(0);
   const [copiedEmail, setCopiedEmail] = useState(false);
   const [showBackToTop, setShowBackToTop] = useState(false);
@@ -431,6 +437,7 @@ export function HomePage() {
     const savedLanguage = localStorage.getItem("portfolio-language");
     const savedCategory = localStorage.getItem("portfolio-project-category");
     const savedView = localStorage.getItem("portfolio-project-view");
+    const savedTheme = localStorage.getItem("portfolio-theme");
 
     if (savedLanguage === "en" || savedLanguage === "vi") {
       setLanguage(savedLanguage);
@@ -440,6 +447,9 @@ export function HomePage() {
     }
     if (savedView === "compact" || savedView === "detailed") {
       setProjectView(savedView);
+    }
+    if (savedTheme === "dark" || savedTheme === "light") {
+      setTheme(savedTheme);
     }
   }, []);
 
@@ -454,6 +464,11 @@ export function HomePage() {
   useEffect(() => {
     localStorage.setItem("portfolio-project-view", projectView);
   }, [projectView]);
+
+  useEffect(() => {
+    document.documentElement.setAttribute("data-theme", theme);
+    localStorage.setItem("portfolio-theme", theme);
+  }, [theme]);
 
   useEffect(() => {
     function handleScroll() {
@@ -496,18 +511,23 @@ export function HomePage() {
               {isSignedIn ? <Link to="/admin">Admin</Link> : null}
             </nav>
             <div className="auth-actions">
+              <button
+                type="button"
+                className="theme-toggle"
+                aria-label="Toggle color theme"
+                onClick={() => setTheme((current) => (current === "dark" ? "light" : "dark"))}
+              >
+                <span className="theme-toggle__thumb" />
+                <span className="theme-toggle__text">{theme === "dark" ? content.themeDark : content.themeLight}</span>
+              </button>
               {!isSignedIn ? (
                 <>
-                  <SignInButton mode="modal">
-                    <button type="button" className="button button--ghost button--small">
-                      {content.auth.signIn}
-                    </button>
-                  </SignInButton>
-                  <SignUpButton mode="modal">
-                    <button type="button" className="button button--primary button--small">
-                      {content.auth.signUp}
-                    </button>
-                  </SignUpButton>
+                  <button type="button" className="button button--ghost button--small auth-button auth-button--signin" onClick={() => openSignIn()}>
+                    {content.auth.signIn}
+                  </button>
+                  <button type="button" className="button button--primary button--small auth-button auth-button--signup" onClick={() => openSignUp()}>
+                    {content.auth.signUp}
+                  </button>
                 </>
               ) : null}
               <Show when="signed-in">
