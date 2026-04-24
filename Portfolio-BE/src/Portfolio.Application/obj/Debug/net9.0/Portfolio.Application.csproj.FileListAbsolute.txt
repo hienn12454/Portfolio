@@ -1,0 +1,15 @@
+C:\Users\TUF\Desktop\Github\Portfolio\src\Portfolio.Application\obj\Debug\net9.0\Portfolio.Application.csproj.AssemblyReference.cache
+C:\Users\TUF\Desktop\Github\Portfolio\src\Portfolio.Application\obj\Debug\net9.0\Portfolio.Application.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\TUF\Desktop\Github\Portfolio\src\Portfolio.Application\obj\Debug\net9.0\Portfolio.Application.AssemblyInfoInputs.cache
+C:\Users\TUF\Desktop\Github\Portfolio\src\Portfolio.Application\obj\Debug\net9.0\Portfolio.Application.AssemblyInfo.cs
+C:\Users\TUF\Desktop\Github\Portfolio\src\Portfolio.Application\obj\Debug\net9.0\Portfolio.Application.csproj.CoreCompileInputs.cache
+C:\Users\TUF\Desktop\Github\Portfolio\src\Portfolio.Application\bin\Debug\net9.0\Portfolio.Application.deps.json
+C:\Users\TUF\Desktop\Github\Portfolio\src\Portfolio.Application\bin\Debug\net9.0\Portfolio.Application.dll
+C:\Users\TUF\Desktop\Github\Portfolio\src\Portfolio.Application\bin\Debug\net9.0\Portfolio.Application.pdb
+C:\Users\TUF\Desktop\Github\Portfolio\src\Portfolio.Application\bin\Debug\net9.0\Portfolio.Domain.dll
+C:\Users\TUF\Desktop\Github\Portfolio\src\Portfolio.Application\bin\Debug\net9.0\Portfolio.Domain.pdb
+C:\Users\TUF\Desktop\Github\Portfolio\src\Portfolio.Application\obj\Debug\net9.0\Portfoli.B086831A.Up2Date
+C:\Users\TUF\Desktop\Github\Portfolio\src\Portfolio.Application\obj\Debug\net9.0\Portfolio.Application.dll
+C:\Users\TUF\Desktop\Github\Portfolio\src\Portfolio.Application\obj\Debug\net9.0\refint\Portfolio.Application.dll
+C:\Users\TUF\Desktop\Github\Portfolio\src\Portfolio.Application\obj\Debug\net9.0\Portfolio.Application.pdb
+C:\Users\TUF\Desktop\Github\Portfolio\src\Portfolio.Application\obj\Debug\net9.0\ref\Portfolio.Application.dll
