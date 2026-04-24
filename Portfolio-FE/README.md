@@ -6,6 +6,12 @@
 2. Install dependencies: `npm install`
 3. Start dev server: `npm run dev`
 
+## API backend config
+
+- Local development: set `VITE_API_BASE_URL` in `.env.local` (example: `http://localhost:5000`)
+- Production build: this repo includes `.env.production` with:
+  - `VITE_API_BASE_URL=https://portfoliobe.azurewebsites.net`
+
 ## Clerk auth
 
 - Uses `@clerk/react` with `ClerkProvider` in `src/main.jsx`
