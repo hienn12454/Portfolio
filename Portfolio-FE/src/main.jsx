@@ -8,19 +8,42 @@ const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 const SIGN_IN_FALLBACK_REDIRECT_URL = import.meta.env.VITE_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL ?? "/";
 const SIGN_UP_FALLBACK_REDIRECT_URL = import.meta.env.VITE_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL ?? "/";
 
-if (!PUBLISHABLE_KEY) {
-  throw new Error("Missing VITE_CLERK_PUBLISHABLE_KEY in environment variables.");
-}
+const root = ReactDOM.createRoot(document.getElementById("root"));
 
-ReactDOM.createRoot(document.getElementById("root")).render(
-  <React.StrictMode>
-    <ClerkProvider
-      publishableKey={PUBLISHABLE_KEY}
-      afterSignOutUrl="/"
-      signInFallbackRedirectUrl={SIGN_IN_FALLBACK_REDIRECT_URL}
-      signUpFallbackRedirectUrl={SIGN_UP_FALLBACK_REDIRECT_URL}
-    >
-      <App />
-    </ClerkProvider>
-  </React.StrictMode>
-);
+if (!PUBLISHABLE_KEY) {
+  root.render(
+    <React.StrictMode>
+      <main
+        style={{
+          minHeight: "100vh",
+          display: "grid",
+          placeItems: "center",
+          background: "#0b0f19",
+          color: "#e5e7eb",
+          padding: "24px",
+          fontFamily: "Inter, Segoe UI, system-ui, sans-serif"
+        }}
+      >
+        <section style={{ maxWidth: "720px", lineHeight: 1.6 }}>
+          <h1 style={{ marginBottom: "8px" }}>Missing frontend environment variable</h1>
+          <p style={{ margin: 0 }}>
+            Please set <code>VITE_CLERK_PUBLISHABLE_KEY</code> in your deploy environment and rebuild.
+          </p>
+        </section>
+      </main>
+    </React.StrictMode>
+  );
+} else {
+  root.render(
+    <React.StrictMode>
+      <ClerkProvider
+        publishableKey={PUBLISHABLE_KEY}
+        afterSignOutUrl="/"
+        signInFallbackRedirectUrl={SIGN_IN_FALLBACK_REDIRECT_URL}
+        signUpFallbackRedirectUrl={SIGN_UP_FALLBACK_REDIRECT_URL}
+      >
+        <App />
+      </ClerkProvider>
+    </React.StrictMode>
+  );
+}
