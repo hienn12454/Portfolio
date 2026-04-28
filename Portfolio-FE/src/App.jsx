@@ -12,6 +12,7 @@ export default function App() {
         <Route path="/admin" element={<AdminPage />} />
         <Route path="/profile" element={<UserProfilePage />} />
         <Route path="/admin/sso_callback" element={<AuthenticateWithRedirectCallback signInForceRedirectUrl="/" />} />
+        <Route path="/admin/sso-callback" element={<AuthenticateWithRedirectCallback signInForceRedirectUrl="/" />} />
         <Route path="/sso-callback" element={<AuthenticateWithRedirectCallback signInForceRedirectUrl="/" />} />
         <Route path="/admin/*" element={<AdminPage />} />
         <Route path="*" element={<HomePage />} />
