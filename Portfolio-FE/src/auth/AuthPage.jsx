@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth, useSignIn, useSignUp } from "@clerk/react";
 
@@ -21,37 +21,44 @@ export function AuthPage() {
   const { isSignedIn } = useAuth();
   const { signIn, setActive: setActiveSignIn, isLoaded: isSignInLoaded } = useSignIn();
   const { signUp, setActive: setActiveSignUp, isLoaded: isSignUpLoaded } = useSignUp();
-  const isLoaded = isSignInLoaded && isSignUpLoaded;
-
-  useMemo(() => {
+  useEffect(() => {
     if (isSignedIn) {
       navigate("/", { replace: true });
     }
   }, [isSignedIn, navigate]);
 
   async function handleGoogleAuth() {
-    if (!isLoaded || !signIn || !signUp) {
-      return;
-    }
-
     setError("");
-    const payload = {
-      strategy: "oauth_google",
-      redirectUrl: "/sso-callback",
-      redirectUrlComplete: "/"
-    };
+    setIsSubmitting(true);
+    try {
+      const payload = {
+        strategy: "oauth_google",
+        redirectUrl: `${window.location.origin}/sso-callback`,
+        redirectUrlComplete: `${window.location.origin}/`
+      };
 
-    if (mode === "sign-in") {
-      await signIn.authenticateWithRedirect(payload);
-      return;
+      if (mode === "sign-in") {
+        if (!isSignInLoaded || !signIn) {
+          throw new Error("Sign-in is still loading. Please try again.");
+        }
+        await signIn.authenticateWithRedirect(payload);
+        return;
+      }
+
+      if (!isSignUpLoaded || !signUp) {
+        throw new Error("Sign-up is still loading. Please try again.");
+      }
+      await signUp.authenticateWithRedirect(payload);
+    } catch (googleError) {
+      setError(googleError?.errors?.[0]?.longMessage ?? googleError?.message ?? "Unable to continue with Google.");
+      setIsSubmitting(false);
     }
-
-    await signUp.authenticateWithRedirect(payload);
   }
 
   async function handleSignInSubmit(event) {
     event.preventDefault();
-    if (!isLoaded || !signIn) {
+    if (!isSignInLoaded || !signIn) {
+      setError("Sign-in is still loading. Please try again.");
       return;
     }
 
@@ -76,7 +83,8 @@ export function AuthPage() {
 
   async function handleSignUpSubmit(event) {
     event.preventDefault();
-    if (!isLoaded || !signUp) {
+    if (!isSignUpLoaded || !signUp) {
+      setError("Sign-up is still loading. Please try again.");
       return;
     }
 
@@ -85,7 +93,7 @@ export function AuthPage() {
     try {
       const result = await signUp.create({
         emailAddress: form.emailAddress.trim(),
-        username: form.username.trim() || undefined,
+        username: form.username.trim(),
         password: form.password
       });
 
@@ -128,40 +136,40 @@ export function AuthPage() {
   return (
     <main className="site auth-page">
       <section className="section container">
-        <div className="auth-shell">
-          <div className="auth-header">
-            <p className="eyebrow">Account Access</p>
-            <h1>{mode === "sign-in" ? "Welcome back" : "Create your account"}</h1>
-            <p>Sign in or sign up to manage your profile and access dashboard features.</p>
-            <div className="auth-tabs">
-              <button
-                type="button"
-                className={mode === "sign-in" ? "filter-chip is-active" : "filter-chip"}
-                onClick={() => {
-                  setMode("sign-in");
-                  setVerificationPending(false);
-                  setError("");
-                }}
-              >
-                Sign in
-              </button>
-              <button
-                type="button"
-                className={mode === "sign-up" ? "filter-chip is-active" : "filter-chip"}
-                onClick={() => {
-                  setMode("sign-up");
-                  setVerificationPending(false);
-                  setError("");
-                }}
-              >
-                Sign up
-              </button>
-            </div>
-          </div>
-
+        <div className="auth-overlay">
           <article className="contact-form auth-card">
-            <button type="button" className="button button--primary auth-google" onClick={handleGoogleAuth} disabled={!isLoaded}>
-              Continue with Google
+            <div className="auth-header">
+              <p className="eyebrow">Account Access</p>
+              <h1>{mode === "sign-in" ? "Welcome back" : "Create your account"}</h1>
+              <p>Sign in or sign up to manage your profile and access dashboard features.</p>
+              <div className="auth-tabs">
+                <button
+                  type="button"
+                  className={mode === "sign-in" ? "filter-chip is-active" : "filter-chip"}
+                  onClick={() => {
+                    setMode("sign-in");
+                    setVerificationPending(false);
+                    setError("");
+                  }}
+                >
+                  Sign in
+                </button>
+                <button
+                  type="button"
+                  className={mode === "sign-up" ? "filter-chip is-active" : "filter-chip"}
+                  onClick={() => {
+                    setMode("sign-up");
+                    setVerificationPending(false);
+                    setError("");
+                  }}
+                >
+                  Sign up
+                </button>
+              </div>
+            </div>
+
+            <button type="button" className="button button--primary auth-google" onClick={handleGoogleAuth} disabled={isSubmitting}>
+              {isSubmitting ? "Processing..." : "Continue with Google"}
             </button>
 
             <div className="auth-divider">
@@ -189,7 +197,7 @@ export function AuthPage() {
                     required
                   />
                 </label>
-                <button type="submit" className="button button--primary" disabled={isSubmitting || !isLoaded}>
+                <button type="submit" className="button button--primary" disabled={isSubmitting || !isSignInLoaded}>
                   {isSubmitting ? "Signing in..." : "Sign in"}
                 </button>
               </form>
@@ -226,7 +234,7 @@ export function AuthPage() {
                     required
                   />
                 </label>
-                <button type="submit" className="button button--primary" disabled={isSubmitting || !isLoaded}>
+                <button type="submit" className="button button--primary" disabled={isSubmitting || !isSignUpLoaded}>
                   {isSubmitting ? "Creating account..." : "Create account"}
                 </button>
               </form>
