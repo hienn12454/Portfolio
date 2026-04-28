@@ -789,10 +789,10 @@ export function HomePage() {
       <div className="glitch-grid" aria-hidden="true" />
       <header className="topbar">
         <div className="container topbar__content">
-          <span className="brand">
+          <Link to="/" className="brand" aria-label="Go to homepage">
             <img src="/logo-mark.svg" alt="HienNT logo" className="brand__logo" />
             <span>{content.brand}</span>
-          </span>
+          </Link>
           <div className="topbar__actions">
             <nav className="nav">
               <a href="#about">{content.nav.about}</a>

@@ -16,6 +16,10 @@ export async function getJson(url, options = {}) {
 
     if (!response.ok) {
       const body = await response.text();
+      if (response.status === 401) {
+        throw new Error("Phiên đăng nhập không hợp lệ hoặc đã hết hạn. Vui lòng đăng nhập lại.");
+      }
+
       throw new Error(`HTTP ${response.status} - ${body || "Request failed"}`);
     }
 

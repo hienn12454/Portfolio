@@ -8,7 +8,10 @@ public interface ICareerAdvisorService
     Task<CareerChatResult> AskAsync(CareerChatRequest request, CancellationToken cancellationToken);
 }
 
-public sealed class CareerAdvisorService(IOpenRouterClient openRouterClient, IRoadmapShClient roadmapShClient) : ICareerAdvisorService
+public sealed class CareerAdvisorService(
+    IOpenRouterClient openRouterClient,
+    IRoadmapShClient roadmapShClient,
+    IWebResearchClient webResearchClient) : ICareerAdvisorService
 {
     private static readonly IReadOnlyCollection<CareerKnowledgeChunk> KnowledgeBase =
     [
@@ -67,6 +70,7 @@ public sealed class CareerAdvisorService(IOpenRouterClient openRouterClient, IRo
         var historyText = BuildHistorySnippet(request.History);
         var roadmapSlug = ResolveRoadmapSlug(request.Track, normalizedQuestion);
         var roadmapTopics = await roadmapShClient.GetRoadmapTopicsAsync(roadmapSlug, cancellationToken);
+        var webResearchItems = await webResearchClient.SearchAsync($"{request.Track} {normalizedQuestion}".Trim(), cancellationToken);
 
         var answer = await openRouterClient.GetCareerAdviceAsync(
             request.Track ?? "general",
@@ -74,8 +78,14 @@ public sealed class CareerAdvisorService(IOpenRouterClient openRouterClient, IRo
             ragContext,
             roadmapSlug,
             roadmapTopics,
+            webResearchItems,
             historyText,
             cancellationToken);
+
+        var topWebSources = webResearchItems
+            .Take(3)
+            .Select(item => new CareerSource($"web-{Slugify(item.Source)}", $"{item.Source}: {item.Title}"))
+            .ToList();
 
         return new CareerChatResult(
             Answer: answer.Trim(),
@@ -84,7 +94,8 @@ public sealed class CareerAdvisorService(IOpenRouterClient openRouterClient, IRo
             Sources:
             [
                 ..retrievedChunks.Select(chunk => new CareerSource(chunk.Id, chunk.Title)),
-                new CareerSource($"roadmap-{roadmapSlug}", $"roadmap.sh/{roadmapSlug}")
+                new CareerSource($"roadmap-{roadmapSlug}", $"roadmap.sh/{roadmapSlug}"),
+                ..topWebSources
             ]);
     }
 
@@ -143,6 +154,11 @@ public sealed class CareerAdvisorService(IOpenRouterClient openRouterClient, IRo
     private static string Truncate(string value, int maxLength)
     {
         return value.Length <= maxLength ? value : $"{value[..maxLength]}...";
+    }
+
+    private static string Slugify(string input)
+    {
+        return Regex.Replace(input.ToLowerInvariant(), "[^a-z0-9]+", "-").Trim('-');
     }
 }
 

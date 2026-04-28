@@ -5,56 +5,79 @@
 [![Backend](https://img.shields.io/badge/Backend-.NET%20Web%20API-512BD4?style=plastic&logo=dotnet&logoColor=FFFFFF&labelColor=0B1220)](./Portfolio-BE)
 [![Hosting](https://img.shields.io/badge/Hosting-Azure-0078D4?style=plastic&logo=microsoftazure&logoColor=FFFFFF&labelColor=0B1220)](https://azure.microsoft.com/)
 [![Database](https://img.shields.io/badge/Database-Supabase-3ECF8E?style=plastic&logo=supabase&logoColor=0B1220&labelColor=0B1220)](https://supabase.com/)
-[![DNS/CDN](https://img.shields.io/badge/DNS%2FCDN-Cloudflare-F38020?style=plastic&logo=cloudflare&logoColor=FFFFFF&labelColor=0B1220)](https://www.cloudflare.com/)
-[![Domain](https://img.shields.io/badge/Domain-PAVietnam-0EA5E9?style=plastic&logoColor=FFFFFF&labelColor=0B1220)](https://www.pavietnam.vn/)
 [![Authentication](https://img.shields.io/badge/Authentication-Clerk-6C47FF?style=plastic&logo=clerk&logoColor=FFFFFF&labelColor=0B1220)](https://clerk.com/)
 
-Website portfolio cá nhân được xây dựng theo định hướng hiện đại, gọn gàng và chuyên nghiệp. Dự án tập trung vào trải nghiệm người dùng, khả năng quản trị nội dung và kiến trúc dễ mở rộng cho quá trình phát triển lâu dài.
+Website portfolio cá nhân theo hướng hiện đại, tập trung vào trải nghiệm người dùng, khả năng quản trị nội dung linh hoạt và kiến trúc sạch để mở rộng lâu dài.
 
 ## Liên kết nhanh
 
-- Website chính thức: [https://hiennt.website](https://hiennt.website)
-- Backend Swagger: [https://api.hiennt.website](https://api.hiennt.website/)
+- Website: [https://hiennt.website](https://hiennt.website)
+- Backend API: [https://api.hiennt.website](https://api.hiennt.website/)
+- Frontend source: [`Portfolio-FE`](./Portfolio-FE)
+- Backend source: [`Portfolio-BE`](./Portfolio-BE)
 
-## Tính năng nổi bật
+## Tính năng chính
 
-- Giao diện portfolio công khai với các mục: giới thiệu, kỹ năng, dự án, liên hệ.
-- Hỗ trợ đa ngôn ngữ `Tiếng Anh / Tiếng Việt`.
-- Tích hợp xác thực người dùng bằng Clerk.
-- Khu vực quản trị nội dung dành cho tài khoản có quyền phù hợp.
-- Đồng bộ dữ liệu qua API giữa frontend và backend.
-- Homepage mở rộng với khu vực định hướng nghề IT và AI chatbot tư vấn lộ trình (RAG + OpenRouter).
-- Cấu hình theo môi trường (`local`, `production`) thông qua biến môi trường.
+- **Auth + phân quyền rõ ràng**
+  - Đăng nhập/đăng ký qua Clerk (email/password + Google).
+  - Role `admin` và `user` xử lý riêng; admin có nút `Dashboard`, user chỉ xem nội dung.
+  - Giao diện Clerk bản mặc định, đã tối ưu redirect và callback cho SPA.
 
-## Kiến trúc công nghệ
+- **Trang chủ động (dynamic content)**
+  - Các section homepage lấy dữ liệu từ backend.
+  - Hero title có hiệu ứng gõ chữ (typewriter), có thể chỉnh nội dung/tốc độ/màu từ dashboard.
+  - Màu tiêu đề/mô tả cho các section có thể tùy chỉnh.
+
+- **Admin Dashboard quản trị nội dung**
+  - Chỉnh sửa About, Skills, Projects, Articles, Contact.
+  - Cập nhật URL `Live Demo` / `Source Code` cho dự án.
+  - Theo dõi analytics cơ bản: lượt truy cập, lượt đăng nhập, số user.
+
+- **Career Direction Lab (AI + RAG)**
+  - Chatbot tư vấn hướng đi IT dựa trên ngữ cảnh hệ thống + dữ liệu roadmap.
+  - Tích hợp OpenRouter model: `qwen/qwen3-coder:free`.
+  - Sinh roadmap học tập theo `track` + `specialty` của người dùng.
+  - Mỗi user có lịch sử plan riêng, có plan theo ngày và tự động cập nhật theo mốc 00:00 VN.
+
+- **Responsive và UX**
+  - Tối ưu 3 nhóm thiết bị: desktop, tablet, mobile.
+  - Header/footer bo góc đồng bộ, back-to-top gọn dạng nút tròn, cải thiện spacing/typography/touch targets.
+
+## Kiến trúc kỹ thuật
 
 ### Frontend (`Portfolio-FE`)
 
 - React + Vite
 - React Router
-- Clerk (`@clerk/react`)
-- CSS tùy biến theo theme sáng/tối và hiệu ứng tương tác
+- Clerk (`@clerk/react`, `@clerk/localizations`)
+- CSS thuần, chia lớp theo section + breakpoint
 
 ### Backend (`Portfolio-BE`)
 
-- .NET Web API
-- Hệ API REST cho:
-  - Auth
-  - Nội dung trang
-  - Kỹ năng
-  - Bài viết
+- ASP.NET Core Web API
+- Entity Framework Core
+- PostgreSQL (Supabase)
+- Clean Architecture theo lớp:
+  - `Domain`: entities
+  - `Application`: use cases/services/interfaces
+  - `Infrastructure`: DB/integrations (OpenRouter, roadmap client, time provider)
+  - `Api`: controllers + composition root
 
 ### Hạ tầng triển khai
 
-- Azure: triển khai dịch vụ web
-- Supabase: dịch vụ dữ liệu
-- Cloudflare: DNS/CDN/proxy
-- PAVietnam: quản lý tên miền
+- Frontend: Azure Static Web Apps
+- Backend: Azure Web Apps
+- Database: Supabase
+- DNS/CDN: Cloudflare
 
 ## Cấu trúc repository
 
-- `Portfolio-FE`: mã nguồn frontend.
-- `Portfolio-BE`: mã nguồn backend.
+```text
+Portfolio/
+|- Portfolio-FE/   # React app
+|- Portfolio-BE/   # .NET Web API
+|- .github/workflows/
+```
 
 ## Hướng dẫn chạy local
 
@@ -65,7 +88,16 @@ git clone <repo-url>
 cd Portfolio
 ```
 
-### 2) Chạy frontend
+### 2) Chạy backend
+
+```bash
+cd Portfolio-BE
+dotnet restore
+dotnet build
+dotnet run --project src/Portfolio.Api
+```
+
+### 3) Chạy frontend
 
 ```bash
 cd Portfolio-FE
@@ -73,51 +105,43 @@ npm install
 npm run dev
 ```
 
-Tạo `.env.local` từ `.env.example`:
+### 4) Biến môi trường frontend (`Portfolio-FE/.env.local`)
 
 ```env
 VITE_API_BASE_URL=http://localhost:5000
 VITE_CLERK_PUBLISHABLE_KEY=pk_test_xxx
+VITE_CLERK_JWT_TEMPLATE=portfoliobe-api
 VITE_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL=/
 VITE_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL=/
 ```
 
-### 4) Cấu hình AI chatbot (backend)
-
-Thêm biến môi trường cho backend:
+### 5) Biến môi trường backend (Azure App Settings hoặc secrets)
 
 ```env
 OpenRouter__ApiKey=<YOUR_OPENROUTER_API_KEY>
-OpenRouter__Model=meta-llama/llama-3.1-8b-instruct
+OpenRouter__Model=qwen/qwen3-coder:free
 OpenRouter__HttpReferer=https://hiennt.website
 OpenRouter__AppTitle=HienNT Portfolio Career Advisor
 OpenRouter__Temperature=0.35
 OpenRouter__MaxTokens=500
 ```
 
-### 3) Chạy backend
+## Lưu ý môi trường production
 
-```bash
-cd Portfolio-BE
-# chạy theo cấu trúc .NET hiện tại của bạn
-```
+- Các biến `VITE_*` được Vite nhúng tại thời điểm build.
+- Sau khi đổi biến môi trường cho frontend, cần trigger deploy lại để áp dụng giá trị mới.
+- Với auth Clerk, cần đảm bảo redirect URL và domain whitelist khớp domain deploy.
 
-## Biến môi trường production cho frontend
+## CI/CD
 
-```env
-VITE_API_BASE_URL=https://portfoliobe.azurewebsites.net
-VITE_CLERK_PUBLISHABLE_KEY=pk_live_xxx
-VITE_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL=/
-VITE_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL=/
-```
+- Frontend tự động deploy qua workflow Azure Static Web Apps khi push `main`.
+- Backend có thể deploy tự động lên Azure Web Apps bằng publish profile secret (workflow đã hỗ trợ mở rộng theo profile thực tế của dự án).
 
-Lưu ý: Vite nhúng biến môi trường ở thời điểm build. Sau khi thay đổi biến trên Azure, cần redeploy để giá trị mới được áp dụng.
+## Lộ trình mở rộng
 
-## Định hướng phát triển
-
-- Hoàn thiện điều hướng theo vai trò người dùng (`user`/`admin`) sau khi đăng nhập.
-- Bổ sung theo dõi lỗi và giám sát hiệu năng production.
-- Tối ưu SEO và social preview cho trang chia sẻ.
+- Bổ sung test tự động cho auth flow và roadmap flow.
+- Thêm logging/monitoring production sâu hơn.
+- Tối ưu SEO/social metadata cho từng section và bài viết.
 
 ## Tác giả
 

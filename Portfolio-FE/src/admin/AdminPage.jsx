@@ -51,7 +51,9 @@ export function AdminPage() {
     <main className="site">
       <header className="topbar">
         <div className="container topbar__content">
-          <span className="brand">Dashboard</span>
+          <Link to="/" className="brand" aria-label="Go to homepage">
+            Dashboard
+          </Link>
           <nav className="nav">
             <Link to="/">Home</Link>
           </nav>

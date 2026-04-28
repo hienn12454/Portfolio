@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { Show, UserButton, useAuth } from "@clerk/react";
+import { useAuth, useClerk } from "@clerk/react";
 import { createApiClient } from "../core/http/apiClient";
 
 const EMPTY_PROFILE = {
@@ -13,12 +13,16 @@ const EMPTY_PROFILE = {
 
 export function UserProfilePage() {
   const { isSignedIn, getToken } = useAuth();
+  const { signOut } = useClerk();
   const apiClient = useMemo(() => createApiClient(getToken), [getToken]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
   const [profile, setProfile] = useState(EMPTY_PROFILE);
+  const [isAdminUser, setIsAdminUser] = useState(false);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const userMenuRef = useRef(null);
 
   useEffect(() => {
     async function loadProfile() {
@@ -36,6 +40,7 @@ export function UserProfilePage() {
           address: me?.user?.address ?? "",
           occupation: me?.user?.occupation ?? ""
         });
+        setIsAdminUser(me?.user?.role === "Admin");
       } catch (loadError) {
         setError(loadError.message);
       } finally {
@@ -45,6 +50,31 @@ export function UserProfilePage() {
 
     loadProfile();
   }, [apiClient, isSignedIn]);
+
+  useEffect(() => {
+    if (!isUserMenuOpen) {
+      return undefined;
+    }
+
+    function handleOutsideClick(event) {
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target)) {
+        setIsUserMenuOpen(false);
+      }
+    }
+
+    function handleEscape(event) {
+      if (event.key === "Escape") {
+        setIsUserMenuOpen(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleOutsideClick);
+    document.addEventListener("keydown", handleEscape);
+    return () => {
+      document.removeEventListener("mousedown", handleOutsideClick);
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, [isUserMenuOpen]);
 
   async function handleSubmit(event) {
     event.preventDefault();
@@ -73,16 +103,50 @@ export function UserProfilePage() {
     <main className="site">
       <header className="topbar">
         <div className="container topbar__content">
-          <span className="brand">Portfolio</span>
+          <Link to="/" className="brand" aria-label="Go to homepage">
+            Portfolio
+          </Link>
           <div className="topbar__actions">
             <nav className="nav">
               <Link to="/">Home</Link>
-              <Link to="/admin">Admin</Link>
               <Link to="/profile">Profile</Link>
             </nav>
-            <Show when="signed-in">
-              <UserButton afterSignOutUrl="/" />
-            </Show>
+            {isSignedIn ? (
+              <div className="user-menu" ref={userMenuRef}>
+                <button
+                  type="button"
+                  className="button button--ghost button--small user-menu__trigger"
+                  onClick={() => setIsUserMenuOpen((current) => !current)}
+                  aria-haspopup="menu"
+                  aria-expanded={isUserMenuOpen}
+                >
+                  Profile
+                </button>
+                {isUserMenuOpen ? (
+                  <div className="user-menu__dropdown" role="menu">
+                    {isAdminUser ? (
+                      <Link to="/admin" role="menuitem" onClick={() => setIsUserMenuOpen(false)}>
+                        Dashboard
+                      </Link>
+                    ) : null}
+                    <Link to="/profile" role="menuitem" onClick={() => setIsUserMenuOpen(false)}>
+                      Hồ sơ
+                    </Link>
+                    <button
+                      type="button"
+                      className="user-menu__signout"
+                      role="menuitem"
+                      onClick={async () => {
+                        setIsUserMenuOpen(false);
+                        await signOut({ redirectUrl: "/" });
+                      }}
+                    >
+                      Đăng xuất
+                    </button>
+                  </div>
+                ) : null}
+              </div>
+            ) : null}
           </div>
         </div>
       </header>

@@ -87,7 +87,9 @@ a {
   padding: 0.35rem;
   display: grid;
   gap: 0.2rem;
-  z-index: 50;
+  z-index: 180;
+  transform-origin: top right;
+  animation: userMenuReveal 180ms ease-out;
 }
 
 .user-menu__dropdown a,
@@ -106,6 +108,17 @@ a {
 .user-menu__dropdown a:hover,
 .user-menu__signout:hover {
   background: color-mix(in oklab, var(--accent-soft) 60%, var(--surface));
+}
+
+@keyframes userMenuReveal {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 .brand {
@@ -851,14 +864,16 @@ a {
 
 .footer {
   border-top: 1px solid #262626;
-  padding: 1.2rem 0 1.4rem;
+  padding: 1.25rem 0 1.5rem;
   background: color-mix(in oklab, var(--surface) 76%, transparent);
 }
 
 .footer p {
   margin: 0;
-  font-size: 0.86rem;
-  color: var(--text-soft);
+  font-size: clamp(0.88rem, 0.95vw, 0.94rem);
+  line-height: 1.55;
+  color: color-mix(in oklab, var(--text) 88%, white);
+  overflow-wrap: anywhere;
 }
 
 .footer__inner {
@@ -867,6 +882,10 @@ a {
   justify-content: space-between;
   gap: 0.9rem;
   flex-wrap: wrap;
+}
+
+.footer__inner > div {
+  min-width: 0;
 }
 
 .footer__brand {
@@ -879,11 +898,13 @@ a {
 .footer__links {
   display: inline-flex;
   gap: 0.8rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
 }
 
 .footer__links a {
-  color: var(--text-muted);
-  font-size: 0.84rem;
+  color: color-mix(in oklab, var(--text) 84%, white);
+  font-size: 0.86rem;
   text-decoration: underline;
   text-underline-offset: 3px;
 }
@@ -892,8 +913,8 @@ a {
   position: fixed;
   top: auto !important;
   left: auto !important;
-  right: max(1rem, env(safe-area-inset-right)) !important;
-  bottom: max(1rem, env(safe-area-inset-bottom)) !important;
+  right: max(1.2rem, env(safe-area-inset-right)) !important;
+  bottom: max(1.2rem, env(safe-area-inset-bottom)) !important;
   border: 1px solid color-mix(in oklab, var(--accent) 58%, white);
   background: linear-gradient(130deg, color-mix(in oklab, var(--accent) 78%, white), color-mix(in oklab, var(--accent) 58%, black));
   color: #f8fafc;
@@ -1225,7 +1246,7 @@ body {
   border-radius: 16px;
   background: color-mix(in oklab, var(--bg-elevated) 80%, transparent);
   box-shadow: 0 14px 40px rgba(2, 8, 23, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.12);
-  overflow: clip;
+  overflow: visible;
 }
 
 html[data-theme="light"] .topbar {
@@ -1513,8 +1534,10 @@ html[data-theme="light"] .theme-toggle__thumb {
   .button,
   .filter-chip,
   .theme-toggle,
-  .lang-switch__button {
+  .lang-switch__button,
+  .user-menu__dropdown {
     transition: none;
+    animation: none;
   }
 
   .site .glitch-grid,
@@ -1789,8 +1812,8 @@ html[data-theme="light"] .theme-toggle__thumb {
   }
 
   .back-to-top {
-    right: max(0.75rem, env(safe-area-inset-right)) !important;
-    bottom: max(0.75rem, env(safe-area-inset-bottom)) !important;
+    right: max(1rem, env(safe-area-inset-right)) !important;
+    bottom: max(1rem, env(safe-area-inset-bottom)) !important;
     width: 44px;
     height: 44px;
     min-width: 44px;

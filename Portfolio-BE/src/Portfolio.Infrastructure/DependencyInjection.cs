@@ -24,6 +24,7 @@ public static class DependencyInjection
             provider.GetRequiredService<ApplicationDbContext>());
         services.AddScoped<IOpenRouterClient, OpenRouterClient>();
         services.AddScoped<IRoadmapShClient, RoadmapShClient>();
+        services.AddScoped<IWebResearchClient, WebResearchClient>();
         services.AddSingleton<IDateTimeProvider, SystemDateTimeProvider>();
 
         return services;

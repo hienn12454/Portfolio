@@ -24,6 +24,7 @@ jobs:
         env:
           VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL }}
           VITE_CLERK_PUBLISHABLE_KEY: ${{ secrets.VITE_CLERK_PUBLISHABLE_KEY }}
+          VITE_CLERK_JWT_TEMPLATE: ${{ secrets.VITE_CLERK_JWT_TEMPLATE }}
         run: |
           if [ -z "$VITE_API_BASE_URL" ]; then
             echo "Missing required secret: VITE_API_BASE_URL"
@@ -31,6 +32,10 @@ jobs:
           fi
           if [ -z "$VITE_CLERK_PUBLISHABLE_KEY" ]; then
             echo "Missing required secret: VITE_CLERK_PUBLISHABLE_KEY"
+            exit 1
+          fi
+          if [ -z "$VITE_CLERK_JWT_TEMPLATE" ]; then
+            echo "Missing required secret: VITE_CLERK_JWT_TEMPLATE"
             exit 1
           fi
       - name: Build And Deploy

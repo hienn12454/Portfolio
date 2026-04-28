@@ -18,15 +18,25 @@ public sealed class OpenRouterClient(IHttpClientFactory httpClientFactory, IConf
         string ragContext,
         string roadmapSlug,
         IReadOnlyCollection<string> roadmapTopics,
+        IReadOnlyCollection<WebResearchItem> webResearchItems,
         string historyText,
         CancellationToken cancellationToken)
     {
         var roadmapContext = roadmapTopics.Count == 0 ? "No roadmap topics found." : string.Join(", ", roadmapTopics.Take(14));
+        var webResearchContext = webResearchItems.Count == 0
+            ? "No external web research found."
+            : string.Join(
+                "\n",
+                webResearchItems.Take(6).Select(item =>
+                    $"- [{item.Source}] {item.Title}\n  URL: {item.Url}\n  Note: {item.Snippet}"));
         var prompt =
             $$"""
             Current selected track: {{track}}
             Roadmap source slug: {{roadmapSlug}}
             roadmap.sh topics: {{roadmapContext}}
+            
+            Web research context (public sources):
+            {{webResearchContext}}
             
             RAG context:
             {{ragContext}}
@@ -42,12 +52,14 @@ public sealed class OpenRouterClient(IHttpClientFactory httpClientFactory, IConf
             systemPrompt:
             """
             You are a practical IT career advisor for Vietnamese users.
-            Use provided context and roadmap topics as grounding.
+            Use provided context, roadmap topics, and web research as grounding.
+            When web context exists, synthesize key insights and mention practical cautions.
             Respond in Vietnamese with:
             1) hướng đi phù hợp
             2) roadmap 30-60-90 ngày
             3) project gợi ý
             4) kỹ năng cần ưu tiên
+            5) 2-3 nguồn tham khảo nên đọc tiếp
             """,
             userPrompt: prompt,
             fallback:
@@ -118,15 +130,20 @@ public sealed class OpenRouterClient(IHttpClientFactory httpClientFactory, IConf
             return fallback;
         }
 
-        var model = configuration["OpenRouter:Model"] ?? "nvidia/llama-nemotron-embed-vl-1b-v2:free";
+        var model = configuration["OpenRouter:Model"] ?? "qwen/qwen3-coder:free";
         var referer = configuration["OpenRouter:HttpReferer"] ?? "https://localhost";
         var appTitle = configuration["OpenRouter:AppTitle"] ?? "Portfolio Planner";
+        var temperature = configuration.GetValue<double?>("OpenRouter:Temperature") ?? 0.35;
+        var configuredMaxTokens = configuration.GetValue<int?>("OpenRouter:MaxTokens");
+        var resolvedMaxTokens = configuredMaxTokens.HasValue && configuredMaxTokens.Value > 0
+            ? Math.Min(configuredMaxTokens.Value, maxTokens)
+            : maxTokens;
 
         var payload = new
         {
             model,
-            temperature = 0.35,
-            max_tokens = maxTokens,
+            temperature,
+            max_tokens = resolvedMaxTokens,
             messages = new object[]
             {
                 new { role = "system", content = systemPrompt },

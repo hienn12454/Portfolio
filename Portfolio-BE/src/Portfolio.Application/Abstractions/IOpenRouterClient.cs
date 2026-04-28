@@ -9,6 +9,7 @@ public interface IOpenRouterClient
         string ragContext,
         string roadmapSlug,
         IReadOnlyCollection<string> roadmapTopics,
+        IReadOnlyCollection<WebResearchItem> webResearchItems,
         string historyText,
         CancellationToken cancellationToken);
 
