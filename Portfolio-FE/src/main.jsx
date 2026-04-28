@@ -5,8 +5,12 @@ import App from "./App";
 import "./styles.css";
 
 const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
-const SIGN_IN_FALLBACK_REDIRECT_URL = import.meta.env.VITE_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL ?? "/";
-const SIGN_UP_FALLBACK_REDIRECT_URL = import.meta.env.VITE_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL ?? "/";
+const APP_ORIGIN = import.meta.env.VITE_APP_ORIGIN ?? window.location.origin;
+const DEFAULT_REDIRECT_URL = `${APP_ORIGIN}/`;
+const SIGN_IN_FALLBACK_REDIRECT_URL =
+  import.meta.env.VITE_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL ?? DEFAULT_REDIRECT_URL;
+const SIGN_UP_FALLBACK_REDIRECT_URL =
+  import.meta.env.VITE_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL ?? DEFAULT_REDIRECT_URL;
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 
@@ -39,6 +43,8 @@ if (!PUBLISHABLE_KEY) {
       <ClerkProvider
         publishableKey={PUBLISHABLE_KEY}
         afterSignOutUrl="/"
+        signInForceRedirectUrl={SIGN_IN_FALLBACK_REDIRECT_URL}
+        signUpForceRedirectUrl={SIGN_UP_FALLBACK_REDIRECT_URL}
         signInFallbackRedirectUrl={SIGN_IN_FALLBACK_REDIRECT_URL}
         signUpFallbackRedirectUrl={SIGN_UP_FALLBACK_REDIRECT_URL}
       >
