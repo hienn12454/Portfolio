@@ -14,7 +14,7 @@ Website portfolio cá nhân được xây dựng theo định hướng hiện đ
 ## Liên kết nhanh
 
 - Website chính thức: [https://hiennt.website](https://hiennt.website)
-- Backend Swagger: [https://portfoliobe.azurewebsites.net/](https://portfoliobe.azurewebsites.net/)
+- Backend Swagger: [https://api.hiennt.website](https://api.hiennt.website/)
 
 ## Tính năng nổi bật
 
