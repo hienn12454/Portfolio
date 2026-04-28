@@ -12,6 +12,26 @@ const SIGN_IN_FALLBACK_REDIRECT_URL =
 const SIGN_UP_FALLBACK_REDIRECT_URL =
   import.meta.env.VITE_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL ?? DEFAULT_REDIRECT_URL;
 
+function normalizeClerkHashCallback() {
+  if (!window.location.pathname.startsWith("/admin")) {
+    return;
+  }
+
+  const hash = window.location.hash ?? "";
+  if (!hash.startsWith("#/sso_callback") && !hash.startsWith("#/sso-callback")) {
+    return;
+  }
+
+  const callbackPath = hash.startsWith("#/sso-callback") ? "/admin/sso-callback" : "/admin/sso_callback";
+  const hashQueryIndex = hash.indexOf("?");
+  const hashQuery = hashQueryIndex >= 0 ? hash.slice(hashQueryIndex) : "";
+  const search = window.location.search || "";
+  const mergedQuery = search || hashQuery;
+  window.history.replaceState({}, "", `${callbackPath}${mergedQuery}`);
+}
+
+normalizeClerkHashCallback();
+
 const root = ReactDOM.createRoot(document.getElementById("root"));
 
 if (!PUBLISHABLE_KEY) {
