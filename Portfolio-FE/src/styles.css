@@ -467,6 +467,92 @@ a {
   gap: 0.8rem;
 }
 
+.admin-layout {
+  margin-top: 1rem;
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 1rem;
+  align-items: start;
+}
+
+.admin-sidebar {
+  position: sticky;
+  top: 92px;
+  display: grid;
+  gap: 0.55rem;
+}
+
+.admin-sidebar__item {
+  width: 100%;
+  justify-content: flex-start;
+  padding: 0.52rem 0.8rem;
+}
+
+.admin-content {
+  min-width: 0;
+}
+
+.admin-overview-grid {
+  margin-bottom: 1rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 0.7rem;
+}
+
+.auth-page .section {
+  padding-top: 5.5rem;
+}
+
+.auth-shell {
+  max-width: 920px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  align-items: start;
+}
+
+.auth-header p {
+  color: var(--text-muted);
+}
+
+.auth-tabs {
+  margin-top: 0.8rem;
+  display: inline-flex;
+  gap: 0.5rem;
+}
+
+.auth-card {
+  margin-top: 0;
+}
+
+.auth-google {
+  width: 100%;
+}
+
+.auth-divider {
+  margin: 0.8rem 0;
+  text-align: center;
+  color: var(--text-soft);
+  font-size: 0.82rem;
+}
+
+.auth-divider span {
+  background: color-mix(in oklab, var(--surface) 85%, transparent);
+  padding: 0 0.45rem;
+}
+
+.auth-back {
+  margin-top: 0.8rem !important;
+  font-size: 0.86rem;
+}
+
+.auth-back a {
+  color: var(--text-muted);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
 .footer {
   border-top: 1px solid #262626;
   padding: 1.2rem 0 1.4rem;
@@ -549,6 +635,18 @@ a {
   .footer__inner {
     justify-content: center;
     text-align: center;
+  }
+
+  .admin-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-sidebar {
+    position: static;
+  }
+
+  .auth-shell {
+    grid-template-columns: 1fr;
   }
 }
 

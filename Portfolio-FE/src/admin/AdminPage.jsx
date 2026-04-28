@@ -1,34 +1,64 @@
-import { Link } from "react-router-dom";
-import { Show, SignInButton } from "@clerk/react";
+import { useEffect, useMemo, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "@clerk/react";
 import { AdminPanel } from "./AdminPanel";
+import { createApiClient } from "../core/http/apiClient";
 
 export function AdminPage() {
+  const navigate = useNavigate();
+  const { isSignedIn, getToken } = useAuth();
+  const apiClient = useMemo(() => createApiClient(getToken), [getToken]);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [isChecking, setIsChecking] = useState(true);
+
+  useEffect(() => {
+    async function resolveAdminAccess() {
+      if (!isSignedIn) {
+        navigate("/", { replace: true });
+        return;
+      }
+
+      try {
+        const me = await apiClient.getProtected("/api/auth/me");
+        const hasAdminRole = me?.user?.role === "Admin";
+        setIsAdmin(hasAdminRole);
+        if (!hasAdminRole) {
+          navigate("/", { replace: true });
+          return;
+        }
+      } catch {
+        navigate("/", { replace: true });
+        return;
+      } finally {
+        setIsChecking(false);
+      }
+    }
+
+    resolveAdminAccess();
+  }, [apiClient, isSignedIn, navigate]);
+
+  if (isChecking) {
+    return (
+      <main className="site">
+        <section className="section container">
+          <h2>Checking admin access...</h2>
+        </section>
+      </main>
+    );
+  }
+
   return (
     <main className="site">
       <header className="topbar">
         <div className="container topbar__content">
-          <span className="brand">Admin</span>
+          <span className="brand">Dashboard</span>
           <nav className="nav">
             <Link to="/">Home</Link>
           </nav>
         </div>
       </header>
 
-      <Show when="signed-out">
-        <section className="section container">
-          <h2>Admin Access Required</h2>
-          <p>Sign in with your Clerk account to continue.</p>
-          <SignInButton mode="redirect" forceRedirectUrl="/admin" fallbackRedirectUrl="/admin">
-            <button type="button" className="button button--primary">
-              Sign in
-            </button>
-          </SignInButton>
-        </section>
-      </Show>
-
-      <Show when="signed-in">
-        <AdminPanel language="en" />
-      </Show>
+      {isAdmin ? <AdminPanel language="en" /> : null}
     </main>
   );
 }

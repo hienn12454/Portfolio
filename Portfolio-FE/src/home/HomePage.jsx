@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Show, UserButton, useAuth, useClerk } from "@clerk/react";
+import { Show, UserButton, useAuth } from "@clerk/react";
 import { Link } from "react-router-dom";
 import { usePublicPortfolioData } from "./usePublicPortfolioData";
 import { createApiClient } from "../core/http/apiClient";
@@ -398,7 +398,6 @@ const faqsByLanguage = {
 
 export function HomePage() {
   const { isSignedIn, getToken } = useAuth();
-  const { openSignIn, openSignUp } = useClerk();
   const { page, contact, articles, skills: apiSkills, projects: apiProjects } = usePublicPortfolioData();
   const apiClient = useMemo(() => createApiClient(getToken), [getToken]);
   const displayEmail = contact?.email || "your-email@example.com";
@@ -410,8 +409,6 @@ export function HomePage() {
   const [copiedEmail, setCopiedEmail] = useState(false);
   const [showBackToTop, setShowBackToTop] = useState(false);
   const [isAdminUser, setIsAdminUser] = useState(false);
-  const signInRedirectUrl = "/admin";
-  const signUpRedirectUrl = "/admin";
   const content = contentByLanguage[language];
   const localizedSkills = useMemo(() => skills[language], [language]);
   const displayedSkills = useMemo(() => {
@@ -586,24 +583,14 @@ export function HomePage() {
                   <button
                     type="button"
                     className="button button--ghost button--small auth-button auth-button--signin"
-                    onClick={() =>
-                      openSignIn({
-                        forceRedirectUrl: signInRedirectUrl,
-                        fallbackRedirectUrl: signInRedirectUrl
-                      })
-                    }
+                    onClick={() => (window.location.href = "/auth?mode=sign-in")}
                   >
                     {content.auth.signIn}
                   </button>
                   <button
                     type="button"
                     className="button button--primary button--small auth-button auth-button--signup"
-                    onClick={() =>
-                      openSignUp({
-                        forceRedirectUrl: signUpRedirectUrl,
-                        fallbackRedirectUrl: signUpRedirectUrl
-                      })
-                    }
+                    onClick={() => (window.location.href = "/auth?mode=sign-up")}
                   >
                     {content.auth.signUp}
                   </button>

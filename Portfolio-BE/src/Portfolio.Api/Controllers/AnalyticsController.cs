@@ -39,11 +39,15 @@ public sealed class AnalyticsController(IApplicationDbContext dbContext) : Contr
             .AsNoTracking()
             .OrderByDescending(x => x.CreatedAtUtc)
             .FirstOrDefaultAsync(cancellationToken);
+        var totalUsers = await dbContext.Users
+            .AsNoTracking()
+            .CountAsync(cancellationToken);
 
         return Ok(new
         {
             TotalPageViews = metrics?.TotalPageViews ?? 0,
             TotalLogins = metrics?.TotalLogins ?? 0,
+            TotalUsers = totalUsers,
             LastPageViewAtUtc = metrics?.LastPageViewAtUtc,
             LastLoginAtUtc = metrics?.LastLoginAtUtc
         });
