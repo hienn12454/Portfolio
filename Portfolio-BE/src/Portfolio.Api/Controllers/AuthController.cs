@@ -2,12 +2,16 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Portfolio.Application.Abstractions;
+using Portfolio.Application.Features.Users;
 
 namespace Portfolio.Api.Controllers;
 
 [ApiController]
 [Route("api/auth")]
-public sealed class AuthController(IApplicationDbContext dbContext, IConfiguration configuration) : ControllerBase
+public sealed class AuthController(
+    IApplicationDbContext dbContext,
+    IConfiguration configuration,
+    ICurrentAppUserService currentAppUserService) : ControllerBase
 {
     public sealed record UpdateMyProfileRequest(
         string? DisplayName,
@@ -43,7 +47,7 @@ public sealed class AuthController(IApplicationDbContext dbContext, IConfigurati
         var imageUrl = User.FindFirst("picture")?.Value;
         var username = User.FindFirst("username")?.Value ?? User.FindFirst("preferred_username")?.Value;
 
-        var appUser = await dbContext.Users.FirstOrDefaultAsync(x => x.ClerkUserId == clerkUserId, cancellationToken);
+        var appUser = await currentAppUserService.GetByClerkIdAsync(clerkUserId, cancellationToken);
         if (appUser is null && !string.IsNullOrWhiteSpace(email))
         {
             appUser = new Domain.Entities.User
@@ -86,23 +90,7 @@ public sealed class AuthController(IApplicationDbContext dbContext, IConfigurati
         {
             ClerkUserId = clerkUserId,
             IsMapped = appUser is not null,
-            User = appUser is null
-                ? null
-                : new
-                {
-                    appUser.Id,
-                    appUser.Email,
-                    appUser.DisplayName,
-                    appUser.FirstName,
-                    appUser.LastName,
-                    appUser.ImageUrl,
-                    appUser.DateOfBirth,
-                    appUser.PhoneNumber,
-                    appUser.Address,
-                    appUser.Occupation,
-                    appUser.Role,
-                    appUser.IsActive
-                }
+            User = appUser is null ? null : MapUserResponse(appUser)
         });
     }
 
@@ -116,23 +104,18 @@ public sealed class AuthController(IApplicationDbContext dbContext, IConfigurati
             return Unauthorized(new { Message = "Missing Clerk user id claim." });
         }
 
-        var appUser = await dbContext.Users.FirstOrDefaultAsync(x => x.ClerkUserId == clerkUserId, cancellationToken);
+        var email = User.FindFirst("email")?.Value;
+        var appUser = await currentAppUserService.EnsureByClerkAsync(clerkUserId, email, cancellationToken);
         if (appUser is null)
         {
-            var email = User.FindFirst("email")?.Value;
-            if (string.IsNullOrWhiteSpace(email))
-            {
-                return BadRequest(new { Message = "Missing email claim for user bootstrap." });
-            }
+            return BadRequest(new { Message = "Missing email claim for user bootstrap." });
+        }
 
-            appUser = new Domain.Entities.User
-            {
-                ClerkUserId = clerkUserId,
-                Email = email,
-                Role = ResolveRole(clerkUserId, User.FindFirst("username")?.Value ?? User.FindFirst("preferred_username")?.Value),
-                IsActive = true
-            };
-            dbContext.Users.Add(appUser);
+        var username = User.FindFirst("username")?.Value ?? User.FindFirst("preferred_username")?.Value;
+        var resolvedRole = ResolveRole(clerkUserId, username);
+        if (!string.Equals(appUser.Role, resolvedRole, StringComparison.Ordinal))
+        {
+            appUser.Role = resolvedRole;
         }
 
         appUser.DisplayName = Normalize(request.DisplayName);
@@ -143,21 +126,7 @@ public sealed class AuthController(IApplicationDbContext dbContext, IConfigurati
 
         await dbContext.SaveChangesAsync(cancellationToken);
 
-        return Ok(new
-        {
-            appUser.Id,
-            appUser.Email,
-            appUser.DisplayName,
-            appUser.FirstName,
-            appUser.LastName,
-            appUser.ImageUrl,
-            appUser.DateOfBirth,
-            appUser.PhoneNumber,
-            appUser.Address,
-            appUser.Occupation,
-            appUser.Role,
-            appUser.IsActive
-        });
+        return Ok(MapUserResponse(appUser));
     }
 
     [Authorize(Policy = "AdminOnly")]
@@ -175,6 +144,25 @@ public sealed class AuthController(IApplicationDbContext dbContext, IConfigurati
         }
 
         return value.Trim();
+    }
+
+    private static object MapUserResponse(Domain.Entities.User appUser)
+    {
+        return new
+        {
+            appUser.Id,
+            appUser.Email,
+            appUser.DisplayName,
+            appUser.FirstName,
+            appUser.LastName,
+            appUser.ImageUrl,
+            appUser.DateOfBirth,
+            appUser.PhoneNumber,
+            appUser.Address,
+            appUser.Occupation,
+            appUser.Role,
+            appUser.IsActive
+        };
     }
 
     private string ResolveRole(string clerkUserId, string? username)

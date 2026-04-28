@@ -1,6 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { ClerkProvider } from "@clerk/react";
+import { viVN } from "@clerk/localizations";
 import App from "./App";
 import "./styles.css";
 
@@ -62,6 +63,7 @@ if (!PUBLISHABLE_KEY) {
     <React.StrictMode>
       <ClerkProvider
         publishableKey={PUBLISHABLE_KEY}
+        localization={viVN}
         afterSignOutUrl="/"
         signInForceRedirectUrl={SIGN_IN_FALLBACK_REDIRECT_URL}
         signUpForceRedirectUrl={SIGN_UP_FALLBACK_REDIRECT_URL}

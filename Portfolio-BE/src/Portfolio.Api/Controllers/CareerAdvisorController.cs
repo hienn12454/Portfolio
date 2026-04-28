@@ -1,11 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
-using Portfolio.Api.Services;
+using Portfolio.Application.Features.CareerAdvisor;
 
 namespace Portfolio.Api.Controllers;
 
 [ApiController]
 [Route("api/career")]
-public sealed class CareerAdvisorController(IOpenRouterCareerChatService careerChatService, IConfiguration configuration) : ControllerBase
+public sealed class CareerAdvisorController(ICareerAdvisorService careerAdvisorService) : ControllerBase
 {
     [HttpPost("chat")]
     public async Task<IActionResult> Chat([FromBody] CareerChatHttpRequest? request, CancellationToken cancellationToken)
@@ -20,17 +20,9 @@ public sealed class CareerAdvisorController(IOpenRouterCareerChatService careerC
             return BadRequest(new { Message = "Message must be <= 2000 characters." });
         }
 
-        if (string.IsNullOrWhiteSpace(configuration["OpenRouter:ApiKey"]))
-        {
-            return StatusCode(StatusCodes.Status503ServiceUnavailable, new
-            {
-                Message = "Chatbot is not configured. Missing OpenRouter API key on backend."
-            });
-        }
-
         try
         {
-            var result = await careerChatService.AskAsync(
+            var result = await careerAdvisorService.AskAsync(
                 new CareerChatRequest(
                     request.Message,
                     request.Track,

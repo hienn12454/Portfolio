@@ -15,6 +15,7 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
     public DbSet<SiteMetric> SiteMetrics => Set<SiteMetric>();
     public DbSet<Skill> Skills => Set<Skill>();
     public DbSet<User> Users => Set<User>();
+    public DbSet<UserRoadmapPlan> UserRoadmapPlans => Set<UserRoadmapPlan>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

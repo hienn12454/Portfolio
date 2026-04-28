@@ -331,3 +331,8 @@ C:\Users\TUF\Desktop\Github\Portfolio\Portfolio-BE\src\Portfolio.Api\obj\Debug\n
 C:\Users\TUF\Desktop\Github\Portfolio\Portfolio-BE\src\Portfolio.Api\obj\Debug\net9.0\ref\Portfolio.Api.dll
 C:\Users\TUF\Desktop\Github\Portfolio\Portfolio-BE\src\Portfolio.Api\bin\Debug\net9.0\Npgsql.dll
 C:\Users\TUF\Desktop\Github\Portfolio\Portfolio-BE\src\Portfolio.Api\bin\Debug\net9.0\Npgsql.EntityFrameworkCore.PostgreSQL.dll
+C:\Users\TUF\Desktop\Github\Portfolio\Portfolio-BE\src\Portfolio.Api\bin\Debug\net9.0\Microsoft.Extensions.Configuration.Binder.dll
+C:\Users\TUF\Desktop\Github\Portfolio\Portfolio-BE\src\Portfolio.Api\bin\Debug\net9.0\Microsoft.Extensions.Diagnostics.dll
+C:\Users\TUF\Desktop\Github\Portfolio\Portfolio-BE\src\Portfolio.Api\bin\Debug\net9.0\Microsoft.Extensions.Diagnostics.Abstractions.dll
+C:\Users\TUF\Desktop\Github\Portfolio\Portfolio-BE\src\Portfolio.Api\bin\Debug\net9.0\Microsoft.Extensions.Http.dll
+C:\Users\TUF\Desktop\Github\Portfolio\Portfolio-BE\src\Portfolio.Api\bin\Debug\net9.0\Microsoft.Extensions.Options.ConfigurationExtensions.dll

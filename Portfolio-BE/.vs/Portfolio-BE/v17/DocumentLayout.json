@@ -1,12 +1,87 @@
 {
   "Version": 1,
   "WorkspaceRootPath": "C:\\Users\\TUF\\Desktop\\Github\\Portfolio\\Portfolio-BE\\",
-  "Documents": [],
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{4F2E2386-EF88-4E8F-88DD-828C091C79A6}|src\\Portfolio.Api\\Portfolio.Api.csproj|c:\\users\\tuf\\desktop\\github\\portfolio\\portfolio-be\\src\\portfolio.api\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{4F2E2386-EF88-4E8F-88DD-828C091C79A6}|src\\Portfolio.Api\\Portfolio.Api.csproj|solutionrelative:src\\portfolio.api\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{9E916365-7510-40E1-9217-515D82CEDCBE}|src\\Portfolio.Infrastructure\\Portfolio.Infrastructure.csproj|c:\\users\\tuf\\desktop\\github\\portfolio\\portfolio-be\\src\\portfolio.infrastructure\\services\\systemdatetimeprovider.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9E916365-7510-40E1-9217-515D82CEDCBE}|src\\Portfolio.Infrastructure\\Portfolio.Infrastructure.csproj|solutionrelative:src\\portfolio.infrastructure\\services\\systemdatetimeprovider.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{4F2E2386-EF88-4E8F-88DD-828C091C79A6}|src\\Portfolio.Api\\Portfolio.Api.csproj|c:\\users\\tuf\\desktop\\github\\portfolio\\portfolio-be\\src\\portfolio.api\\portfolio.api.csproj||{04B8AB82-A572-4FEF-95CE-5222444B6B64}|",
+      "RelativeMoniker": "D:0:0:{4F2E2386-EF88-4E8F-88DD-828C091C79A6}|src\\Portfolio.Api\\Portfolio.Api.csproj|solutionrelative:src\\portfolio.api\\portfolio.api.csproj||{04B8AB82-A572-4FEF-95CE-5222444B6B64}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{4F2E2386-EF88-4E8F-88DD-828C091C79A6}|src\\Portfolio.Api\\Portfolio.Api.csproj|c:\\users\\tuf\\desktop\\github\\portfolio\\portfolio-be\\src\\portfolio.api\\controllers\\articlescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{4F2E2386-EF88-4E8F-88DD-828C091C79A6}|src\\Portfolio.Api\\Portfolio.Api.csproj|solutionrelative:src\\portfolio.api\\controllers\\articlescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
   "DocumentGroupContainers": [
     {
       "Orientation": 0,
       "VerticalTabListWidth": 256,
-      "DocumentGroups": []
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 3,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "SystemDateTimeProvider.cs",
+              "DocumentMoniker": "C:\\Users\\TUF\\Desktop\\Github\\Portfolio\\Portfolio-BE\\src\\Portfolio.Infrastructure\\Services\\SystemDateTimeProvider.cs",
+              "RelativeDocumentMoniker": "src\\Portfolio.Infrastructure\\Services\\SystemDateTimeProvider.cs",
+              "ToolTip": "C:\\Users\\TUF\\Desktop\\Github\\Portfolio\\Portfolio-BE\\src\\Portfolio.Infrastructure\\Services\\SystemDateTimeProvider.cs",
+              "RelativeToolTip": "src\\Portfolio.Infrastructure\\Services\\SystemDateTimeProvider.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-28T18:40:16.086Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "Portfolio.Api",
+              "DocumentMoniker": "C:\\Users\\TUF\\Desktop\\Github\\Portfolio\\Portfolio-BE\\src\\Portfolio.Api\\Portfolio.Api.csproj",
+              "RelativeDocumentMoniker": "src\\Portfolio.Api\\Portfolio.Api.csproj",
+              "ToolTip": "C:\\Users\\TUF\\Desktop\\Github\\Portfolio\\Portfolio-BE\\src\\Portfolio.Api\\Portfolio.Api.csproj",
+              "RelativeToolTip": "src\\Portfolio.Api\\Portfolio.Api.csproj",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
+              "WhenOpened": "2026-04-28T18:40:12.048Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "ArticlesController.cs",
+              "DocumentMoniker": "C:\\Users\\TUF\\Desktop\\Github\\Portfolio\\Portfolio-BE\\src\\Portfolio.Api\\Controllers\\ArticlesController.cs",
+              "RelativeDocumentMoniker": "src\\Portfolio.Api\\Controllers\\ArticlesController.cs",
+              "ToolTip": "C:\\Users\\TUF\\Desktop\\Github\\Portfolio\\Portfolio-BE\\src\\Portfolio.Api\\Controllers\\ArticlesController.cs",
+              "RelativeToolTip": "src\\Portfolio.Api\\Controllers\\ArticlesController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-28T18:40:01.877Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "appsettings.json",
+              "DocumentMoniker": "C:\\Users\\TUF\\Desktop\\Github\\Portfolio\\Portfolio-BE\\src\\Portfolio.Api\\appsettings.json",
+              "RelativeDocumentMoniker": "src\\Portfolio.Api\\appsettings.json",
+              "ToolTip": "C:\\Users\\TUF\\Desktop\\Github\\Portfolio\\Portfolio-BE\\src\\Portfolio.Api\\appsettings.json",
+              "RelativeToolTip": "src\\Portfolio.Api\\appsettings.json",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAcAAAA3AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2026-04-28T18:39:18.897Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
     }
   ]
 }

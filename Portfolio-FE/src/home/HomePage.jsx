@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { usePublicPortfolioData } from "./usePublicPortfolioData";
 import { createApiClient } from "../core/http/apiClient";
 import { CareerAdvisorSection } from "./CareerAdvisorSection";
+import { UserRoadmapPlannerSection } from "./UserRoadmapPlannerSection";
 
 const contentByLanguage = {
   en: {
@@ -544,6 +545,15 @@ const learningTracksByLanguage = {
   ]
 };
 
+function resolveColor(value) {
+  if (typeof value !== "string") {
+    return undefined;
+  }
+
+  const normalized = value.trim();
+  return /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(normalized) ? normalized : undefined;
+}
+
 export function HomePage() {
   const navigate = useNavigate();
   const { signOut } = useClerk();
@@ -560,8 +570,21 @@ export function HomePage() {
   const [showBackToTop, setShowBackToTop] = useState(false);
   const [isAdminUser, setIsAdminUser] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [typedHeroTitle, setTypedHeroTitle] = useState("");
   const userMenuRef = useRef(null);
   const content = contentByLanguage[language];
+  const resolvedHeroTitle = page?.heroTitle || content.heroTitle;
+  const typingSpeedMs = Math.min(120, Math.max(10, Number(page?.heroTypingSpeedMs) || 28));
+  const heroTitleColor = resolveColor(page?.heroTitleColor);
+  const heroDescriptionColor = resolveColor(page?.heroDescriptionColor);
+  const aboutTitleColor = resolveColor(page?.aboutTitleColor);
+  const aboutDescriptionColor = resolveColor(page?.aboutDescriptionColor);
+  const skillsTitleColor = resolveColor(page?.skillsTitleColor);
+  const skillsDescriptionColor = resolveColor(page?.skillsDescriptionColor);
+  const projectsTitleColor = resolveColor(page?.projectsTitleColor);
+  const projectsDescriptionColor = resolveColor(page?.projectsDescriptionColor);
+  const contactTitleColor = resolveColor(page?.contactTitleColor);
+  const contactDescriptionColor = resolveColor(page?.contactDescriptionColor);
   const localizedSkills = useMemo(() => skills[language], [language]);
   const displayedSkills = useMemo(() => {
     if (Array.isArray(apiSkills) && apiSkills.length > 0) {
@@ -726,6 +749,32 @@ export function HomePage() {
     };
   }, [isUserMenuOpen]);
 
+  useEffect(() => {
+    const fullText = resolvedHeroTitle ?? "";
+    if (!fullText) {
+      setTypedHeroTitle("");
+      return undefined;
+    }
+
+    const reduceMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches ?? false;
+    if (reduceMotion) {
+      setTypedHeroTitle(fullText);
+      return undefined;
+    }
+
+    setTypedHeroTitle("");
+    let index = 0;
+    const intervalId = window.setInterval(() => {
+      index += 1;
+      setTypedHeroTitle(fullText.slice(0, index));
+      if (index >= fullText.length) {
+        window.clearInterval(intervalId);
+      }
+    }, typingSpeedMs);
+
+    return () => window.clearInterval(intervalId);
+  }, [resolvedHeroTitle, typingSpeedMs]);
+
   const handleCopyEmail = async () => {
     try {
       await navigator.clipboard.writeText(displayEmail);
@@ -844,8 +893,13 @@ export function HomePage() {
 
       <section className="hero container">
         <p className="eyebrow">{content.eyebrow}</p>
-        <h1>{page?.heroTitle || content.heroTitle}</h1>
-        <p className="hero__description">{page?.heroDescription || content.heroDescription}</p>
+        <h1 className="hero__typing" style={heroTitleColor ? { color: heroTitleColor } : undefined}>
+          {typedHeroTitle}
+          <span className="hero__cursor" aria-hidden="true" />
+        </h1>
+        <p className="hero__description" style={heroDescriptionColor ? { color: heroDescriptionColor } : undefined}>
+          {page?.heroDescription || content.heroDescription}
+        </p>
         <div className="hero__actions">
           <a className="button button--primary" href="#projects">
             {content.primaryAction}
@@ -857,8 +911,8 @@ export function HomePage() {
       </section>
 
       <section id="about" className="section container">
-        <h2>{page?.aboutTitle || content.aboutTitle}</h2>
-        <p>{page?.aboutDescription || content.aboutDescription}</p>
+        <h2 style={aboutTitleColor ? { color: aboutTitleColor } : undefined}>{page?.aboutTitle || content.aboutTitle}</h2>
+        <p style={aboutDescriptionColor ? { color: aboutDescriptionColor } : undefined}>{page?.aboutDescription || content.aboutDescription}</p>
         <div className="highlight-grid">
           {localizedHighlights.map((item) => (
             <article key={item.title} className="card">
@@ -883,7 +937,7 @@ export function HomePage() {
 
       <section id="skills" className="section section--alt">
         <div className="container">
-          <h2>{content.skillsTitle}</h2>
+          <h2 style={skillsTitleColor ? { color: skillsTitleColor } : undefined}>{content.skillsTitle}</h2>
           <div className="skill-list">
             {displayedSkills.map((skill) => (
               <article key={skill.name} className="skill-item">
@@ -896,8 +950,8 @@ export function HomePage() {
       </section>
 
       <section id="projects" className="section container">
-        <h2>{content.projectsTitle}</h2>
-        <p>{content.projectsDescription}</p>
+        <h2 style={projectsTitleColor ? { color: projectsTitleColor } : undefined}>{content.projectsTitle}</h2>
+        <p style={projectsDescriptionColor ? { color: projectsDescriptionColor } : undefined}>{content.projectsDescription}</p>
         <div className="project-filter">
           <span>{content.projectFilterLabel}</span>
           <div className="project-filter__chips">
@@ -978,6 +1032,7 @@ export function HomePage() {
       </section>
 
       <CareerAdvisorSection language={language} apiClient={apiClient} />
+      <UserRoadmapPlannerSection language={language} isSignedIn={isSignedIn} apiClient={apiClient} />
 
       <section className="section section--alt">
         <div className="container">
@@ -1089,8 +1144,8 @@ export function HomePage() {
 
       <section id="contact" className="section section--alt">
         <div className="container contact">
-          <h2>{content.contactTitle}</h2>
-          <p>{content.contactDescription}</p>
+          <h2 style={contactTitleColor ? { color: contactTitleColor } : undefined}>{content.contactTitle}</h2>
+          <p style={contactDescriptionColor ? { color: contactDescriptionColor } : undefined}>{content.contactDescription}</p>
           <a className="button button--primary" href={`mailto:${displayEmail}`}>
             {displayEmail}
           </a>

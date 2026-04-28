@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
 using Portfolio.Api.Auth;
 using Portfolio.Api.Extensions;
-using Portfolio.Api.Services;
 using Portfolio.Application;
 using Portfolio.Infrastructure;
 
@@ -55,7 +54,6 @@ builder.Services.AddAuthorization(options =>
         policy.RequireAuthenticatedUser().AddRequirements(new AdminRequirement()));
 });
 builder.Services.AddScoped<IAuthorizationHandler, AdminRequirementHandler>();
-builder.Services.AddScoped<IOpenRouterCareerChatService, OpenRouterCareerChatService>();
 
 builder.Services
     .AddApplication()

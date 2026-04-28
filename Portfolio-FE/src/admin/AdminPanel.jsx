@@ -3,7 +3,24 @@ import { useAuth } from "@clerk/react";
 import { createApiClient } from "../core/http/apiClient";
 
 const EMPTY_CONTACT = { id: "", email: "", phone: "", location: "", githubUrl: "", linkedInUrl: "" };
-const EMPTY_PAGE = { id: "", heroTitle: "", heroDescription: "", aboutTitle: "", aboutDescription: "" };
+const EMPTY_PAGE = {
+  id: "",
+  heroTitle: "",
+  heroDescription: "",
+  aboutTitle: "",
+  aboutDescription: "",
+  heroTitleColor: "",
+  heroDescriptionColor: "",
+  heroTypingSpeedMs: 28,
+  aboutTitleColor: "",
+  aboutDescriptionColor: "",
+  skillsTitleColor: "",
+  skillsDescriptionColor: "",
+  projectsTitleColor: "",
+  projectsDescriptionColor: "",
+  contactTitleColor: "",
+  contactDescriptionColor: ""
+};
 const EMPTY_ARTICLE = { id: "", title: "", slug: "", summary: "", content: "", isPublished: false };
 const EMPTY_SKILL = { id: "", name: "", description: "", displayOrder: 0, isVisible: true };
 const EMPTY_PROJECT = {
@@ -343,6 +360,76 @@ export function AdminPanel({ language = "en" }) {
           <label>
             About description
             <textarea rows={4} value={page.aboutDescription ?? ""} onChange={(event) => setPage((current) => ({ ...current, aboutDescription: event.target.value }))} />
+          </label>
+          <label>
+            Hero title color
+            <input type="color" value={page.heroTitleColor || "#e2e8f0"} onChange={(event) => setPage((current) => ({ ...current, heroTitleColor: event.target.value }))} />
+          </label>
+          <label>
+            Hero description color
+            <input
+              type="color"
+              value={page.heroDescriptionColor || "#cbd5e1"}
+              onChange={(event) => setPage((current) => ({ ...current, heroDescriptionColor: event.target.value }))}
+            />
+          </label>
+          <label>
+            Hero typing speed (ms per character)
+            <input
+              type="number"
+              min={10}
+              max={120}
+              value={page.heroTypingSpeedMs ?? 28}
+              onChange={(event) => setPage((current) => ({ ...current, heroTypingSpeedMs: Number(event.target.value || 28) }))}
+            />
+          </label>
+          <label>
+            About title color
+            <input type="color" value={page.aboutTitleColor || "#e2e8f0"} onChange={(event) => setPage((current) => ({ ...current, aboutTitleColor: event.target.value }))} />
+          </label>
+          <label>
+            About description color
+            <input
+              type="color"
+              value={page.aboutDescriptionColor || "#cbd5e1"}
+              onChange={(event) => setPage((current) => ({ ...current, aboutDescriptionColor: event.target.value }))}
+            />
+          </label>
+          <label>
+            Skills title color
+            <input type="color" value={page.skillsTitleColor || "#e2e8f0"} onChange={(event) => setPage((current) => ({ ...current, skillsTitleColor: event.target.value }))} />
+          </label>
+          <label>
+            Skills description color
+            <input
+              type="color"
+              value={page.skillsDescriptionColor || "#cbd5e1"}
+              onChange={(event) => setPage((current) => ({ ...current, skillsDescriptionColor: event.target.value }))}
+            />
+          </label>
+          <label>
+            Projects title color
+            <input type="color" value={page.projectsTitleColor || "#e2e8f0"} onChange={(event) => setPage((current) => ({ ...current, projectsTitleColor: event.target.value }))} />
+          </label>
+          <label>
+            Projects description color
+            <input
+              type="color"
+              value={page.projectsDescriptionColor || "#cbd5e1"}
+              onChange={(event) => setPage((current) => ({ ...current, projectsDescriptionColor: event.target.value }))}
+            />
+          </label>
+          <label>
+            Contact title color
+            <input type="color" value={page.contactTitleColor || "#e2e8f0"} onChange={(event) => setPage((current) => ({ ...current, contactTitleColor: event.target.value }))} />
+          </label>
+          <label>
+            Contact description color
+            <input
+              type="color"
+              value={page.contactDescriptionColor || "#cbd5e1"}
+              onChange={(event) => setPage((current) => ({ ...current, contactDescriptionColor: event.target.value }))}
+            />
           </label>
           <button type="button" className="button button--primary" onClick={savePage}>
             {labels.save}

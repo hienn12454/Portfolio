@@ -27,5 +27,39 @@ public sealed class PageContentConfiguration : IEntityTypeConfiguration<PageCont
         builder.Property(x => x.AboutDescription)
             .HasMaxLength(4000)
             .IsRequired();
+
+        builder.Property(x => x.HeroTitleColor)
+            .HasMaxLength(32);
+
+        builder.Property(x => x.HeroDescriptionColor)
+            .HasMaxLength(32);
+
+        builder.Property(x => x.HeroTypingSpeedMs)
+            .HasDefaultValue(28)
+            .IsRequired();
+
+        builder.Property(x => x.AboutTitleColor)
+            .HasMaxLength(32);
+
+        builder.Property(x => x.AboutDescriptionColor)
+            .HasMaxLength(32);
+
+        builder.Property(x => x.SkillsTitleColor)
+            .HasMaxLength(32);
+
+        builder.Property(x => x.SkillsDescriptionColor)
+            .HasMaxLength(32);
+
+        builder.Property(x => x.ProjectsTitleColor)
+            .HasMaxLength(32);
+
+        builder.Property(x => x.ProjectsDescriptionColor)
+            .HasMaxLength(32);
+
+        builder.Property(x => x.ContactTitleColor)
+            .HasMaxLength(32);
+
+        builder.Property(x => x.ContactDescriptionColor)
+            .HasMaxLength(32);
     }
 }

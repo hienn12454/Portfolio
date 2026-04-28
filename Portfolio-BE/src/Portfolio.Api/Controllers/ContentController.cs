@@ -63,6 +63,17 @@ public sealed class ContentController(IApplicationDbContext dbContext) : Control
         if (page is null)
         {
             request.Id = request.Id == Guid.Empty ? Guid.NewGuid() : request.Id;
+            request.HeroTitleColor = NormalizeColor(request.HeroTitleColor);
+            request.HeroDescriptionColor = NormalizeColor(request.HeroDescriptionColor);
+            request.HeroTypingSpeedMs = Math.Clamp(request.HeroTypingSpeedMs, 10, 120);
+            request.AboutTitleColor = NormalizeColor(request.AboutTitleColor);
+            request.AboutDescriptionColor = NormalizeColor(request.AboutDescriptionColor);
+            request.SkillsTitleColor = NormalizeColor(request.SkillsTitleColor);
+            request.SkillsDescriptionColor = NormalizeColor(request.SkillsDescriptionColor);
+            request.ProjectsTitleColor = NormalizeColor(request.ProjectsTitleColor);
+            request.ProjectsDescriptionColor = NormalizeColor(request.ProjectsDescriptionColor);
+            request.ContactTitleColor = NormalizeColor(request.ContactTitleColor);
+            request.ContactDescriptionColor = NormalizeColor(request.ContactDescriptionColor);
             dbContext.PageContents.Add(request);
             await dbContext.SaveChangesAsync(cancellationToken);
             return Ok(request);
@@ -72,8 +83,29 @@ public sealed class ContentController(IApplicationDbContext dbContext) : Control
         page.HeroDescription = request.HeroDescription;
         page.AboutTitle = request.AboutTitle;
         page.AboutDescription = request.AboutDescription;
+        page.HeroTitleColor = NormalizeColor(request.HeroTitleColor);
+        page.HeroDescriptionColor = NormalizeColor(request.HeroDescriptionColor);
+        page.HeroTypingSpeedMs = Math.Clamp(request.HeroTypingSpeedMs, 10, 120);
+        page.AboutTitleColor = NormalizeColor(request.AboutTitleColor);
+        page.AboutDescriptionColor = NormalizeColor(request.AboutDescriptionColor);
+        page.SkillsTitleColor = NormalizeColor(request.SkillsTitleColor);
+        page.SkillsDescriptionColor = NormalizeColor(request.SkillsDescriptionColor);
+        page.ProjectsTitleColor = NormalizeColor(request.ProjectsTitleColor);
+        page.ProjectsDescriptionColor = NormalizeColor(request.ProjectsDescriptionColor);
+        page.ContactTitleColor = NormalizeColor(request.ContactTitleColor);
+        page.ContactDescriptionColor = NormalizeColor(request.ContactDescriptionColor);
         await dbContext.SaveChangesAsync(cancellationToken);
 
         return Ok(page);
+    }
+
+    private static string? NormalizeColor(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return null;
+        }
+
+        return value.Trim();
     }
 }
