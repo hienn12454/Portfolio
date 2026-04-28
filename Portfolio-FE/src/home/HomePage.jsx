@@ -1,12 +1,13 @@
-import { useEffect, useMemo, useState } from "react";
-import { Show, UserButton, useAuth } from "@clerk/react";
-import { Link } from "react-router-dom";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useAuth, useClerk } from "@clerk/react";
+import { Link, useNavigate } from "react-router-dom";
 import { usePublicPortfolioData } from "./usePublicPortfolioData";
 import { createApiClient } from "../core/http/apiClient";
+import { CareerAdvisorSection } from "./CareerAdvisorSection";
 
 const contentByLanguage = {
   en: {
-    brand: "IT Portfolio",
+    brand: "Portfolio",
     nav: {
       about: "About",
       skills: "Skills",
@@ -63,7 +64,7 @@ const contentByLanguage = {
     footerText: "Available for backend, full-stack, and system-focused roles."
   },
   vi: {
-    brand: "Hồ sơ IT",
+    brand: "Portfolio",
     nav: {
       about: "Giới thiệu",
       skills: "Kỹ năng",
@@ -364,6 +365,92 @@ const blogsByLanguage = {
   ]
 };
 
+const careerObjectivesByLanguage = {
+  en: {
+    title: "Career Goals",
+    summary:
+      "I aim to become a senior product engineer who can lead architecture decisions, mentor teams, and deliver systems that create measurable business impact.",
+    goals: [
+      "Short-term (6-12 months): strengthen backend architecture and cloud deployment depth.",
+      "Mid-term (1-2 years): lead cross-functional projects and own end-to-end delivery quality.",
+      "Long-term (3+ years): build high-impact digital products with scalable engineering standards."
+    ]
+  },
+  vi: {
+    title: "Mục tiêu nghề nghiệp",
+    summary:
+      "Tôi hướng tới trở thành kỹ sư sản phẩm cấp cao có khả năng dẫn dắt quyết định kiến trúc, mentor đội ngũ và tạo ra hệ thống mang lại giá trị kinh doanh rõ ràng.",
+    goals: [
+      "Ngắn hạn (6-12 tháng): nâng sâu năng lực kiến trúc backend và triển khai cloud.",
+      "Trung hạn (1-2 năm): dẫn dắt dự án liên phòng ban và chịu trách nhiệm chất lượng end-to-end.",
+      "Dài hạn (3+ năm): xây dựng sản phẩm số có tác động lớn cùng chuẩn kỹ thuật bền vững."
+    ]
+  }
+};
+
+const achievementsByLanguage = {
+  en: {
+    title: "Achievements & Certifications",
+    awardsTitle: "Selected Achievements",
+    awards: [
+      "Improved API response time by 35% in a production dashboard.",
+      "Reduced manual reporting workload by 60% through automation.",
+      "Maintained stable delivery with clean architecture conventions."
+    ]
+  },
+  vi: {
+    title: "Thành tựu & Chứng chỉ",
+    awardsTitle: "Thành tựu tiêu biểu",
+    awards: [
+      "Cải thiện 35% thời gian phản hồi API trong hệ dashboard production.",
+      "Giảm 60% khối lượng báo cáo thủ công nhờ tự động hóa.",
+      "Duy trì tiến độ phát hành ổn định với chuẩn clean architecture."
+    ]
+  }
+};
+
+const ownershipByLanguage = {
+  en: {
+    title: "Ownership & IP",
+    description:
+      "I prioritize legal and ownership clarity in every project. Source code rights, deployment artifacts, and technical documentation are managed with transparent agreements.",
+    assets: [
+      "Source code repository ownership and access policy",
+      "Deployment environments and CI/CD ownership",
+      "Technical documentation and architecture decision records"
+    ]
+  },
+  vi: {
+    title: "Bản quyền & Quyền sở hữu",
+    description:
+      "Tôi ưu tiên tính minh bạch về pháp lý và quyền sở hữu trong từng dự án. Mã nguồn, hạ tầng triển khai và tài liệu kỹ thuật được quản lý bằng thỏa thuận rõ ràng.",
+    assets: [
+      "Quyền sở hữu repository mã nguồn và chính sách truy cập",
+      "Quyền quản trị môi trường triển khai và CI/CD",
+      "Quyền sở hữu tài liệu kỹ thuật và hồ sơ quyết định kiến trúc"
+    ]
+  }
+};
+
+const philosophyByLanguage = {
+  en: {
+    title: "Working Philosophy",
+    principles: [
+      "Clarity first: prefer simple and maintainable solutions.",
+      "Ownership mindset: accountable for outcomes, not just tasks.",
+      "Continuous improvement: iterate with feedback and metrics."
+    ]
+  },
+  vi: {
+    title: "Phương châm làm việc",
+    principles: [
+      "Ưu tiên sự rõ ràng: chọn giải pháp đơn giản, dễ bảo trì.",
+      "Tinh thần ownership: chịu trách nhiệm về kết quả, không chỉ đầu việc.",
+      "Cải tiến liên tục: tối ưu theo phản hồi và dữ liệu thực tế."
+    ]
+  }
+};
+
 const faqsByLanguage = {
   en: [
     {
@@ -396,7 +483,70 @@ const faqsByLanguage = {
   ]
 };
 
+const learningTracksByLanguage = {
+  en: [
+    {
+      title: "Backend Journey (16 Weeks)",
+      points: [
+        "Weeks 1-4: HTTP, REST, C#, SQL basics",
+        "Weeks 5-8: Build auth + CRUD API with role-based access",
+        "Weeks 9-12: Caching, background jobs, performance profiling",
+        "Weeks 13-16: Deploy to cloud + monitoring + portfolio documentation"
+      ]
+    },
+    {
+      title: "Frontend Journey (16 Weeks)",
+      points: [
+        "Weeks 1-4: JavaScript, DOM, responsive CSS",
+        "Weeks 5-8: React components, routing, API integration",
+        "Weeks 9-12: State patterns, UX polish, accessibility",
+        "Weeks 13-16: Testing, optimization, and production deployment"
+      ]
+    },
+    {
+      title: "DevOps Journey (16 Weeks)",
+      points: [
+        "Weeks 1-4: Linux, networking, shell scripting",
+        "Weeks 5-8: Docker and container-based workflows",
+        "Weeks 9-12: CI/CD pipelines and release strategy",
+        "Weeks 13-16: Azure deployment, monitoring, and incident response basics"
+      ]
+    }
+  ],
+  vi: [
+    {
+      title: "Lộ trình Backend (16 tuần)",
+      points: [
+        "Tuần 1-4: HTTP, REST, C#, SQL nền tảng",
+        "Tuần 5-8: Xây API auth + CRUD + phân quyền role",
+        "Tuần 9-12: Caching, background jobs, tối ưu hiệu năng",
+        "Tuần 13-16: Deploy cloud + monitoring + viết tài liệu portfolio"
+      ]
+    },
+    {
+      title: "Lộ trình Frontend (16 tuần)",
+      points: [
+        "Tuần 1-4: JavaScript, DOM, responsive CSS",
+        "Tuần 5-8: React component, routing, tích hợp API",
+        "Tuần 9-12: State patterns, hoàn thiện UX, accessibility",
+        "Tuần 13-16: Testing, tối ưu và triển khai production"
+      ]
+    },
+    {
+      title: "Lộ trình DevOps (16 tuần)",
+      points: [
+        "Tuần 1-4: Linux, networking, shell scripting",
+        "Tuần 5-8: Docker và workflow theo container",
+        "Tuần 9-12: CI/CD pipeline và chiến lược release",
+        "Tuần 13-16: Deploy Azure, monitoring, xử lý sự cố cơ bản"
+      ]
+    }
+  ]
+};
+
 export function HomePage() {
+  const navigate = useNavigate();
+  const { signOut } = useClerk();
   const { isSignedIn, getToken } = useAuth();
   const { page, contact, articles, skills: apiSkills, projects: apiProjects } = usePublicPortfolioData();
   const apiClient = useMemo(() => createApiClient(getToken), [getToken]);
@@ -409,6 +559,8 @@ export function HomePage() {
   const [copiedEmail, setCopiedEmail] = useState(false);
   const [showBackToTop, setShowBackToTop] = useState(false);
   const [isAdminUser, setIsAdminUser] = useState(false);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const userMenuRef = useRef(null);
   const content = contentByLanguage[language];
   const localizedSkills = useMemo(() => skills[language], [language]);
   const displayedSkills = useMemo(() => {
@@ -446,7 +598,12 @@ export function HomePage() {
   const localizedCertifications = useMemo(() => certificationsByLanguage[language], [language]);
   const localizedTestimonials = useMemo(() => testimonialsByLanguage[language], [language]);
   const localizedBlogs = useMemo(() => blogsByLanguage[language], [language]);
+  const localizedCareerObjectives = useMemo(() => careerObjectivesByLanguage[language], [language]);
+  const localizedAchievements = useMemo(() => achievementsByLanguage[language], [language]);
+  const localizedOwnership = useMemo(() => ownershipByLanguage[language], [language]);
+  const localizedPhilosophy = useMemo(() => philosophyByLanguage[language], [language]);
   const localizedFaqs = useMemo(() => faqsByLanguage[language], [language]);
+  const localizedLearningTracks = useMemo(() => learningTracksByLanguage[language], [language]);
   const filteredProjects = useMemo(
     () => localizedProjects.filter((project) => projectCategory === "all" || project.category === projectCategory),
     [localizedProjects, projectCategory]
@@ -544,6 +701,31 @@ export function HomePage() {
     trackLogin();
   }, [apiClient, isSignedIn]);
 
+  useEffect(() => {
+    if (!isUserMenuOpen) {
+      return undefined;
+    }
+
+    function handleOutsideClick(event) {
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target)) {
+        setIsUserMenuOpen(false);
+      }
+    }
+
+    function handleEscape(event) {
+      if (event.key === "Escape") {
+        setIsUserMenuOpen(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleOutsideClick);
+    document.addEventListener("keydown", handleEscape);
+    return () => {
+      document.removeEventListener("mousedown", handleOutsideClick);
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, [isUserMenuOpen]);
+
   const handleCopyEmail = async () => {
     try {
       await navigator.clipboard.writeText(displayEmail);
@@ -558,15 +740,16 @@ export function HomePage() {
       <div className="glitch-grid" aria-hidden="true" />
       <header className="topbar">
         <div className="container topbar__content">
-          <span className="brand">{content.brand}</span>
+          <span className="brand">
+            <img src="/logo-mark.svg" alt="HienNT logo" className="brand__logo" />
+            <span>{content.brand}</span>
+          </span>
           <div className="topbar__actions">
             <nav className="nav">
               <a href="#about">{content.nav.about}</a>
               <a href="#skills">{content.nav.skills}</a>
               <a href="#projects">{content.nav.projects}</a>
               <a href="#contact">{content.nav.contact}</a>
-              {isSignedIn ? <Link to="/profile">Profile</Link> : null}
-              {isSignedIn && isAdminUser ? <Link to="/admin">Dashboard</Link> : null}
             </nav>
             <div className="auth-actions">
               <button
@@ -583,22 +766,55 @@ export function HomePage() {
                   <button
                     type="button"
                     className="button button--ghost button--small auth-button auth-button--signin"
-                    onClick={() => (window.location.href = "/auth?mode=sign-in")}
+                    onClick={() => navigate("/auth?mode=sign-in")}
                   >
                     {content.auth.signIn}
                   </button>
                   <button
                     type="button"
                     className="button button--primary button--small auth-button auth-button--signup"
-                    onClick={() => (window.location.href = "/auth?mode=sign-up")}
+                    onClick={() => navigate("/auth?mode=sign-up")}
                   >
                     {content.auth.signUp}
                   </button>
                 </>
               ) : null}
-              <Show when="signed-in">
-                <UserButton afterSignOutUrl="/" />
-              </Show>
+              {isSignedIn ? (
+                <div className="user-menu" ref={userMenuRef}>
+                  <button
+                    type="button"
+                    className="button button--ghost button--small user-menu__trigger"
+                    onClick={() => setIsUserMenuOpen((current) => !current)}
+                    aria-haspopup="menu"
+                    aria-expanded={isUserMenuOpen}
+                  >
+                    Profile
+                  </button>
+                  {isUserMenuOpen ? (
+                    <div className="user-menu__dropdown" role="menu">
+                      <Link to="/profile" role="menuitem" onClick={() => setIsUserMenuOpen(false)}>
+                        Hồ sơ
+                      </Link>
+                      {isAdminUser ? (
+                        <Link to="/admin" role="menuitem" onClick={() => setIsUserMenuOpen(false)}>
+                          Dashboard
+                        </Link>
+                      ) : null}
+                      <button
+                        type="button"
+                        className="user-menu__signout"
+                        role="menuitem"
+                        onClick={async () => {
+                          setIsUserMenuOpen(false);
+                          await signOut({ redirectUrl: "/" });
+                        }}
+                      >
+                        Đăng xuất
+                      </button>
+                    </div>
+                  ) : null}
+                </div>
+              ) : null}
             </div>
             <div className="lang-switch" aria-label={content.languageMode}>
               <button
@@ -650,6 +866,18 @@ export function HomePage() {
               <p>{item.text}</p>
             </article>
           ))}
+        </div>
+      </section>
+
+      <section className="section section--alt">
+        <div className="container">
+          <h2>{localizedCareerObjectives.title}</h2>
+          <p>{localizedCareerObjectives.summary}</p>
+          <ul className="bullet-list">
+            {localizedCareerObjectives.goals.map((goal) => (
+              <li key={goal}>{goal}</li>
+            ))}
+          </ul>
         </div>
       </section>
 
@@ -728,6 +956,31 @@ export function HomePage() {
 
       <section className="section section--alt">
         <div className="container">
+          <h2>{language === "vi" ? "Lộ trình học theo hướng nghề" : "Role-Based Learning Roadmaps"}</h2>
+          <p>
+            {language === "vi"
+              ? "Các lộ trình này giúp bạn học tập có trọng tâm, xây project đúng mục tiêu tuyển dụng."
+              : "These guided journeys help you learn with focus and build projects aligned with hiring needs."}
+          </p>
+          <div className="highlight-grid">
+            {localizedLearningTracks.map((track) => (
+              <article key={track.title} className="card">
+                <h3>{track.title}</h3>
+                <ul className="bullet-list">
+                  {track.points.map((point) => (
+                    <li key={point}>{point}</li>
+                  ))}
+                </ul>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <CareerAdvisorSection language={language} apiClient={apiClient} />
+
+      <section className="section section--alt">
+        <div className="container">
           <h2>{content.servicesTitle}</h2>
           <ul className="bullet-list">
             {localizedServices.map((service) => (
@@ -753,10 +1006,16 @@ export function HomePage() {
       <section className="section section--alt">
         <div className="container split-grid">
           <div>
-            <h2>{content.certificationsTitle}</h2>
+            <h2>{localizedAchievements.title}</h2>
             <ul className="bullet-list">
               {localizedCertifications.map((cert) => (
                 <li key={cert}>{cert}</li>
+              ))}
+            </ul>
+            <h3>{localizedAchievements.awardsTitle}</h3>
+            <ul className="bullet-list">
+              {localizedAchievements.awards.map((award) => (
+                <li key={award}>{award}</li>
               ))}
             </ul>
           </div>
@@ -768,6 +1027,28 @@ export function HomePage() {
               ))}
             </ul>
           </div>
+        </div>
+      </section>
+
+      <section className="section container">
+        <div className="split-grid">
+          <article className="card">
+            <h3>{localizedOwnership.title}</h3>
+            <p>{localizedOwnership.description}</p>
+            <ul className="bullet-list">
+              {localizedOwnership.assets.map((asset) => (
+                <li key={asset}>{asset}</li>
+              ))}
+            </ul>
+          </article>
+          <article className="card">
+            <h3>{localizedPhilosophy.title}</h3>
+            <ul className="bullet-list">
+              {localizedPhilosophy.principles.map((principle) => (
+                <li key={principle}>{principle}</li>
+              ))}
+            </ul>
+          </article>
         </div>
       </section>
 
@@ -847,7 +1128,7 @@ export function HomePage() {
       <footer className="footer">
         <div className="container footer__inner">
           <div>
-            <p className="footer__brand">IT Portfolio</p>
+            <p className="footer__brand">Portfolio</p>
             <p>{content.footerText}</p>
           </div>
           <div className="footer__links">
@@ -859,8 +1140,14 @@ export function HomePage() {
       </footer>
 
       {showBackToTop ? (
-        <button type="button" className="back-to-top" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>
-          {content.backToTop}
+        <button
+          type="button"
+          className="back-to-top"
+          aria-label={content.backToTop}
+          title={content.backToTop}
+          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+        >
+          ↑
         </button>
       ) : null}
     </main>

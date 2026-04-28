@@ -53,6 +53,41 @@ jobs:
           output_location: "dist" # Built app content directory - optional
           ###### End of Repository/Build Configurations ######
 
+  deploy_backend_job:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment: production
+    name: Deploy Backend API Job
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Restore backend dependencies
+        run: dotnet restore "./Portfolio-BE/src/Portfolio.Api/Portfolio.Api.csproj"
+
+      - name: Publish backend
+        run: dotnet publish "./Portfolio-BE/src/Portfolio.Api/Portfolio.Api.csproj" -c Release -o "${{ github.workspace }}/backend-publish"
+
+      - name: Validate backend publish profile
+        env:
+          AZURE_WEBAPP_PUBLISH_PROFILE_BE: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE_BE }}
+        run: |
+          if [ -z "$AZURE_WEBAPP_PUBLISH_PROFILE_BE" ]; then
+            echo "Missing required secret: AZURE_WEBAPP_PUBLISH_PROFILE_BE"
+            exit 1
+          fi
+
+      - name: Deploy to Azure Web App
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: 'PortfolioBE'
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE_BE }}
+          package: "${{ github.workspace }}/backend-publish"
+
   close_pull_request_job:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
     runs-on: ubuntu-latest

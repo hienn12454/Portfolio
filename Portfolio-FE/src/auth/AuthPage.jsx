@@ -9,6 +9,7 @@ export function AuthPage() {
   const [mode, setMode] = useState(initialMode);
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [oauthQueued, setOauthQueued] = useState(false);
   const [verificationPending, setVerificationPending] = useState(false);
   const [verificationCode, setVerificationCode] = useState("");
   const [form, setForm] = useState({
@@ -21,15 +22,23 @@ export function AuthPage() {
   const { isSignedIn } = useAuth();
   const { signIn, setActive: setActiveSignIn, isLoaded: isSignInLoaded } = useSignIn();
   const { signUp, setActive: setActiveSignUp, isLoaded: isSignUpLoaded } = useSignUp();
+  const isModeLoaded = mode === "sign-in" ? isSignInLoaded : isSignUpLoaded;
+
+  useEffect(() => {
+    if (!oauthQueued || !isModeLoaded || isSubmitting) {
+      return;
+    }
+
+    void runGoogleAuth();
+  }, [oauthQueued, isModeLoaded, isSubmitting]);
   useEffect(() => {
     if (isSignedIn) {
       navigate("/", { replace: true });
     }
   }, [isSignedIn, navigate]);
 
-  async function handleGoogleAuth() {
+  async function runGoogleAuth() {
     setError("");
-    setIsSubmitting(true);
     try {
       const payload = {
         strategy: "oauth_google",
@@ -38,21 +47,30 @@ export function AuthPage() {
       };
 
       if (mode === "sign-in") {
-        if (!isSignInLoaded || !signIn) {
-          throw new Error("Sign-in is still loading. Please try again.");
-        }
+        if (!signIn) throw new Error("Sign-in is unavailable right now.");
         await signIn.authenticateWithRedirect(payload);
         return;
       }
 
-      if (!isSignUpLoaded || !signUp) {
-        throw new Error("Sign-up is still loading. Please try again.");
-      }
+      if (!signUp) throw new Error("Sign-up is unavailable right now.");
       await signUp.authenticateWithRedirect(payload);
     } catch (googleError) {
       setError(googleError?.errors?.[0]?.longMessage ?? googleError?.message ?? "Unable to continue with Google.");
       setIsSubmitting(false);
+      setOauthQueued(false);
     }
+  }
+
+  async function handleGoogleAuth() {
+    setError("");
+    setIsSubmitting(true);
+    setOauthQueued(true);
+
+    if (!isModeLoaded) {
+      return;
+    }
+
+    await runGoogleAuth();
   }
 
   async function handleSignInSubmit(event) {
@@ -257,6 +275,7 @@ export function AuthPage() {
             ) : null}
 
             {error ? <p className="error">{error}</p> : null}
+            {!isModeLoaded ? <p className="auth-loading">{isSubmitting ? "Connecting securely..." : "Loading authentication..."}</p> : null}
             <p className="auth-back">
               <Link to="/">Back to home</Link>
             </p>

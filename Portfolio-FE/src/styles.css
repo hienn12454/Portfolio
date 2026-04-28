@@ -62,11 +62,63 @@ a {
   gap: 0.5rem;
 }
 
+.user-menu {
+  position: relative;
+}
+
+.user-menu__trigger {
+  min-width: 88px;
+}
+
+.user-menu__dropdown {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  right: 0;
+  min-width: 170px;
+  border-radius: 0.75rem;
+  border: 1px solid var(--surface-border);
+  background: color-mix(in oklab, var(--surface) 92%, transparent);
+  box-shadow: 0 14px 32px rgba(2, 8, 23, 0.32);
+  padding: 0.35rem;
+  display: grid;
+  gap: 0.2rem;
+  z-index: 50;
+}
+
+.user-menu__dropdown a,
+.user-menu__signout {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  text-align: left;
+  padding: 0.5rem 0.6rem;
+  border-radius: 0.5rem;
+  font-size: 0.86rem;
+  cursor: pointer;
+}
+
+.user-menu__dropdown a:hover,
+.user-menu__signout:hover {
+  background: color-mix(in oklab, var(--accent-soft) 60%, var(--surface));
+}
+
 .brand {
   font-size: 0.95rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.48rem;
+}
+
+.brand__logo {
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(2, 8, 23, 0.24);
+  flex: 0 0 auto;
 }
 
 .nav {
@@ -499,26 +551,196 @@ a {
   gap: 0.7rem;
 }
 
+.career-section {
+  padding-top: 3.8rem;
+}
+
+.career-header h2 {
+  margin-bottom: 0.55rem;
+}
+
+.career-layout {
+  margin-top: 1rem;
+  display: grid;
+  grid-template-columns: minmax(220px, 320px) 1fr;
+  gap: 1rem;
+}
+
+.career-tracks {
+  border: 1px solid var(--surface-border);
+  border-radius: 0.8rem;
+  background: var(--surface);
+  padding: 0.9rem;
+}
+
+.career-tracks__label {
+  margin: 0 0 0.6rem !important;
+  color: var(--text-soft) !important;
+  font-size: 0.85rem;
+}
+
+.career-track-grid {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.career-track {
+  border: 1px solid var(--surface-border);
+  border-radius: 0.7rem;
+  background: color-mix(in oklab, var(--surface) 72%, transparent);
+  color: var(--text);
+  text-align: left;
+  padding: 0.65rem 0.7rem;
+  cursor: pointer;
+  display: grid;
+  gap: 0.2rem;
+}
+
+.career-track strong {
+  font-size: 0.9rem;
+}
+
+.career-track span {
+  font-size: 0.8rem;
+  color: var(--text-soft);
+}
+
+.career-track.is-active {
+  border-color: color-mix(in oklab, var(--accent) 62%, white);
+  background: color-mix(in oklab, var(--accent-soft) 55%, var(--surface));
+}
+
+.career-chatbot {
+  border: 1px solid var(--surface-border);
+  border-radius: 0.8rem;
+  background: var(--surface);
+  padding: 0.9rem;
+}
+
+.career-chatbot__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 0.7rem;
+}
+
+.career-chatbot__header h3 {
+  margin: 0;
+}
+
+.career-chatbot__header span {
+  color: var(--text-soft);
+  font-size: 0.82rem;
+}
+
+.career-chatbot__messages {
+  border: 1px solid var(--surface-border);
+  border-radius: 0.7rem;
+  background: color-mix(in oklab, var(--bg) 76%, transparent);
+  padding: 0.65rem;
+  min-height: 260px;
+  max-height: 360px;
+  overflow-y: auto;
+  display: grid;
+  gap: 0.55rem;
+}
+
+.chat-message {
+  max-width: min(92%, 700px);
+  border-radius: 0.7rem;
+  background: color-mix(in oklab, var(--surface) 78%, transparent);
+  border: 1px solid var(--surface-border);
+  padding: 0.55rem 0.65rem;
+}
+
+.chat-message p {
+  margin: 0;
+  white-space: pre-wrap;
+}
+
+.chat-message small {
+  margin-top: 0.35rem;
+  display: block;
+  color: var(--text-soft);
+}
+
+.chat-message--user {
+  margin-left: auto;
+  background: color-mix(in oklab, var(--accent-soft) 72%, var(--surface));
+}
+
+.career-chatbot__loading {
+  margin: 0.2rem 0 0 !important;
+  color: var(--text-soft);
+  font-size: 0.85rem;
+}
+
+.career-chatbot__quick {
+  margin-top: 0.65rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.career-chatbot__form {
+  margin-top: 0.7rem;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.55rem;
+}
+
+.career-chatbot__form input {
+  width: 100%;
+  border: 1px solid var(--surface-border);
+  border-radius: 0.65rem;
+  padding: 0.58rem 0.7rem;
+  background: color-mix(in oklab, var(--surface) 88%, transparent);
+  color: var(--text);
+}
+
 .auth-page .section {
-  padding-top: 5.5rem;
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 2rem 0;
+}
+
+.auth-page.site {
+  background: var(--bg);
+}
+
+.auth-page.site::before,
+.auth-page.site::after {
+  animation: none;
+  opacity: 0.08;
 }
 
 .auth-overlay {
-  max-width: 560px;
+  width: min(420px, 92vw);
   margin: 0 auto;
-  padding: 0.8rem;
-  border-radius: 1rem;
-  background: color-mix(in oklab, var(--surface-alt) 78%, transparent);
+  padding: 0.65rem;
+  border-radius: 1.1rem;
+  background: color-mix(in oklab, var(--surface-alt) 82%, transparent);
   border: 1px solid color-mix(in oklab, var(--surface-border) 82%, transparent);
-  box-shadow: 0 18px 48px rgba(2, 8, 23, 0.36);
+  box-shadow: 0 20px 48px rgba(2, 8, 23, 0.42);
 }
 
 .auth-header p {
   color: var(--text-muted);
 }
 
+.auth-header h1 {
+  margin: 0.2rem 0 0.45rem;
+  font-size: 1.95rem;
+}
+
+.auth-header .eyebrow {
+  margin-bottom: 0.5rem;
+}
+
 .auth-tabs {
-  margin-top: 0.8rem;
+  margin-top: 0.65rem;
   display: inline-flex;
   gap: 0.5rem;
 }
@@ -526,6 +748,8 @@ a {
 .auth-card {
   margin-top: 0;
   max-width: 100%;
+  padding: 1rem;
+  border-radius: 0.9rem;
 }
 
 .auth-google {
@@ -547,6 +771,12 @@ a {
 .auth-back {
   margin-top: 0.8rem !important;
   font-size: 0.86rem;
+}
+
+.auth-loading {
+  margin-top: 0.55rem !important;
+  color: var(--text-soft);
+  font-size: 0.82rem;
 }
 
 .auth-back a {
@@ -596,19 +826,25 @@ a {
 
 .back-to-top {
   position: fixed;
-  right: 1.2rem;
-  bottom: 1.2rem;
+  left: auto !important;
+  right: max(1rem, env(safe-area-inset-right));
+  bottom: max(1rem, env(safe-area-inset-bottom));
   border: 1px solid color-mix(in oklab, var(--accent) 58%, white);
   background: linear-gradient(130deg, color-mix(in oklab, var(--accent) 78%, white), color-mix(in oklab, var(--accent) 58%, black));
   color: #f8fafc;
   font-weight: 700;
+  font-size: 1rem;
+  line-height: 1;
   border-radius: 999px;
-  min-width: 44px;
-  min-height: 44px;
-  padding: 0.5rem 0.86rem;
+  width: 46px;
+  height: 46px;
+  padding: 0;
   cursor: pointer;
   box-shadow: 0 12px 28px rgba(2, 8, 23, 0.35);
   z-index: 40;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 @media (max-width: 700px) {
@@ -648,7 +884,15 @@ a {
   }
 
   .auth-overlay {
-    max-width: 100%;
+    width: min(420px, 96vw);
+  }
+
+  .career-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .career-chatbot__form {
+    grid-template-columns: 1fr;
   }
 }
 
@@ -890,10 +1134,11 @@ body {
   z-index: 20;
   margin: 0.7rem auto 0;
   width: min(1120px, 94vw);
-  border: 1px solid color-mix(in oklab, var(--surface-border) 76%, transparent);
-  border-radius: 18px;
+  border: 1px solid color-mix(in oklab, var(--surface-border) 82%, transparent);
+  border-radius: 16px;
   background: color-mix(in oklab, var(--bg-elevated) 80%, transparent);
   box-shadow: 0 14px 40px rgba(2, 8, 23, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  overflow: clip;
 }
 
 html[data-theme="light"] .topbar {
@@ -901,7 +1146,23 @@ html[data-theme="light"] .topbar {
 }
 
 .topbar .container {
-  width: min(1050px, 90vw);
+  width: min(1080px, 92vw);
+}
+
+.footer {
+  width: min(1120px, 94vw);
+  margin: 1.2rem auto 1rem;
+  padding: 1rem 0 1.05rem;
+  border: 1px solid color-mix(in oklab, var(--surface-border) 82%, transparent);
+  border-radius: 16px;
+  background: color-mix(in oklab, var(--bg-elevated) 80%, transparent);
+  box-shadow: 0 14px 40px rgba(2, 8, 23, 0.16), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+
+.footer__inner {
+  width: min(1080px, 92vw);
+  margin: 0 auto;
 }
 
 .brand,
@@ -1152,6 +1413,10 @@ html[data-theme="light"] .theme-toggle__thumb {
   color: #0f172a;
 }
 
+.back-to-top:hover {
+  transform: translateY(-2px);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .site::before,
   .site::after {
@@ -1181,6 +1446,16 @@ html[data-theme="light"] .theme-toggle__thumb {
 
   .topbar__content {
     gap: 0.6rem;
+  }
+
+  .footer {
+    width: min(1120px, 96vw);
+    border-radius: 14px;
+    margin-bottom: 0.7rem;
+  }
+
+  .footer__inner {
+    width: min(1080px, 94vw);
   }
 
   .nav {

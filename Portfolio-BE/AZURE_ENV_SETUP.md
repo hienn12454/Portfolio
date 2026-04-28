@@ -36,6 +36,21 @@ Set these in Azure App Service -> Configuration -> Application settings.
   - Comma-separated Clerk usernames that should be treated as Admin
   - Example: `admin,portfolio-admin`
 
+## Optional - AI Career Chatbot (OpenRouter)
+
+- `OpenRouter__ApiKey`
+  - API key from OpenRouter dashboard
+- `OpenRouter__Model`
+  - Example: `openai/gpt-4o-mini` or `meta-llama/llama-3.1-8b-instruct`
+- `OpenRouter__HttpReferer`
+  - Example: `https://hiennt.website`
+- `OpenRouter__AppTitle`
+  - Example: `HienNT Portfolio Career Advisor`
+- `OpenRouter__Temperature`
+  - Example: `0.35`
+- `OpenRouter__MaxTokens`
+  - Example: `500`
+
 ## Required - Frontend (build-time for Vite)
 
 - `VITE_API_BASE_URL`

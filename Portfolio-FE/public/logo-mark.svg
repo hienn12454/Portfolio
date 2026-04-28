@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Portfolio logo">
+  <defs>
+    <linearGradient id="g" x1="0%" x2="100%" y1="0%" y2="100%">
+      <stop offset="0%" stop-color="#8b5cf6" />
+      <stop offset="100%" stop-color="#4f46e5" />
+    </linearGradient>
+    <linearGradient id="p" x1="0%" x2="100%" y1="0%" y2="100%">
+      <stop offset="0%" stop-color="#f8fafc" />
+      <stop offset="100%" stop-color="#dbeafe" />
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="14" fill="#0f172a" />
+  <rect x="4" y="4" width="56" height="56" rx="12" fill="url(#g)" />
+  <path d="M20 14h14c8.6 0 14 4.9 14 12.4 0 7.4-5.4 12.1-14 12.1H28V50H20V14Zm8 7v10.4h6.1c3.9 0 6-1.8 6-5.2 0-3.4-2.1-5.2-6-5.2H28Z" fill="url(#p)" />
+  <path d="M28 40.5V50h-8V14h8v26.5l13.2 9.5h-11.9L28 40.5Z" fill="#c4b5fd" fill-opacity=".58" />
+</svg>

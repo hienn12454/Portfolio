@@ -23,6 +23,7 @@ Website portfolio cá nhân được xây dựng theo định hướng hiện đ
 - Tích hợp xác thực người dùng bằng Clerk.
 - Khu vực quản trị nội dung dành cho tài khoản có quyền phù hợp.
 - Đồng bộ dữ liệu qua API giữa frontend và backend.
+- Homepage mở rộng với khu vực định hướng nghề IT và AI chatbot tư vấn lộ trình (RAG + OpenRouter).
 - Cấu hình theo môi trường (`local`, `production`) thông qua biến môi trường.
 
 ## Kiến trúc công nghệ
@@ -79,6 +80,19 @@ VITE_API_BASE_URL=http://localhost:5000
 VITE_CLERK_PUBLISHABLE_KEY=pk_test_xxx
 VITE_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL=/
 VITE_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL=/
+```
+
+### 4) Cấu hình AI chatbot (backend)
+
+Thêm biến môi trường cho backend:
+
+```env
+OpenRouter__ApiKey=<YOUR_OPENROUTER_API_KEY>
+OpenRouter__Model=meta-llama/llama-3.1-8b-instruct
+OpenRouter__HttpReferer=https://hiennt.website
+OpenRouter__AppTitle=HienNT Portfolio Career Advisor
+OpenRouter__Temperature=0.35
+OpenRouter__MaxTokens=500
 ```
 
 ### 3) Chạy backend

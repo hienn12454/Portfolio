@@ -73,7 +73,7 @@ export function UserProfilePage() {
     <main className="site">
       <header className="topbar">
         <div className="container topbar__content">
-          <span className="brand">IT Portfolio</span>
+          <span className="brand">Portfolio</span>
           <div className="topbar__actions">
             <nav className="nav">
               <Link to="/">Home</Link>
