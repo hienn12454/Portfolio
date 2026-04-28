@@ -1,13 +1,13 @@
 # Portfolio Cá Nhân - hiennt.website
 
-[![Website](https://img.shields.io/badge/Website-hiennt.website-000000?style=for-the-badge&logo=googlechrome&logoColor=FFFFFF&labelColor=000000)](https://hiennt.website)
-[![Frontend](https://img.shields.io/badge/Frontend-React%20%2B%20Vite-000000?style=for-the-badge&logo=react&logoColor=FFFFFF&labelColor=000000)](./Portfolio-FE)
-[![Backend](https://img.shields.io/badge/Backend-.NET%20Web%20API-000000?style=for-the-badge&logo=dotnet&logoColor=FFFFFF&labelColor=000000)](./Portfolio-BE)
-[![Azure](https://img.shields.io/badge/Azure-Hosting-000000?style=for-the-badge&logo=microsoftazure&logoColor=FFFFFF&labelColor=000000)](https://azure.microsoft.com/)
-[![Supabase](https://img.shields.io/badge/Supabase-Database-000000?style=for-the-badge&logo=supabase&logoColor=FFFFFF&labelColor=000000)](https://supabase.com/)
-[![Cloudflare](https://img.shields.io/badge/Cloudflare-DNS%20%26%20CDN-000000?style=for-the-badge&logo=cloudflare&logoColor=FFFFFF&labelColor=000000)](https://www.cloudflare.com/)
-[![PAVietnam](https://img.shields.io/badge/PAVietnam-Domain-000000?style=for-the-badge&logoColor=FFFFFF&labelColor=000000)](https://www.pavietnam.vn/)
-[![Clerk](https://img.shields.io/badge/Clerk-Authentication-000000?style=for-the-badge&logo=clerk&logoColor=FFFFFF&labelColor=000000)](https://clerk.com/)
+[![Website](https://img.shields.io/badge/Website-hiennt.website-1F6FEB?style=plastic&logo=googlechrome&logoColor=FFFFFF&labelColor=0B1220)](https://hiennt.website)
+[![Frontend](https://img.shields.io/badge/Frontend-React%20%2B%20Vite-61DAFB?style=plastic&logo=react&logoColor=0B1220&labelColor=0B1220)](./Portfolio-FE)
+[![Backend](https://img.shields.io/badge/Backend-.NET%20Web%20API-512BD4?style=plastic&logo=dotnet&logoColor=FFFFFF&labelColor=0B1220)](./Portfolio-BE)
+[![Hosting](https://img.shields.io/badge/Hosting-Azure-0078D4?style=plastic&logo=microsoftazure&logoColor=FFFFFF&labelColor=0B1220)](https://azure.microsoft.com/)
+[![Database](https://img.shields.io/badge/Database-Supabase-3ECF8E?style=plastic&logo=supabase&logoColor=0B1220&labelColor=0B1220)](https://supabase.com/)
+[![DNS/CDN](https://img.shields.io/badge/DNS%2FCDN-Cloudflare-F38020?style=plastic&logo=cloudflare&logoColor=FFFFFF&labelColor=0B1220)](https://www.cloudflare.com/)
+[![Domain](https://img.shields.io/badge/Domain-PAVietnam-0EA5E9?style=plastic&logoColor=FFFFFF&labelColor=0B1220)](https://www.pavietnam.vn/)
+[![Authentication](https://img.shields.io/badge/Authentication-Clerk-6C47FF?style=plastic&logo=clerk&logoColor=FFFFFF&labelColor=0B1220)](https://clerk.com/)
 
 Website portfolio cá nhân được xây dựng theo định hướng hiện đại, gọn gàng và chuyên nghiệp. Dự án tập trung vào trải nghiệm người dùng, khả năng quản trị nội dung và kiến trúc dễ mở rộng cho quá trình phát triển lâu dài.
 
