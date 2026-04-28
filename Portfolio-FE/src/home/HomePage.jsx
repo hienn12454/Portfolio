@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Show, UserButton, useAuth, useClerk } from "@clerk/react";
 import { Link } from "react-router-dom";
 import { usePublicPortfolioData } from "./usePublicPortfolioData";
+import { createApiClient } from "../core/http/apiClient";
 
 const contentByLanguage = {
   en: {
@@ -396,9 +397,10 @@ const faqsByLanguage = {
 };
 
 export function HomePage() {
-  const { isSignedIn } = useAuth();
+  const { isSignedIn, getToken } = useAuth();
   const { openSignIn, openSignUp } = useClerk();
-  const { page, contact, articles, skills: apiSkills } = usePublicPortfolioData();
+  const { page, contact, articles, skills: apiSkills, projects: apiProjects } = usePublicPortfolioData();
+  const apiClient = useMemo(() => createApiClient(getToken), [getToken]);
   const displayEmail = contact?.email || "your-email@example.com";
   const [language, setLanguage] = useState("en");
   const [projectCategory, setProjectCategory] = useState("all");
@@ -407,6 +409,7 @@ export function HomePage() {
   const [openedFaqIndex, setOpenedFaqIndex] = useState(0);
   const [copiedEmail, setCopiedEmail] = useState(false);
   const [showBackToTop, setShowBackToTop] = useState(false);
+  const [isAdminUser, setIsAdminUser] = useState(false);
   const content = contentByLanguage[language];
   const localizedSkills = useMemo(() => skills[language], [language]);
   const displayedSkills = useMemo(() => {
@@ -420,7 +423,24 @@ export function HomePage() {
     return localizedSkills;
   }, [apiSkills, localizedSkills]);
   const localizedHighlights = useMemo(() => highlights[language], [language]);
-  const localizedProjects = useMemo(() => featuredProjects[language], [language]);
+  const localizedProjects = useMemo(() => {
+    if (Array.isArray(apiProjects) && apiProjects.length > 0) {
+      return apiProjects.map((project) => ({
+        id: project.id,
+        name: project.title,
+        role: project.role || (language === "vi" ? "Lập trình viên" : "Developer"),
+        category: project.category || "fullstack",
+        summary: project.summary || "",
+        caseStudy: project.caseStudy || "",
+        impact: project.impact || "",
+        stack: project.stack || "",
+        demoUrl: project.demoUrl || "#",
+        sourceUrl: project.repositoryUrl || "#"
+      }));
+    }
+
+    return featuredProjects[language];
+  }, [apiProjects, language]);
   const localizedCategories = useMemo(() => categoryByLanguage[language], [language]);
   const localizedServices = useMemo(() => servicesByLanguage[language], [language]);
   const localizedExperiences = useMemo(() => experiencesByLanguage[language], [language]);
@@ -488,6 +508,43 @@ export function HomePage() {
     return () => clearTimeout(timeoutId);
   }, [copiedEmail]);
 
+  useEffect(() => {
+    async function trackPageView() {
+      try {
+        await apiClient.postPublic("/api/analytics/page-view");
+      } catch {
+        // Ignore analytics errors on public page.
+      }
+    }
+
+    trackPageView();
+  }, [apiClient]);
+
+  useEffect(() => {
+    async function trackLogin() {
+      if (!isSignedIn) {
+        setIsAdminUser(false);
+        return;
+      }
+
+      const trackerKey = "portfolio-login-tracked";
+
+      try {
+        const me = await apiClient.getProtected("/api/auth/me");
+        setIsAdminUser(me?.user?.role === "Admin");
+        if (sessionStorage.getItem(trackerKey) === "1") {
+          return;
+        }
+        await apiClient.postProtected("/api/analytics/login", {});
+        sessionStorage.setItem(trackerKey, "1");
+      } catch {
+        // Ignore analytics errors for auth flow.
+      }
+    }
+
+    trackLogin();
+  }, [apiClient, isSignedIn]);
+
   const handleCopyEmail = async () => {
     try {
       await navigator.clipboard.writeText(displayEmail);
@@ -509,7 +566,8 @@ export function HomePage() {
               <a href="#skills">{content.nav.skills}</a>
               <a href="#projects">{content.nav.projects}</a>
               <a href="#contact">{content.nav.contact}</a>
-              {isSignedIn ? <Link to="/admin">Admin</Link> : null}
+              {isSignedIn ? <Link to="/profile">Profile</Link> : null}
+              {isSignedIn && isAdminUser ? <Link to="/admin">Dashboard</Link> : null}
             </nav>
             <div className="auth-actions">
               <button
@@ -780,8 +838,16 @@ export function HomePage() {
       </section>
 
       <footer className="footer">
-        <div className="container">
-          <p>{content.footerText}</p>
+        <div className="container footer__inner">
+          <div>
+            <p className="footer__brand">IT Portfolio</p>
+            <p>{content.footerText}</p>
+          </div>
+          <div className="footer__links">
+            <a href={contact?.githubUrl || "#"}>GitHub</a>
+            <a href={contact?.linkedInUrl || "#"}>LinkedIn</a>
+            <a href={`mailto:${displayEmail}`}>Email</a>
+          </div>
         </div>
       </footer>
 

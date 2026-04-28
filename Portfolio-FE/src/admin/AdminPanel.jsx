@@ -36,6 +36,21 @@ const EMPTY_SKILL = {
   isVisible: true
 };
 
+const EMPTY_PROJECT = {
+  id: "",
+  title: "",
+  slug: "",
+  category: "fullstack",
+  role: "",
+  summary: "",
+  stack: "",
+  caseStudy: "",
+  impact: "",
+  demoUrl: "",
+  repositoryUrl: "",
+  isFeatured: false
+};
+
 export function AdminPanel({ language = "en" }) {
   const { isSignedIn, getToken } = useAuth();
   const apiClient = useMemo(() => createApiClient(getToken), [getToken]);
@@ -48,6 +63,9 @@ export function AdminPanel({ language = "en" }) {
   const [draftArticle, setDraftArticle] = useState(EMPTY_ARTICLE);
   const [skills, setSkills] = useState([]);
   const [draftSkill, setDraftSkill] = useState(EMPTY_SKILL);
+  const [projects, setProjects] = useState([]);
+  const [draftProject, setDraftProject] = useState(EMPTY_PROJECT);
+  const [analytics, setAnalytics] = useState({ totalPageViews: 0, totalLogins: 0 });
   const [saveState, setSaveState] = useState("");
 
   useEffect(() => {
@@ -85,11 +103,13 @@ export function AdminPanel({ language = "en" }) {
 
     async function loadContent() {
       try {
-        const [contactData, pageData, articleData, skillData] = await Promise.all([
+        const [contactData, pageData, articleData, skillData, projectData, analyticsData] = await Promise.all([
           apiClient.getPublic("/api/content/contact"),
           apiClient.getPublic("/api/content/page"),
           apiClient.getProtected("/api/articles/admin"),
-          apiClient.getProtected("/api/skills/admin")
+          apiClient.getProtected("/api/skills/admin"),
+          apiClient.getPublic("/api/projects"),
+          apiClient.getProtected("/api/analytics/summary")
         ]);
 
         setContact((current) => ({
@@ -102,6 +122,11 @@ export function AdminPanel({ language = "en" }) {
         }));
         setArticles(Array.isArray(articleData) ? articleData : []);
         setSkills(Array.isArray(skillData) ? skillData : []);
+        setProjects(Array.isArray(projectData) ? projectData : []);
+        setAnalytics({
+          totalPageViews: analyticsData?.totalPageViews ?? 0,
+          totalLogins: analyticsData?.totalLogins ?? 0
+        });
       } catch (loadError) {
         setError(loadError.message);
       }
@@ -124,10 +149,16 @@ export function AdminPanel({ language = "en" }) {
           pageTitle: "Cập nhật nội dung trang",
           articleTitle: "Quản lý bài viết",
           skillTitle: "Quản lý kỹ năng",
+          projectTitle: "Quản lý dự án",
+          analyticsTitle: "Thống kê portfolio",
           createSkill: "Thêm kỹ năng",
           updateSkill: "Cập nhật kỹ năng",
           deleteSkill: "Xóa kỹ năng",
           clearSkillForm: "Xóa form",
+          createProject: "Thêm dự án",
+          updateProject: "Cập nhật dự án",
+          deleteProject: "Xóa dự án",
+          clearProjectForm: "Xóa form dự án",
           createArticle: "Tạo bài viết",
           updateArticle: "Cập nhật",
           deleteArticle: "Xóa",
@@ -146,10 +177,16 @@ export function AdminPanel({ language = "en" }) {
           pageTitle: "Update page content",
           articleTitle: "Manage articles",
           skillTitle: "Manage skills",
+          projectTitle: "Manage projects",
+          analyticsTitle: "Portfolio analytics",
           createSkill: "Add skill",
           updateSkill: "Update skill",
           deleteSkill: "Delete skill",
           clearSkillForm: "Clear form",
+          createProject: "Add project",
+          updateProject: "Update project",
+          deleteProject: "Delete project",
+          clearProjectForm: "Clear project form",
           createArticle: "Create article",
           updateArticle: "Update",
           deleteArticle: "Delete",
@@ -239,6 +276,36 @@ export function AdminPanel({ language = "en" }) {
     }
   }
 
+  async function saveProject() {
+    setSaveState("");
+    setError("");
+    try {
+      if (draftProject.id) {
+        const updated = await apiClient.putProtected(`/api/projects/${draftProject.id}`, draftProject);
+        setProjects((current) => current.map((item) => (item.id === updated.id ? updated : item)));
+      } else {
+        const created = await apiClient.postProtected("/api/projects", draftProject);
+        setProjects((current) => [created, ...current]);
+      }
+      setDraftProject(EMPTY_PROJECT);
+      setSaveState(labels.saved);
+    } catch (saveError) {
+      setError(saveError.message);
+    }
+  }
+
+  async function deleteProject(id) {
+    setSaveState("");
+    setError("");
+    try {
+      await apiClient.deleteProtected(`/api/projects/${id}`);
+      setProjects((current) => current.filter((item) => item.id !== id));
+      setSaveState(labels.saved);
+    } catch (saveError) {
+      setError(saveError.message);
+    }
+  }
+
   return (
     <section className="section container" id="admin-panel">
       <h2>{labels.title}</h2>
@@ -257,6 +324,14 @@ export function AdminPanel({ language = "en" }) {
 
       {error ? <p className="error">{error}</p> : null}
       {saveState ? <p>{saveState}</p> : null}
+
+      {adminStatus === "admin" ? (
+        <article className="contact-form">
+          <h3>{labels.analyticsTitle}</h3>
+          <p>Total page views: {analytics.totalPageViews}</p>
+          <p>Total logins: {analytics.totalLogins}</p>
+        </article>
+      ) : null}
 
       {adminStatus === "admin" ? (
         <div className="admin-forms">
@@ -399,6 +474,131 @@ export function AdminPanel({ language = "en" }) {
                   </button>
                   <button type="button" className="button button--ghost button--small" onClick={() => deleteSkill(skill.id)}>
                     {labels.deleteSkill}
+                  </button>
+                </div>
+              </article>
+            ))}
+          </div>
+        </article>
+      ) : null}
+
+      {adminStatus === "admin" ? (
+        <article className="contact-form">
+          <h3>{labels.projectTitle}</h3>
+          <form>
+            <label>
+              Title
+              <input
+                value={draftProject.title}
+                onChange={(event) => setDraftProject((current) => ({ ...current, title: event.target.value }))}
+              />
+            </label>
+            <label>
+              Slug
+              <input
+                value={draftProject.slug}
+                onChange={(event) => setDraftProject((current) => ({ ...current, slug: event.target.value }))}
+              />
+            </label>
+            <label>
+              Category
+              <select
+                value={draftProject.category}
+                onChange={(event) => setDraftProject((current) => ({ ...current, category: event.target.value }))}
+              >
+                <option value="frontend">Frontend</option>
+                <option value="backend">Backend</option>
+                <option value="fullstack">Full-Stack</option>
+              </select>
+            </label>
+            <label>
+              Role
+              <input
+                value={draftProject.role}
+                onChange={(event) => setDraftProject((current) => ({ ...current, role: event.target.value }))}
+              />
+            </label>
+            <label>
+              Summary
+              <textarea
+                rows={2}
+                value={draftProject.summary}
+                onChange={(event) => setDraftProject((current) => ({ ...current, summary: event.target.value }))}
+              />
+            </label>
+            <label>
+              Stack
+              <input
+                value={draftProject.stack}
+                onChange={(event) => setDraftProject((current) => ({ ...current, stack: event.target.value }))}
+              />
+            </label>
+            <label>
+              Case study
+              <textarea
+                rows={3}
+                value={draftProject.caseStudy}
+                onChange={(event) => setDraftProject((current) => ({ ...current, caseStudy: event.target.value }))}
+              />
+            </label>
+            <label>
+              Impact
+              <textarea
+                rows={2}
+                value={draftProject.impact}
+                onChange={(event) => setDraftProject((current) => ({ ...current, impact: event.target.value }))}
+              />
+            </label>
+            <label>
+              Live demo URL
+              <input
+                value={draftProject.demoUrl}
+                onChange={(event) => setDraftProject((current) => ({ ...current, demoUrl: event.target.value }))}
+              />
+            </label>
+            <label>
+              Source code URL
+              <input
+                value={draftProject.repositoryUrl}
+                onChange={(event) => setDraftProject((current) => ({ ...current, repositoryUrl: event.target.value }))}
+              />
+            </label>
+            <label>
+              <input
+                type="checkbox"
+                checked={draftProject.isFeatured}
+                onChange={(event) =>
+                  setDraftProject((current) => ({ ...current, isFeatured: event.target.checked }))
+                }
+              />
+              Featured
+            </label>
+            <div className="form-actions">
+              <button type="button" className="button button--primary" onClick={saveProject}>
+                {draftProject.id ? labels.updateProject : labels.createProject}
+              </button>
+              <button type="button" className="button button--ghost" onClick={() => setDraftProject(EMPTY_PROJECT)}>
+                {labels.clearProjectForm}
+              </button>
+            </div>
+          </form>
+          <div className="admin-article-list">
+            {projects.map((project) => (
+              <article key={project.id} className="card">
+                <h4>{project.title}</h4>
+                <p>{project.slug}</p>
+                <p>{project.demoUrl || "-"}</p>
+                <p>{project.repositoryUrl || "-"}</p>
+                <div className="card__links">
+                  <button
+                    type="button"
+                    className="button button--ghost button--small"
+                    onClick={() => setDraftProject({ ...EMPTY_PROJECT, ...project })}
+                  >
+                    {labels.updateProject}
+                  </button>
+                  <button type="button" className="button button--ghost button--small" onClick={() => deleteProject(project.id)}>
+                    {labels.deleteProject}
                   </button>
                 </div>
               </article>

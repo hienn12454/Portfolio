@@ -85,7 +85,10 @@ public sealed class ClerkWebhooksController(
         var imageUrl = userData.TryGetProperty("image_url", out var imageUrlValue)
             ? imageUrlValue.GetString()
             : null;
-        var role = ResolveRole(userData, clerkUserId);
+        var username = userData.TryGetProperty("username", out var usernameValue)
+            ? usernameValue.GetString()
+            : null;
+        var role = ResolveRole(userData, clerkUserId, username);
 
         string? email = null;
         if (userData.TryGetProperty("email_addresses", out var emailAddresses) &&
@@ -147,7 +150,7 @@ public sealed class ClerkWebhooksController(
         await dbContext.SaveChangesAsync(cancellationToken);
     }
 
-    private string ResolveRole(JsonElement userData, string clerkUserId)
+    private string ResolveRole(JsonElement userData, string clerkUserId, string? username)
     {
         var adminIds = configuration["Clerk:AdminClerkUserIds"];
         if (!string.IsNullOrWhiteSpace(adminIds))
@@ -157,6 +160,18 @@ public sealed class ClerkWebhooksController(
                 .Any(x => string.Equals(x, clerkUserId, StringComparison.Ordinal));
 
             if (isConfiguredAdmin)
+            {
+                return "Admin";
+            }
+        }
+
+        var adminUsernames = configuration["Clerk:AdminUsernames"] ?? "admin";
+        if (!string.IsNullOrWhiteSpace(username))
+        {
+            var isAdminUsername = adminUsernames
+                .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                .Any(x => string.Equals(x, username, StringComparison.OrdinalIgnoreCase));
+            if (isAdminUsername)
             {
                 return "Admin";
             }

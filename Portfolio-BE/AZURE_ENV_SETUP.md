@@ -32,6 +32,9 @@ Set these in Azure App Service -> Configuration -> Application settings.
 - `Clerk__AdminClerkUserIds`
   - Comma-separated Clerk user IDs
   - Example: `user_2abc,user_2def`
+- `Clerk__AdminUsernames`
+  - Comma-separated Clerk usernames that should be treated as Admin
+  - Example: `admin,portfolio-admin`
 
 ## Required - Frontend (build-time for Vite)
 

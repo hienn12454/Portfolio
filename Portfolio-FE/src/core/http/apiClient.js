@@ -19,6 +19,12 @@ export function createApiClient(getToken) {
     getPublic(path) {
       return getJson(`${API_BASE_URL}${path}`);
     },
+    postPublic(path, payload = {}) {
+      return getJson(`${API_BASE_URL}${path}`, {
+        method: "POST",
+        body: JSON.stringify(payload)
+      });
+    },
     async getProtected(path) {
       const headers = await createAuthHeaders(getToken);
       return getJson(`${API_BASE_URL}${path}`, { headers });

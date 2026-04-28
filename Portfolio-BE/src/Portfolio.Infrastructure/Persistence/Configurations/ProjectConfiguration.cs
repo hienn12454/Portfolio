@@ -20,8 +20,25 @@ public sealed class ProjectConfiguration : IEntityTypeConfiguration<Project>
             .HasMaxLength(200)
             .IsRequired();
 
+        builder.Property(x => x.Category)
+            .HasMaxLength(20)
+            .HasDefaultValue("fullstack")
+            .IsRequired();
+
+        builder.Property(x => x.Role)
+            .HasMaxLength(120);
+
         builder.Property(x => x.Summary)
             .HasMaxLength(1000);
+
+        builder.Property(x => x.Stack)
+            .HasMaxLength(500);
+
+        builder.Property(x => x.CaseStudy)
+            .HasMaxLength(4000);
+
+        builder.Property(x => x.Impact)
+            .HasMaxLength(2000);
 
         builder.Property(x => x.RepositoryUrl)
             .HasMaxLength(500);

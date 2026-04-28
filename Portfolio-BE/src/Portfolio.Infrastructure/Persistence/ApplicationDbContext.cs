@@ -12,6 +12,7 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
     public DbSet<ContactInfo> ContactInfos => Set<ContactInfo>();
     public DbSet<PageContent> PageContents => Set<PageContent>();
     public DbSet<Project> Projects => Set<Project>();
+    public DbSet<SiteMetric> SiteMetrics => Set<SiteMetric>();
     public DbSet<Skill> Skills => Set<Skill>();
     public DbSet<User> Users => Set<User>();
 

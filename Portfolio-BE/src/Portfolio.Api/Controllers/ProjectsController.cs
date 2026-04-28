@@ -44,7 +44,12 @@ public sealed class ProjectsController(IApplicationDbContext dbContext) : Contro
 
         project.Title = request.Title;
         project.Slug = request.Slug;
+        project.Category = request.Category;
+        project.Role = request.Role;
         project.Summary = request.Summary;
+        project.Stack = request.Stack;
+        project.CaseStudy = request.CaseStudy;
+        project.Impact = request.Impact;
         project.RepositoryUrl = request.RepositoryUrl;
         project.DemoUrl = request.DemoUrl;
         project.IsFeatured = request.IsFeatured;

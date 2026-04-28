@@ -20,6 +20,9 @@ public sealed class UserConfiguration : IEntityTypeConfiguration<User>
             .HasMaxLength(320)
             .IsRequired();
 
+        builder.Property(x => x.DisplayName)
+            .HasMaxLength(120);
+
         builder.Property(x => x.FirstName)
             .HasMaxLength(100);
 
@@ -28,6 +31,18 @@ public sealed class UserConfiguration : IEntityTypeConfiguration<User>
 
         builder.Property(x => x.ImageUrl)
             .HasMaxLength(1000);
+
+        builder.Property(x => x.DateOfBirth)
+            .HasColumnType("date");
+
+        builder.Property(x => x.PhoneNumber)
+            .HasMaxLength(30);
+
+        builder.Property(x => x.Address)
+            .HasMaxLength(300);
+
+        builder.Property(x => x.Occupation)
+            .HasMaxLength(120);
 
         builder.Property(x => x.Role)
             .HasMaxLength(20)
