@@ -726,6 +726,18 @@ a {
   box-shadow: 0 20px 48px rgba(2, 8, 23, 0.42);
 }
 
+.auth-overlay--clerk {
+  display: grid;
+  justify-items: center;
+  gap: 0.7rem;
+  padding: 1rem;
+}
+
+.auth-back--center {
+  text-align: center;
+  width: 100%;
+}
+
 .auth-header p {
   color: var(--text-muted);
 }
@@ -826,25 +838,37 @@ a {
 
 .back-to-top {
   position: fixed;
+  top: auto !important;
   left: auto !important;
-  right: max(1rem, env(safe-area-inset-right));
-  bottom: max(1rem, env(safe-area-inset-bottom));
+  right: max(1rem, env(safe-area-inset-right)) !important;
+  bottom: max(1rem, env(safe-area-inset-bottom)) !important;
   border: 1px solid color-mix(in oklab, var(--accent) 58%, white);
   background: linear-gradient(130deg, color-mix(in oklab, var(--accent) 78%, white), color-mix(in oklab, var(--accent) 58%, black));
   color: #f8fafc;
   font-weight: 700;
-  font-size: 1rem;
-  line-height: 1;
+  font-size: 0;
+  line-height: 0;
   border-radius: 999px;
-  width: 46px;
-  height: 46px;
+  width: 48px;
+  height: 48px;
+  min-width: 48px;
+  min-height: 48px;
   padding: 0;
   cursor: pointer;
   box-shadow: 0 12px 28px rgba(2, 8, 23, 0.35);
-  z-index: 40;
+  z-index: 120;
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
+  transform: translateZ(0);
+}
+
+.back-to-top::before {
+  content: "↑";
+  font-size: 1rem;
+  line-height: 1;
+  font-weight: 800;
 }
 
 @media (max-width: 700px) {
