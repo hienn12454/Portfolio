@@ -38,14 +38,49 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             return;
         }
 
-        options.Authority = clerkAuthority;
+        var normalizedAuthority = clerkAuthority.Trim().TrimEnd('/');
+        var normalizedAudiences = clerkAudience
+            .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Where(value => !string.IsNullOrWhiteSpace(value))
+            .Distinct(StringComparer.Ordinal)
+            .ToArray();
+
+        options.Authority = normalizedAuthority;
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuer = true,
-            ValidIssuer = clerkAuthority,
+            ValidIssuers = new[] { normalizedAuthority, $"{normalizedAuthority}/" },
             ValidateAudience = true,
-            ValidAudience = clerkAudience,
-            ValidateLifetime = true
+            ValidAudiences = normalizedAudiences,
+            ValidateLifetime = true,
+            ClockSkew = TimeSpan.FromMinutes(2)
+        };
+
+        options.Events = new JwtBearerEvents
+        {
+            OnAuthenticationFailed = context =>
+            {
+                var logger = context.HttpContext.RequestServices
+                    .GetRequiredService<ILoggerFactory>()
+                    .CreateLogger("JwtAuth");
+                logger.LogWarning(
+                    context.Exception,
+                    "JWT authentication failed for path {Path}.",
+                    context.HttpContext.Request.Path);
+                return Task.CompletedTask;
+            },
+            OnChallenge = context =>
+            {
+                var logger = context.HttpContext.RequestServices
+                    .GetRequiredService<ILoggerFactory>()
+                    .CreateLogger("JwtAuth");
+                logger.LogWarning(
+                    "JWT challenge issued for path {Path}. Error={Error}; Description={Description}",
+                    context.HttpContext.Request.Path,
+                    context.Error,
+                    context.ErrorDescription);
+                return Task.CompletedTask;
+            }
         };
     });
 builder.Services.AddAuthorization(options =>
@@ -68,6 +103,22 @@ await app.ApplyDatabaseMigrationsAsync();
 
 app.UseHttpsRedirection();
 app.UseCors("FrontendPolicy");
+app.Use(async (context, next) =>
+{
+    if (context.Request.Path.StartsWithSegments("/api"))
+    {
+        var logger = context.RequestServices
+            .GetRequiredService<ILoggerFactory>()
+            .CreateLogger("AuthHeaderProbe");
+        var authHeader = context.Request.Headers.Authorization.FirstOrDefault();
+        logger.LogInformation(
+            "AUTH HEADER EXISTS: {HasHeader} | Path: {Path}",
+            !string.IsNullOrWhiteSpace(authHeader),
+            context.Request.Path);
+    }
+
+    await next();
+});
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();

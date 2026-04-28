@@ -2,9 +2,19 @@ import { getJson } from "./httpClient";
 
 const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL ?? "http://localhost:5000").replace(/\/+$/, "");
 const CLERK_JWT_TEMPLATE = import.meta.env.VITE_CLERK_JWT_TEMPLATE ?? "portfoliobe-api";
+const AUTH_DEBUG_ENABLED = import.meta.env.DEV || import.meta.env.VITE_DEBUG_AUTH === "true";
+
+function logAuthDebug(message, payload) {
+  if (!AUTH_DEBUG_ENABLED) {
+    return;
+  }
+
+  console.info(`[auth-debug] ${message}`, payload);
+}
 
 async function createAuthHeaders(getToken) {
   const token = await getToken({ template: CLERK_JWT_TEMPLATE });
+  logAuthDebug("HAS TOKEN", { hasToken: !!token, template: CLERK_JWT_TEMPLATE });
 
   if (!token) {
     throw new Error(
@@ -30,10 +40,12 @@ export function createApiClient(getToken) {
     },
     async getProtected(path) {
       const headers = await createAuthHeaders(getToken);
+      logAuthDebug("HAS AUTH HEADER", { method: "GET", path, hasAuthorization: !!headers.Authorization });
       return getJson(`${API_BASE_URL}${path}`, { headers });
     },
     async putProtected(path, payload) {
       const headers = await createAuthHeaders(getToken);
+      logAuthDebug("HAS AUTH HEADER", { method: "PUT", path, hasAuthorization: !!headers.Authorization });
       return getJson(`${API_BASE_URL}${path}`, {
         method: "PUT",
         headers,
@@ -42,6 +54,7 @@ export function createApiClient(getToken) {
     },
     async postProtected(path, payload) {
       const headers = await createAuthHeaders(getToken);
+      logAuthDebug("HAS AUTH HEADER", { method: "POST", path, hasAuthorization: !!headers.Authorization });
       return getJson(`${API_BASE_URL}${path}`, {
         method: "POST",
         headers,
@@ -50,6 +63,7 @@ export function createApiClient(getToken) {
     },
     async deleteProtected(path) {
       const headers = await createAuthHeaders(getToken);
+      logAuthDebug("HAS AUTH HEADER", { method: "DELETE", path, hasAuthorization: !!headers.Authorization });
       return getJson(`${API_BASE_URL}${path}`, {
         method: "DELETE",
         headers

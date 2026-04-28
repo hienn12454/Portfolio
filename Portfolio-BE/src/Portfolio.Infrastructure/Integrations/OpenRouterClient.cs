@@ -1,6 +1,7 @@
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using Microsoft.Extensions.Configuration;
 using Portfolio.Application.Abstractions;
 
@@ -9,6 +10,28 @@ namespace Portfolio.Infrastructure.Integrations;
 public sealed class OpenRouterClient(IHttpClientFactory httpClientFactory, IConfiguration configuration) : IOpenRouterClient
 {
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
+    private static readonly string[] ProfanityTerms =
+    [
+        "dm",
+        "dmm",
+        "đm",
+        "đmm",
+        "địt",
+        "dit",
+        "cặc",
+        "cak",
+        "đéo",
+        "deo",
+        "lồn",
+        "lon",
+        "vcl",
+        "vl",
+        "fuck",
+        "fucking",
+        "shit",
+        "bitch",
+        "asshole"
+    ];
 
     public bool IsConfigured => !string.IsNullOrWhiteSpace(configuration["OpenRouter:ApiKey"]);
 
@@ -60,11 +83,12 @@ public sealed class OpenRouterClient(IHttpClientFactory httpClientFactory, IConf
             3) project gợi ý
             4) kỹ năng cần ưu tiên
             5) 2-3 nguồn tham khảo nên đọc tiếp
+            Tuyệt đối không sử dụng từ ngữ thô tục, xúc phạm, hoặc nội dung độc hại.
             """,
             userPrompt: prompt,
             fallback:
             "Bạn nên bắt đầu từ kiến thức nền, bám roadmap theo chuyên ngành, và học theo chu kỳ 30-60-90 ngày với project thực hành.",
-            maxTokens: 600,
+            maxTokens: 2000,
             cancellationToken);
     }
 
@@ -113,7 +137,7 @@ public sealed class OpenRouterClient(IHttpClientFactory httpClientFactory, IConf
             systemPrompt: "Bạn tạo learning roadmap súc tích, thực dụng, ưu tiên tính khả thi.",
             userPrompt: prompt,
             fallback: fallback,
-            maxTokens: 900,
+            maxTokens: 2000,
             cancellationToken);
     }
 
@@ -169,6 +193,26 @@ public sealed class OpenRouterClient(IHttpClientFactory httpClientFactory, IConf
         var responseText = await response.Content.ReadAsStringAsync(cancellationToken);
         using var json = JsonDocument.Parse(responseText);
         var content = json.RootElement.GetProperty("choices")[0].GetProperty("message").GetProperty("content").GetString();
-        return string.IsNullOrWhiteSpace(content) ? fallback : content.Trim();
+        if (string.IsNullOrWhiteSpace(content))
+        {
+            return fallback;
+        }
+
+        return SanitizeAnswer(content.Trim());
+    }
+
+    private static string SanitizeAnswer(string input)
+    {
+        var output = input;
+        foreach (var term in ProfanityTerms)
+        {
+            output = Regex.Replace(
+                output,
+                $@"\b{Regex.Escape(term)}\b",
+                "***",
+                RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+        }
+
+        return output;
     }
 }

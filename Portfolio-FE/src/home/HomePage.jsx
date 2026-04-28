@@ -1197,13 +1197,11 @@ export function HomePage() {
       {showBackToTop ? (
         <button
           type="button"
-          className="back-to-top"
+          className="back-to-top portfolio-back-to-top"
           aria-label={content.backToTop}
           title={content.backToTop}
           onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-        >
-          ↑
-        </button>
+        />
       ) : null}
     </main>
   );

@@ -65,12 +65,17 @@ public sealed class CareerAdvisorService(
     public async Task<CareerChatResult> AskAsync(CareerChatRequest request, CancellationToken cancellationToken)
     {
         var normalizedQuestion = request.Message.Trim();
+        var userContext = BuildUserContextSnippet(normalizedQuestion, request.Track, request.History);
         var retrievedChunks = RetrieveRelevantChunks(normalizedQuestion, request.Track);
-        var ragContext = string.Join("\n\n", retrievedChunks.Select(chunk => $"- {chunk.Title}: {chunk.Content}"));
+        var ragContext = string.Join(
+            "\n\n",
+            retrievedChunks.Select(chunk => $"- {chunk.Title}: {chunk.Content}")
+                .Append($"- User context profile: {userContext}"));
         var historyText = BuildHistorySnippet(request.History);
         var roadmapSlug = ResolveRoadmapSlug(request.Track, normalizedQuestion);
         var roadmapTopics = await roadmapShClient.GetRoadmapTopicsAsync(roadmapSlug, cancellationToken);
-        var webResearchItems = await webResearchClient.SearchAsync($"{request.Track} {normalizedQuestion}".Trim(), cancellationToken);
+        var webQuery = BuildWebQuery(request.Track, normalizedQuestion, request.History);
+        var webResearchItems = await webResearchClient.SearchAsync(webQuery, cancellationToken);
 
         var answer = await openRouterClient.GetCareerAdviceAsync(
             request.Track ?? "general",
@@ -124,11 +129,11 @@ public sealed class CareerAdvisorService(
             .Select(chunk => new { Chunk = chunk, Score = chunk.Keywords.Count(keyword => tokens.Contains(keyword)) })
             .OrderByDescending(item => item.Score)
             .ThenBy(item => item.Chunk.Title)
-            .Take(3)
+            .Take(5)
             .Select(item => item.Chunk)
             .ToList();
 
-        return ranked.Count == 0 ? KnowledgeBase.Take(3).ToList() : ranked;
+        return ranked.Count == 0 ? KnowledgeBase.Take(5).ToList() : ranked;
     }
 
     private static HashSet<string> Tokenize(string input)
@@ -154,6 +159,30 @@ public sealed class CareerAdvisorService(
     private static string Truncate(string value, int maxLength)
     {
         return value.Length <= maxLength ? value : $"{value[..maxLength]}...";
+    }
+
+    private static string BuildWebQuery(string? track, string question, IReadOnlyCollection<CareerChatHistoryItem>? history)
+    {
+        var historyKeywords = history is null
+            ? string.Empty
+            : string.Join(
+                " ",
+                history.TakeLast(4)
+                    .SelectMany(item => Tokenize(item.Content))
+                    .Take(12));
+
+        return $"{track} {question} {historyKeywords} learning roadmap best practices".Trim();
+    }
+
+    private static string BuildUserContextSnippet(string question, string? track, IReadOnlyCollection<CareerChatHistoryItem>? history)
+    {
+        var historyText = history is null || history.Count == 0
+            ? "no prior preferences provided"
+            : string.Join(
+                "; ",
+                history.TakeLast(4).Select(item => $"{item.Role}: {Truncate(item.Content, 120)}"));
+
+        return $"track={track ?? "general"}; current_question={Truncate(question, 240)}; history={historyText}";
     }
 
     private static string Slugify(string input)
