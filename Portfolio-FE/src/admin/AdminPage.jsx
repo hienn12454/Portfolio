@@ -18,7 +18,7 @@ export function AdminPage() {
         <section className="section container">
           <h2>Admin Access Required</h2>
           <p>Sign in with your Clerk account to continue.</p>
-          <SignInButton mode="modal">
+          <SignInButton mode="redirect" forceRedirectUrl="/admin" fallbackRedirectUrl="/admin">
             <button type="button" className="button button--primary">
               Sign in
             </button>

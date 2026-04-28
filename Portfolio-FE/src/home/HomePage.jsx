@@ -410,6 +410,8 @@ export function HomePage() {
   const [copiedEmail, setCopiedEmail] = useState(false);
   const [showBackToTop, setShowBackToTop] = useState(false);
   const [isAdminUser, setIsAdminUser] = useState(false);
+  const signInRedirectUrl = "/admin";
+  const signUpRedirectUrl = "/admin";
   const content = contentByLanguage[language];
   const localizedSkills = useMemo(() => skills[language], [language]);
   const displayedSkills = useMemo(() => {
@@ -581,10 +583,28 @@ export function HomePage() {
               </button>
               {!isSignedIn ? (
                 <>
-                  <button type="button" className="button button--ghost button--small auth-button auth-button--signin" onClick={() => openSignIn()}>
+                  <button
+                    type="button"
+                    className="button button--ghost button--small auth-button auth-button--signin"
+                    onClick={() =>
+                      openSignIn({
+                        forceRedirectUrl: signInRedirectUrl,
+                        fallbackRedirectUrl: signInRedirectUrl
+                      })
+                    }
+                  >
                     {content.auth.signIn}
                   </button>
-                  <button type="button" className="button button--primary button--small auth-button auth-button--signup" onClick={() => openSignUp()}>
+                  <button
+                    type="button"
+                    className="button button--primary button--small auth-button auth-button--signup"
+                    onClick={() =>
+                      openSignUp({
+                        forceRedirectUrl: signUpRedirectUrl,
+                        fallbackRedirectUrl: signUpRedirectUrl
+                      })
+                    }
+                  >
                     {content.auth.signUp}
                   </button>
                 </>
