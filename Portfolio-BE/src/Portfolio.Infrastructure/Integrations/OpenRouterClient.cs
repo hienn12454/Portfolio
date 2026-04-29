@@ -88,6 +88,9 @@ public sealed class OpenRouterClient(
             4) kỹ năng cần ưu tiên
             5) 2-3 nguồn tham khảo nên đọc tiếp
             Tuyệt đối không sử dụng từ ngữ thô tục, xúc phạm, hoặc nội dung độc hại.
+            KHONG dung markdown.
+            KHONG dung cac ky tu dac biet nhu *, #, $, `.
+            Chi duoc dung van ban thuong va gach dau dong bang dau "-".
             """,
             userPrompt: prompt,
             fallback: BuildCareerAdviceFallback(track, userQuestion, roadmapSlug, roadmapTopics, webResearchItems),
@@ -179,10 +182,12 @@ public sealed class OpenRouterClient(
             }
         };
         logger.LogInformation(
-            "OpenRouter request starting. Model: {Model}; MaxTokens: {MaxTokens}; Temperature: {Temperature}",
+            "OpenRouter request starting. Model: {Model}; MaxTokens: {MaxTokens}; Temperature: {Temperature}; Referer: {Referer}; ApiKeyLength: {ApiKeyLength}",
             model,
             resolvedMaxTokens,
-            temperature);
+            temperature,
+            referer,
+            apiKey.Length);
 
         var httpClient = httpClientFactory.CreateClient();
         using var request = new HttpRequestMessage(HttpMethod.Post, "https://openrouter.ai/api/v1/chat/completions")
@@ -193,34 +198,62 @@ public sealed class OpenRouterClient(
         request.Headers.TryAddWithoutValidation("HTTP-Referer", referer);
         request.Headers.TryAddWithoutValidation("X-OpenRouter-Title", appTitle);
 
-        using var response = await httpClient.SendAsync(request, cancellationToken);
-        if (!response.IsSuccessStatusCode)
+        try
         {
-            var errorBody = await response.Content.ReadAsStringAsync(cancellationToken);
-            logger.LogWarning(
-                "OpenRouter request failed. Status: {StatusCode}; Body: {Body}",
-                (int)response.StatusCode,
-                Truncate(errorBody, 600));
+            using var response = await httpClient.SendAsync(request, cancellationToken);
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorBody = await response.Content.ReadAsStringAsync(cancellationToken);
+                logger.LogWarning(
+                    "OpenRouter request failed. Status: {StatusCode}; Reason: {ReasonPhrase}; Body: {Body}",
+                    (int)response.StatusCode,
+                    response.ReasonPhrase,
+                    Truncate(errorBody, 1200));
+                return fallback;
+            }
+
+            var responseText = await response.Content.ReadAsStringAsync(cancellationToken);
+            logger.LogInformation(
+                "OpenRouter response success. PayloadLength: {PayloadLength}",
+                responseText.Length);
+
+            using var json = JsonDocument.Parse(responseText);
+            var content = ExtractMessageContent(json.RootElement);
+            if (string.IsNullOrWhiteSpace(content))
+            {
+                logger.LogWarning("OpenRouter returned empty content. Falling back.");
+                return fallback;
+            }
+
+            var sanitized = SanitizeAnswer(content.Trim());
+            if (sanitized.Length < 90)
+            {
+                logger.LogWarning("OpenRouter content too short ({Length}). Falling back.", sanitized.Length);
+                return fallback;
+            }
+
+            return NormalizePlainBullets(sanitized);
+        }
+        catch (TaskCanceledException ex) when (!cancellationToken.IsCancellationRequested)
+        {
+            logger.LogError(ex, "OpenRouter request timed out before completion.");
             return fallback;
         }
-
-        var responseText = await response.Content.ReadAsStringAsync(cancellationToken);
-        using var json = JsonDocument.Parse(responseText);
-        var content = ExtractMessageContent(json.RootElement);
-        if (string.IsNullOrWhiteSpace(content))
+        catch (HttpRequestException ex)
         {
-            logger.LogWarning("OpenRouter returned empty content. Falling back.");
+            logger.LogError(ex, "OpenRouter HTTP request error.");
             return fallback;
         }
-
-        var sanitized = SanitizeAnswer(content.Trim());
-        if (sanitized.Length < 90)
+        catch (JsonException ex)
         {
-            logger.LogWarning("OpenRouter content too short ({Length}). Falling back.", sanitized.Length);
+            logger.LogError(ex, "OpenRouter response JSON parse error.");
             return fallback;
         }
-
-        return sanitized;
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Unexpected OpenRouter integration error.");
+            return fallback;
+        }
     }
 
     private static string SanitizeAnswer(string input)
@@ -257,7 +290,7 @@ public sealed class OpenRouterClient(
             ? "- roadmap.sh\n- Tài liệu chính thức của stack bạn chọn"
             : string.Join("\n", readingSources.Select(source => $"- {source.Title} ({source.Url})"));
 
-        return $$"""
+        return NormalizePlainBullets($$"""
         Mình đang tạm dùng chế độ dự phòng AI, nhưng vẫn xây được lộ trình theo ngữ cảnh của bạn.
 
         **Track hiện tại:** {{normalizedTrack}}
@@ -278,7 +311,7 @@ public sealed class OpenRouterClient(
 
         4) Nguồn đọc thêm:
         {{sourcesText}}
-        """;
+        """);
     }
 
     private static string Truncate(string value, int maxLength)
@@ -289,6 +322,46 @@ public sealed class OpenRouterClient(
         }
 
         return value.Length <= maxLength ? value : $"{value[..maxLength]}...";
+    }
+
+    private static string NormalizePlainBullets(string input)
+    {
+        if (string.IsNullOrWhiteSpace(input))
+        {
+            return input;
+        }
+
+        var withoutMarkdown = input
+            .Replace("**", string.Empty)
+            .Replace("*", string.Empty)
+            .Replace("#", string.Empty)
+            .Replace("$", string.Empty)
+            .Replace("`", string.Empty);
+
+        var lines = withoutMarkdown
+            .Split('\n')
+            .Select(line => line.Trim())
+            .Where(line => !string.IsNullOrWhiteSpace(line))
+            .ToList();
+
+        for (var i = 0; i < lines.Count; i++)
+        {
+            var line = lines[i];
+            if (Regex.IsMatch(line, @"^\d+\)"))
+            {
+                lines[i] = $"- {line}";
+                continue;
+            }
+
+            if (line.StartsWith("- "))
+            {
+                continue;
+            }
+
+            lines[i] = $"- {line}";
+        }
+
+        return string.Join('\n', lines);
     }
 
     private static string? ExtractMessageContent(JsonElement root)

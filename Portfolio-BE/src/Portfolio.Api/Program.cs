@@ -158,6 +158,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 app.MapGet("/", () => Results.Redirect("/swagger"));
+app.MapMethods("/", new[] { "OPTIONS" }, () => Results.NoContent());
 
 app.MapGet("/health", () => Results.Ok(new { Status = "Healthy" }));
 
