@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 using Portfolio.Application.Abstractions;
 
 namespace Portfolio.Api.Auth;
@@ -10,7 +11,7 @@ public sealed class AdminRequirementHandler(IApplicationDbContext dbContext) : A
         AuthorizationHandlerContext context,
         AdminRequirement requirement)
     {
-        var clerkUserId = context.User.FindFirst("sub")?.Value;
+        var clerkUserId = ResolveClerkUserId(context.User);
         if (string.IsNullOrWhiteSpace(clerkUserId))
         {
             return;
@@ -24,5 +25,12 @@ public sealed class AdminRequirementHandler(IApplicationDbContext dbContext) : A
         {
             context.Succeed(requirement);
         }
+    }
+
+    private static string? ResolveClerkUserId(ClaimsPrincipal user)
+    {
+        return user.FindFirst("sub")?.Value
+            ?? user.FindFirst(ClaimTypes.NameIdentifier)?.Value
+            ?? user.FindFirst("user_id")?.Value;
     }
 }

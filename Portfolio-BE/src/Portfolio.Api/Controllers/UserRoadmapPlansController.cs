@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using Portfolio.Application.Features.RoadmapPlans;
 using Portfolio.Application.Features.Users;
 
@@ -76,7 +77,7 @@ public sealed class UserRoadmapPlansController(
 
     private async Task<Domain.Entities.User?> ResolveCurrentUserAsync(CancellationToken cancellationToken)
     {
-        var clerkUserId = User.FindFirst("sub")?.Value;
+        var clerkUserId = ResolveClerkUserId(User);
         if (string.IsNullOrWhiteSpace(clerkUserId))
         {
             return null;
@@ -84,6 +85,13 @@ public sealed class UserRoadmapPlansController(
 
         var email = User.FindFirst("email")?.Value;
         return await currentAppUserService.EnsureByClerkAsync(clerkUserId, email, cancellationToken);
+    }
+
+    private static string? ResolveClerkUserId(ClaimsPrincipal user)
+    {
+        return user.FindFirst("sub")?.Value
+            ?? user.FindFirst(ClaimTypes.NameIdentifier)?.Value
+            ?? user.FindFirst("user_id")?.Value;
     }
 }
 

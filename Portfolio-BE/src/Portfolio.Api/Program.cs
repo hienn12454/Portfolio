@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
+using System.Text.Json;
 using Portfolio.Api.Auth;
 using Portfolio.Api.Extensions;
 using Portfolio.Application;
@@ -115,6 +116,39 @@ app.Use(async (context, next) =>
             "AUTH HEADER EXISTS: {HasHeader} | Path: {Path}",
             !string.IsNullOrWhiteSpace(authHeader),
             context.Request.Path);
+
+        if (!string.IsNullOrWhiteSpace(authHeader) &&
+            authHeader.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
+        {
+            var token = authHeader["Bearer ".Length..].Trim();
+            var parts = token.Split('.');
+            if (parts.Length >= 2)
+            {
+                try
+                {
+                    var payloadBytes = Convert.FromBase64String(
+                        parts[1]
+                            .Replace('-', '+')
+                            .Replace('_', '/')
+                            .PadRight(parts[1].Length + (4 - parts[1].Length % 4) % 4, '='));
+                    using var json = JsonDocument.Parse(payloadBytes);
+                    var root = json.RootElement;
+                    var aud = root.TryGetProperty("aud", out var audNode) ? audNode.ToString() : "(missing)";
+                    var iss = root.TryGetProperty("iss", out var issNode) ? issNode.GetString() : "(missing)";
+                    var sub = root.TryGetProperty("sub", out var subNode) ? subNode.GetString() : "(missing)";
+                    logger.LogInformation(
+                        "JWT PROBE | Path: {Path} | aud: {Aud} | iss: {Iss} | sub-present: {HasSub}",
+                        context.Request.Path,
+                        aud,
+                        iss,
+                        !string.IsNullOrWhiteSpace(sub));
+                }
+                catch (Exception ex)
+                {
+                    logger.LogWarning(ex, "JWT PROBE decode failed for path {Path}.", context.Request.Path);
+                }
+            }
+        }
     }
 
     await next();

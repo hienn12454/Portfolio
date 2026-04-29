@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 using Portfolio.Application.Abstractions;
 using Portfolio.Application.Features.Users;
 
@@ -35,7 +36,7 @@ public sealed class AuthController(
     [HttpGet("me")]
     public async Task<IActionResult> Me(CancellationToken cancellationToken)
     {
-        var clerkUserId = User.FindFirst("sub")?.Value;
+        var clerkUserId = ResolveClerkUserId(User);
         if (string.IsNullOrWhiteSpace(clerkUserId))
         {
             return Unauthorized(new { Message = "Missing Clerk user id claim." });
@@ -98,7 +99,7 @@ public sealed class AuthController(
     [HttpPut("me/profile")]
     public async Task<IActionResult> UpdateMyProfile([FromBody] UpdateMyProfileRequest request, CancellationToken cancellationToken)
     {
-        var clerkUserId = User.FindFirst("sub")?.Value;
+        var clerkUserId = ResolveClerkUserId(User);
         if (string.IsNullOrWhiteSpace(clerkUserId))
         {
             return Unauthorized(new { Message = "Missing Clerk user id claim." });
@@ -163,6 +164,13 @@ public sealed class AuthController(
             appUser.Role,
             appUser.IsActive
         };
+    }
+
+    private static string? ResolveClerkUserId(ClaimsPrincipal user)
+    {
+        return user.FindFirst("sub")?.Value
+            ?? user.FindFirst(ClaimTypes.NameIdentifier)?.Value
+            ?? user.FindFirst("user_id")?.Value;
     }
 
     private string ResolveRole(string clerkUserId, string? username)
