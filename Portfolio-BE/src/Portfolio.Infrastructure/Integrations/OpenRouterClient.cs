@@ -3,11 +3,15 @@ using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Portfolio.Application.Abstractions;
 
 namespace Portfolio.Infrastructure.Integrations;
 
-public sealed class OpenRouterClient(IHttpClientFactory httpClientFactory, IConfiguration configuration) : IOpenRouterClient
+public sealed class OpenRouterClient(
+    IHttpClientFactory httpClientFactory,
+    IConfiguration configuration,
+    ILogger<OpenRouterClient> logger) : IOpenRouterClient
 {
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
     private static readonly string[] ProfanityTerms =
@@ -86,8 +90,7 @@ public sealed class OpenRouterClient(IHttpClientFactory httpClientFactory, IConf
             Tuyệt đối không sử dụng từ ngữ thô tục, xúc phạm, hoặc nội dung độc hại.
             """,
             userPrompt: prompt,
-            fallback:
-            "Bạn nên bắt đầu từ kiến thức nền, bám roadmap theo chuyên ngành, và học theo chu kỳ 30-60-90 ngày với project thực hành.",
+            fallback: BuildCareerAdviceFallback(track, userQuestion, roadmapSlug, roadmapTopics, webResearchItems),
             maxTokens: 2000,
             cancellationToken);
     }
@@ -151,6 +154,7 @@ public sealed class OpenRouterClient(IHttpClientFactory httpClientFactory, IConf
         var apiKey = configuration["OpenRouter:ApiKey"];
         if (string.IsNullOrWhiteSpace(apiKey))
         {
+            logger.LogWarning("OpenRouter API key is missing. Falling back to local response.");
             return fallback;
         }
 
@@ -174,6 +178,11 @@ public sealed class OpenRouterClient(IHttpClientFactory httpClientFactory, IConf
                 new { role = "user", content = userPrompt }
             }
         };
+        logger.LogInformation(
+            "OpenRouter request starting. Model: {Model}; MaxTokens: {MaxTokens}; Temperature: {Temperature}",
+            model,
+            resolvedMaxTokens,
+            temperature);
 
         var httpClient = httpClientFactory.CreateClient();
         using var request = new HttpRequestMessage(HttpMethod.Post, "https://openrouter.ai/api/v1/chat/completions")
@@ -187,18 +196,31 @@ public sealed class OpenRouterClient(IHttpClientFactory httpClientFactory, IConf
         using var response = await httpClient.SendAsync(request, cancellationToken);
         if (!response.IsSuccessStatusCode)
         {
+            var errorBody = await response.Content.ReadAsStringAsync(cancellationToken);
+            logger.LogWarning(
+                "OpenRouter request failed. Status: {StatusCode}; Body: {Body}",
+                (int)response.StatusCode,
+                Truncate(errorBody, 600));
             return fallback;
         }
 
         var responseText = await response.Content.ReadAsStringAsync(cancellationToken);
         using var json = JsonDocument.Parse(responseText);
-        var content = json.RootElement.GetProperty("choices")[0].GetProperty("message").GetProperty("content").GetString();
+        var content = ExtractMessageContent(json.RootElement);
         if (string.IsNullOrWhiteSpace(content))
         {
+            logger.LogWarning("OpenRouter returned empty content. Falling back.");
             return fallback;
         }
 
-        return SanitizeAnswer(content.Trim());
+        var sanitized = SanitizeAnswer(content.Trim());
+        if (sanitized.Length < 90)
+        {
+            logger.LogWarning("OpenRouter content too short ({Length}). Falling back.", sanitized.Length);
+            return fallback;
+        }
+
+        return sanitized;
     }
 
     private static string SanitizeAnswer(string input)
@@ -214,5 +236,112 @@ public sealed class OpenRouterClient(IHttpClientFactory httpClientFactory, IConf
         }
 
         return output;
+    }
+
+    private static string BuildCareerAdviceFallback(
+        string track,
+        string userQuestion,
+        string roadmapSlug,
+        IReadOnlyCollection<string> roadmapTopics,
+        IReadOnlyCollection<WebResearchItem> webResearchItems)
+    {
+        var normalizedTrack = string.IsNullOrWhiteSpace(track) ? "IT tổng quát" : track.Trim();
+        var coreTopics = roadmapTopics.Take(8).ToList();
+        var readingSources = webResearchItems.Take(3).ToList();
+
+        var topicsText = coreTopics.Count == 0
+            ? "- Nền tảng lập trình\n- Kiến trúc hệ thống\n- Thực hành dự án"
+            : string.Join("\n", coreTopics.Select(topic => $"- {topic}"));
+
+        var sourcesText = readingSources.Count == 0
+            ? "- roadmap.sh\n- Tài liệu chính thức của stack bạn chọn"
+            : string.Join("\n", readingSources.Select(source => $"- {source.Title} ({source.Url})"));
+
+        return $$"""
+        Mình đang tạm dùng chế độ dự phòng AI, nhưng vẫn xây được lộ trình theo ngữ cảnh của bạn.
+
+        **Track hiện tại:** {{normalizedTrack}}
+        **Câu hỏi:** {{userQuestion}}
+        **Roadmap tham chiếu:** roadmap.sh/{{roadmapSlug}}
+
+        1) Hướng đi đề xuất:
+        - Ưu tiên học theo roadmap cố định 30-60-90 ngày.
+        - Mỗi tuần dành thời gian cho cả lý thuyết + project nhỏ.
+
+        2) Roadmap 30-60-90 ngày (rút gọn):
+        - 30 ngày đầu: củng cố nền tảng + 1 mini project.
+        - 60 ngày tiếp: mở rộng kỹ năng chính + 1 project thực chiến có deploy.
+        - 90 ngày: tối ưu, viết tài liệu, chuẩn bị CV + interview.
+
+        3) Kỹ năng nên ưu tiên:
+        {{topicsText}}
+
+        4) Nguồn đọc thêm:
+        {{sourcesText}}
+        """;
+    }
+
+    private static string Truncate(string value, int maxLength)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return string.Empty;
+        }
+
+        return value.Length <= maxLength ? value : $"{value[..maxLength]}...";
+    }
+
+    private static string? ExtractMessageContent(JsonElement root)
+    {
+        if (!root.TryGetProperty("choices", out var choices) ||
+            choices.ValueKind != JsonValueKind.Array ||
+            choices.GetArrayLength() == 0)
+        {
+            return null;
+        }
+
+        var message = choices[0].GetProperty("message");
+        if (!message.TryGetProperty("content", out var contentNode))
+        {
+            return null;
+        }
+
+        if (contentNode.ValueKind == JsonValueKind.String)
+        {
+            return contentNode.GetString();
+        }
+
+        if (contentNode.ValueKind != JsonValueKind.Array)
+        {
+            return contentNode.ToString();
+        }
+
+        var textParts = new List<string>();
+        foreach (var part in contentNode.EnumerateArray())
+        {
+            if (part.ValueKind == JsonValueKind.String)
+            {
+                var text = part.GetString();
+                if (!string.IsNullOrWhiteSpace(text))
+                {
+                    textParts.Add(text.Trim());
+                }
+
+                continue;
+            }
+
+            if (part.ValueKind == JsonValueKind.Object &&
+                part.TryGetProperty("text", out var textNode) &&
+                textNode.ValueKind == JsonValueKind.String)
+            {
+                var text = textNode.GetString();
+                if (!string.IsNullOrWhiteSpace(text))
+                {
+                    textParts.Add(text.Trim());
+                }
+            }
+        }
+
+        return textParts.Count == 0 ? null : string.Join("\n", textParts);
     }
 }

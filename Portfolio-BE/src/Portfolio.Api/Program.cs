@@ -28,7 +28,8 @@ builder.Services.AddCors(options =>
 
         policy.WithOrigins(allowedOrigins)
             .AllowAnyHeader()
-            .AllowAnyMethod();
+            .AllowAnyMethod()
+            .SetPreflightMaxAge(TimeSpan.FromHours(12));
     });
 });
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
