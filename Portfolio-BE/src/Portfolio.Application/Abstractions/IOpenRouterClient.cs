@@ -1,5 +1,12 @@
 namespace Portfolio.Application.Abstractions;
 
+public sealed record OpenRouterDiagnosticResult(
+    bool ApiKeyConfigured,
+    string Provider,
+    string BaseUrl,
+    string ModelId,
+    string? TestError);
+
 public interface IOpenRouterClient
 {
     bool IsConfigured { get; }
@@ -19,4 +26,6 @@ public interface IOpenRouterClient
         string roadmapSlug,
         IReadOnlyCollection<string> roadmapTopics,
         CancellationToken cancellationToken);
+
+    Task<OpenRouterDiagnosticResult> GetDiagnosticAsync(CancellationToken cancellationToken);
 }

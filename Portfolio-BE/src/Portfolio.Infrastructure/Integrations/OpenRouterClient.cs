@@ -39,6 +39,105 @@ public sealed class OpenRouterClient(
 
     public bool IsConfigured => !string.IsNullOrWhiteSpace(configuration["OpenRouter:ApiKey"]);
 
+    public async Task<OpenRouterDiagnosticResult> GetDiagnosticAsync(CancellationToken cancellationToken = default)
+    {
+        var apiKey = configuration["OpenRouter:ApiKey"];
+        var baseUrl = (configuration["OpenRouter:BaseUrl"] ?? "https://openrouter.ai/api/v1").Trim().TrimEnd('/');
+        var modelId = (configuration["OpenRouter:ModelId"] ?? configuration["OpenRouter:Model"] ?? "qwen/qwen3-coder:free").Trim();
+
+        var provider = "OpenRouter";
+
+        if (string.IsNullOrWhiteSpace(apiKey))
+        {
+            return new OpenRouterDiagnosticResult(
+                ApiKeyConfigured: false,
+                Provider: provider,
+                BaseUrl: baseUrl,
+                ModelId: modelId,
+                TestError: $"{provider}:ApiKey chưa được cấu hình.");
+        }
+
+        if (string.IsNullOrWhiteSpace(modelId))
+        {
+            return new OpenRouterDiagnosticResult(
+                ApiKeyConfigured: true,
+                Provider: provider,
+                BaseUrl: baseUrl,
+                ModelId: modelId,
+                TestError: $"{provider}:ModelId chưa được cấu hình.");
+        }
+
+        var referer = configuration["OpenRouter:HttpReferer"] ?? "https://localhost";
+        var title = configuration["OpenRouter:SiteTitle"] ?? configuration["OpenRouter:AppTitle"] ?? "Portfolio Planner";
+
+        try
+        {
+            // Chẩn đoán đơn giản: gọi /chat/completions với max_tokens nhỏ
+            var payload = new
+            {
+                model = modelId,
+                temperature = configuration.GetValue<double?>("OpenRouter:Temperature") ?? 0.35,
+                max_tokens = 5,
+                messages = new object[]
+                {
+                    new { role = "system", content = "You are a helpful assistant." },
+                    new { role = "user", content = "Hello" }
+                }
+            };
+
+            var httpClient = httpClientFactory.CreateClient();
+            using var request = new HttpRequestMessage(HttpMethod.Post, $"{baseUrl}/chat/completions")
+            {
+                Content = new StringContent(JsonSerializer.Serialize(payload, JsonOptions), Encoding.UTF8, "application/json")
+            };
+
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", apiKey);
+            request.Headers.TryAddWithoutValidation("HTTP-Referer", referer);
+            request.Headers.TryAddWithoutValidation("X-OpenRouter-Title", title);
+
+            using var response = await httpClient.SendAsync(request, cancellationToken);
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorBody = await response.Content.ReadAsStringAsync(cancellationToken);
+                return new OpenRouterDiagnosticResult(
+                    ApiKeyConfigured: true,
+                    Provider: provider,
+                    BaseUrl: baseUrl,
+                    ModelId: modelId,
+                    TestError: $"{provider} trả {(int)response.StatusCode}: {Truncate(errorBody, 1200)}");
+            }
+
+            var responseText = await response.Content.ReadAsStringAsync(cancellationToken);
+            using var json = JsonDocument.Parse(responseText);
+            var content = ExtractMessageContent(json.RootElement);
+            if (string.IsNullOrWhiteSpace(content))
+            {
+                return new OpenRouterDiagnosticResult(
+                    ApiKeyConfigured: true,
+                    Provider: provider,
+                    BaseUrl: baseUrl,
+                    ModelId: modelId,
+                    TestError: $"{provider} trả response nhưng không có choices[0].message.content");
+            }
+
+            return new OpenRouterDiagnosticResult(
+                ApiKeyConfigured: true,
+                Provider: provider,
+                BaseUrl: baseUrl,
+                ModelId: modelId,
+                TestError: null);
+        }
+        catch (Exception ex)
+        {
+            return new OpenRouterDiagnosticResult(
+                ApiKeyConfigured: true,
+                Provider: provider,
+                BaseUrl: baseUrl,
+                ModelId: modelId,
+                TestError: ex.Message);
+        }
+    }
+
     public async Task<string> GetCareerAdviceAsync(
         string track,
         string userQuestion,
@@ -161,9 +260,10 @@ public sealed class OpenRouterClient(
             return fallback;
         }
 
-        var model = configuration["OpenRouter:Model"] ?? "qwen/qwen3-coder:free";
+        var baseUrl = (configuration["OpenRouter:BaseUrl"] ?? "https://openrouter.ai/api/v1").Trim().TrimEnd('/');
+        var model = (configuration["OpenRouter:ModelId"] ?? configuration["OpenRouter:Model"] ?? "qwen/qwen3-coder:free").Trim();
         var referer = configuration["OpenRouter:HttpReferer"] ?? "https://localhost";
-        var appTitle = configuration["OpenRouter:AppTitle"] ?? "Portfolio Planner";
+        var appTitle = configuration["OpenRouter:SiteTitle"] ?? configuration["OpenRouter:AppTitle"] ?? "Portfolio Planner";
         var temperature = configuration.GetValue<double?>("OpenRouter:Temperature") ?? 0.35;
         var configuredMaxTokens = configuration.GetValue<int?>("OpenRouter:MaxTokens");
         var resolvedMaxTokens = configuredMaxTokens.HasValue && configuredMaxTokens.Value > 0
@@ -190,7 +290,7 @@ public sealed class OpenRouterClient(
             apiKey.Length);
 
         var httpClient = httpClientFactory.CreateClient();
-        using var request = new HttpRequestMessage(HttpMethod.Post, "https://openrouter.ai/api/v1/chat/completions")
+        using var request = new HttpRequestMessage(HttpMethod.Post, $"{baseUrl}/chat/completions")
         {
             Content = new StringContent(JsonSerializer.Serialize(payload, JsonOptions), Encoding.UTF8, "application/json")
         };

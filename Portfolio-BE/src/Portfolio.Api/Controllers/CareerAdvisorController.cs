@@ -1,12 +1,22 @@
 using Microsoft.AspNetCore.Mvc;
+using Portfolio.Application.Abstractions;
 using Portfolio.Application.Features.CareerAdvisor;
 
 namespace Portfolio.Api.Controllers;
 
 [ApiController]
 [Route("api/career")]
-public sealed class CareerAdvisorController(ICareerAdvisorService careerAdvisorService) : ControllerBase
+public sealed class CareerAdvisorController(
+    ICareerAdvisorService careerAdvisorService,
+    IOpenRouterClient openRouterClient) : ControllerBase
 {
+    [HttpGet("chat/diagnostic")]
+    public async Task<IActionResult> ChatDiagnostic(CancellationToken cancellationToken)
+    {
+        var result = await openRouterClient.GetDiagnosticAsync(cancellationToken);
+        return Ok(result);
+    }
+
     [HttpPost("chat")]
     public async Task<IActionResult> Chat([FromBody] CareerChatHttpRequest? request, CancellationToken cancellationToken)
     {
