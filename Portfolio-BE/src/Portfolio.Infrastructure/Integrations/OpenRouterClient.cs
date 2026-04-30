@@ -256,8 +256,9 @@ public sealed class OpenRouterClient(
         var apiKey = configuration["OpenRouter:ApiKey"];
         if (string.IsNullOrWhiteSpace(apiKey))
         {
-            logger.LogWarning("OpenRouter API key is missing. Falling back to local response.");
-            return fallback;
+            var message = "OpenRouter API key is missing (OpenRouter:ApiKey).";
+            logger.LogWarning(message);
+            throw new InvalidOperationException(message);
         }
 
         var baseUrl = (configuration["OpenRouter:BaseUrl"] ?? "https://openrouter.ai/api/v1").Trim().TrimEnd('/');
@@ -309,7 +310,8 @@ public sealed class OpenRouterClient(
                     (int)response.StatusCode,
                     response.ReasonPhrase,
                     Truncate(errorBody, 1200));
-                return fallback;
+                throw new InvalidOperationException(
+                    $"OpenRouter request failed: HTTP {(int)response.StatusCode} {response.ReasonPhrase}. Body: {Truncate(errorBody, 1200)}");
             }
 
             var responseText = await response.Content.ReadAsStringAsync(cancellationToken);
@@ -321,15 +323,15 @@ public sealed class OpenRouterClient(
             var content = ExtractMessageContent(json.RootElement);
             if (string.IsNullOrWhiteSpace(content))
             {
-                logger.LogWarning("OpenRouter returned empty content. Falling back.");
-                return fallback;
+                logger.LogWarning("OpenRouter returned empty content.");
+                throw new InvalidOperationException("OpenRouter returned empty content.");
             }
 
             var sanitized = SanitizeAnswer(content.Trim());
             if (sanitized.Length < 90)
             {
                 logger.LogWarning("OpenRouter content too short ({Length}). Falling back.", sanitized.Length);
-                return fallback;
+                throw new InvalidOperationException($"OpenRouter content too short ({sanitized.Length}).");
             }
 
             return NormalizePlainBullets(sanitized);
@@ -337,22 +339,22 @@ public sealed class OpenRouterClient(
         catch (TaskCanceledException ex) when (!cancellationToken.IsCancellationRequested)
         {
             logger.LogError(ex, "OpenRouter request timed out before completion.");
-            return fallback;
+            throw new InvalidOperationException("OpenRouter request timed out.");
         }
         catch (HttpRequestException ex)
         {
             logger.LogError(ex, "OpenRouter HTTP request error.");
-            return fallback;
+            throw new InvalidOperationException($"OpenRouter HTTP request error: {ex.Message}");
         }
         catch (JsonException ex)
         {
             logger.LogError(ex, "OpenRouter response JSON parse error.");
-            return fallback;
+            throw new InvalidOperationException($"OpenRouter response JSON parse error: {ex.Message}");
         }
         catch (Exception ex)
         {
             logger.LogError(ex, "Unexpected OpenRouter integration error.");
-            return fallback;
+            throw new InvalidOperationException($"Unexpected OpenRouter integration error: {ex.Message}");
         }
     }
 

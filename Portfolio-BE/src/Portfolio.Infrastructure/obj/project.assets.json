@@ -3401,11 +3401,11 @@
         "net9.0": {
           "targetAlias": "net9.0",
           "projectReferences": {
-            "C:\\Users\\TUF\\Desktop\\Github\\Portfolio\\Portfolio-BE\\src\\Portfolio.Application\\Portfolio.Application.csproj": {
-              "projectPath": "C:\\Users\\TUF\\Desktop\\Github\\Portfolio\\Portfolio-BE\\src\\Portfolio.Application\\Portfolio.Application.csproj"
+            "c:\\Users\\TUF\\Desktop\\Github\\Portfolio\\Portfolio-BE\\src\\Portfolio.Application\\Portfolio.Application.csproj": {
+              "projectPath": "c:\\Users\\TUF\\Desktop\\Github\\Portfolio\\Portfolio-BE\\src\\Portfolio.Application\\Portfolio.Application.csproj"
             },
-            "C:\\Users\\TUF\\Desktop\\Github\\Portfolio\\Portfolio-BE\\src\\Portfolio.Domain\\Portfolio.Domain.csproj": {
-              "projectPath": "C:\\Users\\TUF\\Desktop\\Github\\Portfolio\\Portfolio-BE\\src\\Portfolio.Domain\\Portfolio.Domain.csproj"
+            "c:\\Users\\TUF\\Desktop\\Github\\Portfolio\\Portfolio-BE\\src\\Portfolio.Domain\\Portfolio.Domain.csproj": {
+              "projectPath": "c:\\Users\\TUF\\Desktop\\Github\\Portfolio\\Portfolio-BE\\src\\Portfolio.Domain\\Portfolio.Domain.csproj"
             }
           }
         }
