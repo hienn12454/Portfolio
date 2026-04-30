@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "CLHtfqFYTyA=",
+  "dgSpecHash": "6A9X5iEy2jc=",
   "success": true,
-  "projectFilePath": "c:\\Users\\TUF\\Desktop\\Github\\Portfolio\\Portfolio-BE\\src\\Portfolio.Api\\Portfolio.Api.csproj",
+  "projectFilePath": "C:\\Users\\TUF\\Desktop\\Github\\Portfolio\\Portfolio-BE\\src\\Portfolio.Api\\Portfolio.Api.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\TUF\\.nuget\\packages\\humanizer.core\\2.14.1\\humanizer.core.2.14.1.nupkg.sha512",
     "C:\\Users\\TUF\\.nuget\\packages\\microsoft.aspnetcore.authentication.jwtbearer\\9.0.8\\microsoft.aspnetcore.authentication.jwtbearer.9.0.8.nupkg.sha512",

@@ -1,0 +1,20 @@
+# OS/editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Frontend
+Portfolio-FE/node_modules/
+Portfolio-FE/dist/
+Portfolio-FE/.env
+Portfolio-FE/.env.local
+
+# Backend build artifacts
+Portfolio-BE/src/**/bin/
+Portfolio-BE/src/**/obj/
+Portfolio-BE/src/.vs/
+Portfolio-BE/.vs/
+
+# Logs
+*.log

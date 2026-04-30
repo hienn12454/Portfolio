@@ -44,6 +44,39 @@ public sealed class UserConfiguration : IEntityTypeConfiguration<User>
         builder.Property(x => x.Occupation)
             .HasMaxLength(120);
 
+        builder.Property(x => x.Headline)
+            .HasMaxLength(200);
+
+        builder.Property(x => x.Bio)
+            .HasMaxLength(4000);
+
+        builder.Property(x => x.WebsiteUrl)
+            .HasMaxLength(500);
+
+        builder.Property(x => x.GithubUrl)
+            .HasMaxLength(500);
+
+        builder.Property(x => x.LinkedInUrl)
+            .HasMaxLength(500);
+
+        builder.Property(x => x.Company)
+            .HasMaxLength(160);
+
+        builder.Property(x => x.Education)
+            .HasMaxLength(2000);
+
+        builder.Property(x => x.SkillsSummary)
+            .HasMaxLength(3000);
+
+        builder.Property(x => x.Languages)
+            .HasMaxLength(300);
+
+        builder.Property(x => x.DesiredRole)
+            .HasMaxLength(120);
+
+        builder.Property(x => x.CoverImageUrl)
+            .HasMaxLength(1000);
+
         builder.Property(x => x.Role)
             .HasMaxLength(20)
             .HasDefaultValue("User")

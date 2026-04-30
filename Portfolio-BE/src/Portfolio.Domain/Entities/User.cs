@@ -14,6 +14,18 @@ public sealed class User : BaseAuditableEntity
     public string? PhoneNumber { get; set; }
     public string? Address { get; set; }
     public string? Occupation { get; set; }
+    public string? Headline { get; set; }
+    public string? Bio { get; set; }
+    public string? WebsiteUrl { get; set; }
+    public string? GithubUrl { get; set; }
+    public string? LinkedInUrl { get; set; }
+    public string? Company { get; set; }
+    public int? YearsOfExperience { get; set; }
+    public string? Education { get; set; }
+    public string? SkillsSummary { get; set; }
+    public string? Languages { get; set; }
+    public string? DesiredRole { get; set; }
+    public string? CoverImageUrl { get; set; }
     public string Role { get; set; } = "User";
     public bool IsActive { get; set; } = true;
 }

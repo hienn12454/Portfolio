@@ -1,4 +1,5 @@
 using System.Net.Http.Headers;
+using System.Net;
 using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
@@ -14,6 +15,10 @@ public sealed class OpenRouterClient(
     ILogger<OpenRouterClient> logger) : IOpenRouterClient
 {
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
+    private static readonly JsonSerializerOptions RelaxedJsonOptions = new(JsonSerializerDefaults.Web)
+    {
+        PropertyNameCaseInsensitive = true
+    };
     private static readonly string[] ProfanityTerms =
     [
         "dm",
@@ -246,49 +251,72 @@ public sealed class OpenRouterClient(
             cancellationToken);
     }
 
-    private async Task<string> RequestCompletionAsync(
-        string systemPrompt,
-        string userPrompt,
-        string fallback,
-        int maxTokens,
+    public async Task<CvParseResult?> ParseCvImageAsync(
+        string base64ImageContent,
+        string? fileName,
         CancellationToken cancellationToken)
     {
         var apiKey = configuration["OpenRouter:ApiKey"];
-        if (string.IsNullOrWhiteSpace(apiKey))
+        if (string.IsNullOrWhiteSpace(apiKey) || string.IsNullOrWhiteSpace(base64ImageContent))
         {
-            var message = "OpenRouter API key is missing (OpenRouter:ApiKey).";
-            logger.LogWarning(message);
-            throw new InvalidOperationException(message);
+            return null;
         }
 
         var baseUrl = (configuration["OpenRouter:BaseUrl"] ?? "https://openrouter.ai/api/v1").Trim().TrimEnd('/');
-        var model = (configuration["OpenRouter:ModelId"] ?? configuration["OpenRouter:Model"] ?? "qwen/qwen3-coder:free").Trim();
+        var visionModel = (configuration["OpenRouter:CvVisionModel"] ?? "openai/gpt-4.1-mini").Trim();
         var referer = configuration["OpenRouter:HttpReferer"] ?? "https://localhost";
         var appTitle = configuration["OpenRouter:SiteTitle"] ?? configuration["OpenRouter:AppTitle"] ?? "Portfolio Planner";
-        var temperature = configuration.GetValue<double?>("OpenRouter:Temperature") ?? 0.35;
-        var configuredMaxTokens = configuration.GetValue<int?>("OpenRouter:MaxTokens");
-        var resolvedMaxTokens = configuredMaxTokens.HasValue && configuredMaxTokens.Value > 0
-            ? Math.Min(configuredMaxTokens.Value, maxTokens)
-            : maxTokens;
+
+        var detectedMimeType = InferMimeTypeFromFileName(fileName);
+        var dataUri = $"data:{detectedMimeType};base64,{base64ImageContent}";
 
         var payload = new
         {
-            model,
-            temperature,
-            max_tokens = resolvedMaxTokens,
+            model = visionModel,
+            temperature = 0.1,
+            max_tokens = 1300,
+            response_format = new { type = "json_object" },
             messages = new object[]
             {
-                new { role = "system", content = systemPrompt },
-                new { role = "user", content = userPrompt }
+                new
+                {
+                    role = "system",
+                    content =
+                        """
+                        You are an expert CV parser.
+                        Extract structured profile details from the CV image.
+                        Return valid JSON only with this exact schema:
+                        {
+                          "professionalHeadline": "string",
+                          "technicalSummary": "string",
+                          "skills": "comma separated skills",
+                          "strengths": "short bullet-like text in one paragraph",
+                          "projects": "project summaries, separated by newline",
+                          "education": "education summary",
+                          "languages": "comma separated languages",
+                          "desiredRole": "target role",
+                          "company": "latest company or empty",
+                          "estimatedYearsOfExperience": number or null,
+                          "gpa": number or null
+                        }
+                        If a field is missing, return empty string or null.
+                        """
+                },
+                new
+                {
+                    role = "user",
+                    content = new object[]
+                    {
+                        new { type = "text", text = "Parse this CV image and produce the requested JSON." },
+                        new
+                        {
+                            type = "image_url",
+                            image_url = new { url = dataUri }
+                        }
+                    }
+                }
             }
         };
-        logger.LogInformation(
-            "OpenRouter request starting. Model: {Model}; MaxTokens: {MaxTokens}; Temperature: {Temperature}; Referer: {Referer}; ApiKeyLength: {ApiKeyLength}",
-            model,
-            resolvedMaxTokens,
-            temperature,
-            referer,
-            apiKey.Length);
 
         var httpClient = httpClientFactory.CreateClient();
         using var request = new HttpRequestMessage(HttpMethod.Post, $"{baseUrl}/chat/completions")
@@ -302,60 +330,258 @@ public sealed class OpenRouterClient(
         try
         {
             using var response = await httpClient.SendAsync(request, cancellationToken);
+            var body = await response.Content.ReadAsStringAsync(cancellationToken);
             if (!response.IsSuccessStatusCode)
             {
-                var errorBody = await response.Content.ReadAsStringAsync(cancellationToken);
                 logger.LogWarning(
-                    "OpenRouter request failed. Status: {StatusCode}; Reason: {ReasonPhrase}; Body: {Body}",
+                    "CV parse failed at OpenRouter. Status: {StatusCode}; Body: {Body}",
                     (int)response.StatusCode,
-                    response.ReasonPhrase,
-                    Truncate(errorBody, 1200));
-                throw new InvalidOperationException(
-                    $"OpenRouter request failed: HTTP {(int)response.StatusCode} {response.ReasonPhrase}. Body: {Truncate(errorBody, 1200)}");
+                    Truncate(body, 1200));
+                return null;
             }
 
-            var responseText = await response.Content.ReadAsStringAsync(cancellationToken);
-            logger.LogInformation(
-                "OpenRouter response success. PayloadLength: {PayloadLength}",
-                responseText.Length);
-
-            using var json = JsonDocument.Parse(responseText);
-            var content = ExtractMessageContent(json.RootElement);
+            using var root = JsonDocument.Parse(body);
+            var content = ExtractMessageContent(root.RootElement);
             if (string.IsNullOrWhiteSpace(content))
             {
-                logger.LogWarning("OpenRouter returned empty content.");
-                throw new InvalidOperationException("OpenRouter returned empty content.");
+                return null;
             }
 
-            var sanitized = SanitizeAnswer(content.Trim());
-            if (sanitized.Length < 90)
+            var parsed = JsonSerializer.Deserialize<CvParseModel>(content, RelaxedJsonOptions);
+            if (parsed is null)
             {
-                logger.LogWarning("OpenRouter content too short ({Length}). Falling back.", sanitized.Length);
-                throw new InvalidOperationException($"OpenRouter content too short ({sanitized.Length}).");
+                return null;
             }
 
-            return NormalizePlainBullets(sanitized);
-        }
-        catch (TaskCanceledException ex) when (!cancellationToken.IsCancellationRequested)
-        {
-            logger.LogError(ex, "OpenRouter request timed out before completion.");
-            throw new InvalidOperationException("OpenRouter request timed out.");
-        }
-        catch (HttpRequestException ex)
-        {
-            logger.LogError(ex, "OpenRouter HTTP request error.");
-            throw new InvalidOperationException($"OpenRouter HTTP request error: {ex.Message}");
-        }
-        catch (JsonException ex)
-        {
-            logger.LogError(ex, "OpenRouter response JSON parse error.");
-            throw new InvalidOperationException($"OpenRouter response JSON parse error: {ex.Message}");
+            return new CvParseResult(
+                ProfessionalHeadline: parsed.ProfessionalHeadline ?? string.Empty,
+                TechnicalSummary: parsed.TechnicalSummary ?? string.Empty,
+                Skills: parsed.Skills ?? string.Empty,
+                Strengths: parsed.Strengths ?? string.Empty,
+                Projects: parsed.Projects ?? string.Empty,
+                Education: parsed.Education ?? string.Empty,
+                Languages: parsed.Languages ?? string.Empty,
+                DesiredRole: parsed.DesiredRole ?? string.Empty,
+                Company: parsed.Company ?? string.Empty,
+                EstimatedYearsOfExperience: parsed.EstimatedYearsOfExperience,
+                Gpa: parsed.Gpa);
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Unexpected OpenRouter integration error.");
-            throw new InvalidOperationException($"Unexpected OpenRouter integration error: {ex.Message}");
+            logger.LogWarning(ex, "CV parse request failed.");
+            return null;
         }
+    }
+
+    private async Task<string> RequestCompletionAsync(
+        string systemPrompt,
+        string userPrompt,
+        string fallback,
+        int maxTokens,
+        CancellationToken cancellationToken)
+    {
+        var apiKey = configuration["OpenRouter:ApiKey"];
+        if (string.IsNullOrWhiteSpace(apiKey))
+        {
+            logger.LogWarning("OpenRouter API key is missing. Returning fallback response.");
+            return NormalizePlainBullets(fallback);
+        }
+
+        var baseUrl = (configuration["OpenRouter:BaseUrl"] ?? "https://openrouter.ai/api/v1").Trim().TrimEnd('/');
+        var primaryModel = (configuration["OpenRouter:ModelId"] ?? configuration["OpenRouter:Model"] ?? "qwen/qwen3-coder:free").Trim();
+        var modelCandidates = ResolveModelCandidates(primaryModel);
+        var referer = configuration["OpenRouter:HttpReferer"] ?? "https://localhost";
+        var appTitle = configuration["OpenRouter:SiteTitle"] ?? configuration["OpenRouter:AppTitle"] ?? "Portfolio Planner";
+        var temperature = configuration.GetValue<double?>("OpenRouter:Temperature") ?? 0.35;
+        var configuredMaxTokens = configuration.GetValue<int?>("OpenRouter:MaxTokens");
+        var resolvedMaxTokens = configuredMaxTokens.HasValue && configuredMaxTokens.Value > 0
+            ? Math.Min(configuredMaxTokens.Value, maxTokens)
+            : maxTokens;
+
+        var httpClient = httpClientFactory.CreateClient();
+        Exception? lastError = null;
+        var requestAttempts = configuration.GetValue<int?>("OpenRouter:RetryCount");
+        var maxAttemptsPerModel = Math.Clamp(requestAttempts ?? 3, 1, 5);
+
+        foreach (var model in modelCandidates)
+        {
+            for (var attempt = 1; attempt <= maxAttemptsPerModel; attempt++)
+            {
+                var payload = new
+                {
+                    model,
+                    temperature,
+                    max_tokens = resolvedMaxTokens,
+                    messages = new object[]
+                    {
+                        new { role = "system", content = systemPrompt },
+                        new { role = "user", content = userPrompt }
+                    }
+                };
+                logger.LogInformation(
+                    "OpenRouter request starting. Model: {Model}; Attempt: {Attempt}/{MaxAttempts}; MaxTokens: {MaxTokens}; Temperature: {Temperature}; Referer: {Referer}; ApiKeyLength: {ApiKeyLength}",
+                    model,
+                    attempt,
+                    maxAttemptsPerModel,
+                    resolvedMaxTokens,
+                    temperature,
+                    referer,
+                    apiKey.Length);
+
+                using var request = new HttpRequestMessage(HttpMethod.Post, $"{baseUrl}/chat/completions")
+                {
+                    Content = new StringContent(JsonSerializer.Serialize(payload, JsonOptions), Encoding.UTF8, "application/json")
+                };
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", apiKey);
+                request.Headers.TryAddWithoutValidation("HTTP-Referer", referer);
+                request.Headers.TryAddWithoutValidation("X-OpenRouter-Title", appTitle);
+
+                try
+                {
+                    using var response = await httpClient.SendAsync(request, cancellationToken);
+                    if (!response.IsSuccessStatusCode)
+                    {
+                        var errorBody = await response.Content.ReadAsStringAsync(cancellationToken);
+                        var truncatedError = Truncate(errorBody, 1200);
+                        var error = new InvalidOperationException(
+                            $"OpenRouter request failed: HTTP {(int)response.StatusCode} {response.ReasonPhrase}. Body: {truncatedError}");
+                        lastError = error;
+
+                        logger.LogWarning(
+                            "OpenRouter request failed. Model: {Model}; Attempt: {Attempt}/{MaxAttempts}; Status: {StatusCode}; Reason: {ReasonPhrase}; Body: {Body}",
+                            model,
+                            attempt,
+                            maxAttemptsPerModel,
+                            (int)response.StatusCode,
+                            response.ReasonPhrase,
+                            truncatedError);
+
+                        if (!IsTransientStatusCode(response.StatusCode) || attempt == maxAttemptsPerModel)
+                        {
+                            break;
+                        }
+
+                        await DelayForRetryAsync(attempt, cancellationToken);
+                        continue;
+                    }
+
+                    var responseText = await response.Content.ReadAsStringAsync(cancellationToken);
+                    logger.LogInformation(
+                        "OpenRouter response success. Model: {Model}; PayloadLength: {PayloadLength}",
+                        model,
+                        responseText.Length);
+
+                    using var json = JsonDocument.Parse(responseText);
+                    var content = ExtractMessageContent(json.RootElement);
+                    if (string.IsNullOrWhiteSpace(content))
+                    {
+                        lastError = new InvalidOperationException("OpenRouter returned empty content.");
+                        logger.LogWarning("OpenRouter returned empty content. Model: {Model}", model);
+                        break;
+                    }
+
+                    var sanitized = SanitizeAnswer(content.Trim());
+                    if (sanitized.Length < 90)
+                    {
+                        lastError = new InvalidOperationException($"OpenRouter content too short ({sanitized.Length}).");
+                        logger.LogWarning("OpenRouter content too short ({Length}). Model: {Model}", sanitized.Length, model);
+                        break;
+                    }
+
+                    var normalizedAnswer = NormalizePlainBullets(sanitized);
+                    var usedBackupPath =
+                        attempt > 1 ||
+                        !string.Equals(model, primaryModel, StringComparison.OrdinalIgnoreCase);
+
+                    if (usedBackupPath)
+                    {
+                        return NormalizePlainBullets($"""
+                        Mình sẽ dùng AI dự phòng để trả lời bạn vì phiên gọi AI chính đang quá tải.
+                        {normalizedAnswer}
+                        """);
+                    }
+
+                    return normalizedAnswer;
+                }
+                catch (TaskCanceledException ex) when (!cancellationToken.IsCancellationRequested)
+                {
+                    lastError = ex;
+                    logger.LogWarning(ex, "OpenRouter request timed out. Model: {Model}; Attempt: {Attempt}/{MaxAttempts}", model, attempt, maxAttemptsPerModel);
+                    if (attempt == maxAttemptsPerModel)
+                    {
+                        break;
+                    }
+
+                    await DelayForRetryAsync(attempt, cancellationToken);
+                }
+                catch (HttpRequestException ex)
+                {
+                    lastError = ex;
+                    logger.LogWarning(ex, "OpenRouter HTTP request error. Model: {Model}; Attempt: {Attempt}/{MaxAttempts}", model, attempt, maxAttemptsPerModel);
+                    if (attempt == maxAttemptsPerModel)
+                    {
+                        break;
+                    }
+
+                    await DelayForRetryAsync(attempt, cancellationToken);
+                }
+                catch (JsonException ex)
+                {
+                    lastError = ex;
+                    logger.LogWarning(ex, "OpenRouter response JSON parse error. Model: {Model}", model);
+                    break;
+                }
+                catch (Exception ex)
+                {
+                    lastError = ex;
+                    logger.LogWarning(ex, "Unexpected OpenRouter integration error. Model: {Model}", model);
+                    break;
+                }
+            }
+        }
+
+        logger.LogError(lastError, "OpenRouter exhausted all model fallbacks. Returning deterministic fallback content.");
+        return NormalizePlainBullets(fallback);
+    }
+
+    private List<string> ResolveModelCandidates(string primaryModel)
+    {
+        var candidates = new List<string>();
+        if (!string.IsNullOrWhiteSpace(primaryModel))
+        {
+            candidates.Add(primaryModel.Trim());
+        }
+
+        var configuredFallbacks = configuration["OpenRouter:ModelFallbacks"];
+        if (!string.IsNullOrWhiteSpace(configuredFallbacks))
+        {
+            var fallbackModels = configuredFallbacks
+                .Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+            candidates.AddRange(fallbackModels);
+        }
+
+        if (candidates.Count == 0)
+        {
+            candidates.Add("qwen/qwen3-coder:free");
+        }
+
+        return candidates
+            .Where(model => !string.IsNullOrWhiteSpace(model))
+            .Select(model => model.Trim())
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToList();
+    }
+
+    private static bool IsTransientStatusCode(HttpStatusCode statusCode)
+    {
+        var code = (int)statusCode;
+        return code == 408 || code == 409 || code == 425 || code == 429 || code >= 500;
+    }
+
+    private static Task DelayForRetryAsync(int attempt, CancellationToken cancellationToken)
+    {
+        var delayMs = (int)Math.Min(4000, 500 * Math.Pow(2, attempt - 1));
+        return Task.Delay(delayMs, cancellationToken);
     }
 
     private static string SanitizeAnswer(string input)
@@ -393,7 +619,7 @@ public sealed class OpenRouterClient(
             : string.Join("\n", readingSources.Select(source => $"- {source.Title} ({source.Url})"));
 
         return NormalizePlainBullets($$"""
-        Mình đang tạm dùng chế độ dự phòng AI, nhưng vẫn xây được lộ trình theo ngữ cảnh của bạn.
+        Mình sẽ dùng AI dự phòng để trả lời bạn vì phiên gọi AI chính đang quá tải.
 
         **Track hiện tại:** {{normalizedTrack}}
         **Câu hỏi:** {{userQuestion}}
@@ -518,5 +744,34 @@ public sealed class OpenRouterClient(
         }
 
         return textParts.Count == 0 ? null : string.Join("\n", textParts);
+    }
+
+    private static string InferMimeTypeFromFileName(string? fileName)
+    {
+        var extension = Path.GetExtension(fileName ?? string.Empty).ToLowerInvariant();
+        return extension switch
+        {
+            ".png" => "image/png",
+            ".webp" => "image/webp",
+            ".gif" => "image/gif",
+            ".jpeg" => "image/jpeg",
+            ".jpg" => "image/jpeg",
+            _ => "image/jpeg"
+        };
+    }
+
+    private sealed class CvParseModel
+    {
+        public string? ProfessionalHeadline { get; set; }
+        public string? TechnicalSummary { get; set; }
+        public string? Skills { get; set; }
+        public string? Strengths { get; set; }
+        public string? Projects { get; set; }
+        public string? Education { get; set; }
+        public string? Languages { get; set; }
+        public string? DesiredRole { get; set; }
+        public string? Company { get; set; }
+        public int? EstimatedYearsOfExperience { get; set; }
+        public decimal? Gpa { get; set; }
     }
 }

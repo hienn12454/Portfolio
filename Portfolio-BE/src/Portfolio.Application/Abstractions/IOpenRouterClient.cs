@@ -7,6 +7,21 @@ public sealed record OpenRouterDiagnosticResult(
     string ModelId,
     string? TestError);
 
+public sealed record CvProjectInsight(string Name, string Description, string TechStack);
+
+public sealed record CvParseResult(
+    string ProfessionalHeadline,
+    string TechnicalSummary,
+    string Skills,
+    string Strengths,
+    string Projects,
+    string Education,
+    string Languages,
+    string DesiredRole,
+    string Company,
+    int? EstimatedYearsOfExperience,
+    decimal? Gpa);
+
 public interface IOpenRouterClient
 {
     bool IsConfigured { get; }
@@ -28,4 +43,9 @@ public interface IOpenRouterClient
         CancellationToken cancellationToken);
 
     Task<OpenRouterDiagnosticResult> GetDiagnosticAsync(CancellationToken cancellationToken);
+
+    Task<CvParseResult?> ParseCvImageAsync(
+        string base64ImageContent,
+        string? fileName,
+        CancellationToken cancellationToken);
 }

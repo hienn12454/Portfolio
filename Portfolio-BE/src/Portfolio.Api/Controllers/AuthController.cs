@@ -12,14 +12,29 @@ namespace Portfolio.Api.Controllers;
 public sealed class AuthController(
     IApplicationDbContext dbContext,
     IConfiguration configuration,
-    ICurrentAppUserService currentAppUserService) : ControllerBase
+    ICurrentAppUserService currentAppUserService,
+    IOpenRouterClient openRouterClient) : ControllerBase
 {
     public sealed record UpdateMyProfileRequest(
         string? DisplayName,
         DateOnly? DateOfBirth,
         string? PhoneNumber,
         string? Address,
-        string? Occupation);
+        string? Occupation,
+        string? Headline,
+        string? Bio,
+        string? WebsiteUrl,
+        string? GithubUrl,
+        string? LinkedInUrl,
+        string? Company,
+        int? YearsOfExperience,
+        string? Education,
+        string? SkillsSummary,
+        string? Languages,
+        string? DesiredRole,
+        string? CoverImageUrl);
+
+    public sealed record ImportCvImageRequest(string ImageBase64, string? FileName);
 
     [HttpGet("config")]
     public IActionResult GetAuthConfig()
@@ -124,10 +139,82 @@ public sealed class AuthController(
         appUser.PhoneNumber = Normalize(request.PhoneNumber);
         appUser.Address = Normalize(request.Address);
         appUser.Occupation = Normalize(request.Occupation);
+        appUser.Headline = Normalize(request.Headline);
+        appUser.Bio = Normalize(request.Bio);
+        appUser.WebsiteUrl = Normalize(request.WebsiteUrl);
+        appUser.GithubUrl = Normalize(request.GithubUrl);
+        appUser.LinkedInUrl = Normalize(request.LinkedInUrl);
+        appUser.Company = Normalize(request.Company);
+        appUser.YearsOfExperience = request.YearsOfExperience;
+        appUser.Education = Normalize(request.Education);
+        appUser.SkillsSummary = Normalize(request.SkillsSummary);
+        appUser.Languages = Normalize(request.Languages);
+        appUser.DesiredRole = Normalize(request.DesiredRole);
+        appUser.CoverImageUrl = Normalize(request.CoverImageUrl);
 
         await dbContext.SaveChangesAsync(cancellationToken);
 
         return Ok(MapUserResponse(appUser));
+    }
+
+    [Authorize]
+    [HttpPost("me/profile/import-cv")]
+    public async Task<IActionResult> ImportMyCv([FromBody] ImportCvImageRequest request, CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(request.ImageBase64))
+        {
+            return BadRequest(new { Message = "ImageBase64 is required." });
+        }
+
+        var clerkUserId = ResolveClerkUserId(User);
+        if (string.IsNullOrWhiteSpace(clerkUserId))
+        {
+            return Unauthorized(new { Message = "Missing Clerk user id claim." });
+        }
+
+        var appUser = await dbContext.Users.FirstOrDefaultAsync(u => u.ClerkUserId == clerkUserId, cancellationToken);
+        if (appUser is null)
+        {
+            return NotFound(new { Message = "User profile not found." });
+        }
+
+        var parsed = await openRouterClient.ParseCvImageAsync(request.ImageBase64, request.FileName, cancellationToken);
+        if (parsed is null)
+        {
+            return StatusCode(StatusCodes.Status502BadGateway, new { Message = "CV parsing failed. Please try another image." });
+        }
+
+        ApplyCvParseToUser(appUser, parsed);
+        await dbContext.SaveChangesAsync(cancellationToken);
+
+        return Ok(new { User = MapUserResponse(appUser), Parsed = parsed });
+    }
+
+    [Authorize(Policy = "AdminOnly")]
+    [HttpPost("users/{userId:guid}/profile/import-cv")]
+    public async Task<IActionResult> ImportCvForUser(Guid userId, [FromBody] ImportCvImageRequest request, CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(request.ImageBase64))
+        {
+            return BadRequest(new { Message = "ImageBase64 is required." });
+        }
+
+        var appUser = await dbContext.Users.FirstOrDefaultAsync(u => u.Id == userId, cancellationToken);
+        if (appUser is null)
+        {
+            return NotFound(new { Message = "Target user not found." });
+        }
+
+        var parsed = await openRouterClient.ParseCvImageAsync(request.ImageBase64, request.FileName, cancellationToken);
+        if (parsed is null)
+        {
+            return StatusCode(StatusCodes.Status502BadGateway, new { Message = "CV parsing failed. Please try another image." });
+        }
+
+        ApplyCvParseToUser(appUser, parsed);
+        await dbContext.SaveChangesAsync(cancellationToken);
+
+        return Ok(new { User = MapUserResponse(appUser), Parsed = parsed });
     }
 
     [Authorize(Policy = "AdminOnly")]
@@ -161,9 +248,43 @@ public sealed class AuthController(
             appUser.PhoneNumber,
             appUser.Address,
             appUser.Occupation,
+            appUser.Headline,
+            appUser.Bio,
+            appUser.WebsiteUrl,
+            appUser.GithubUrl,
+            appUser.LinkedInUrl,
+            appUser.Company,
+            appUser.YearsOfExperience,
+            appUser.Education,
+            appUser.SkillsSummary,
+            appUser.Languages,
+            appUser.DesiredRole,
+            appUser.CoverImageUrl,
             appUser.Role,
             appUser.IsActive
         };
+    }
+
+    private static void ApplyCvParseToUser(Domain.Entities.User appUser, CvParseResult parsed)
+    {
+        appUser.Headline = Normalize(parsed.ProfessionalHeadline);
+        appUser.Bio = Normalize(parsed.TechnicalSummary);
+        appUser.SkillsSummary = Normalize(parsed.Skills);
+        appUser.Education = Normalize(parsed.Education);
+        appUser.Languages = Normalize(parsed.Languages);
+        appUser.DesiredRole = Normalize(parsed.DesiredRole);
+        appUser.Company = Normalize(parsed.Company);
+
+        if (parsed.EstimatedYearsOfExperience is >= 0 and <= 50)
+        {
+            appUser.YearsOfExperience = parsed.EstimatedYearsOfExperience;
+        }
+
+        var projectedOccupation = Normalize(parsed.DesiredRole);
+        if (!string.IsNullOrWhiteSpace(projectedOccupation))
+        {
+            appUser.Occupation = projectedOccupation;
+        }
     }
 
     private static string? ResolveClerkUserId(ClaimsPrincipal user)
