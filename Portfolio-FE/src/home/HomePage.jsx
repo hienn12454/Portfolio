@@ -764,6 +764,7 @@ export function HomePage() {
   }, [notesPeeked, workspaceTab]);
 
   useEffect(() => {
+    const savedLanguage = localStorage.getItem("portfolio-language");
     const savedCategory = localStorage.getItem("portfolio-project-category");
     const savedView = localStorage.getItem("portfolio-project-view");
     const savedTheme = localStorage.getItem("portfolio-theme");
