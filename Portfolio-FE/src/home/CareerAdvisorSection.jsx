@@ -93,11 +93,15 @@ export function CareerAdvisorSection({ language, apiClient }) {
         content: message.content
       }));
 
-      const response = await apiClient.postPublic("/api/career/chat", {
-        message: trimmedMessage,
-        track: selectedTrack,
-        history
-      });
+      const response = await apiClient.postPublic(
+        "/api/career/chat",
+        {
+          message: trimmedMessage,
+          track: selectedTrack,
+          history
+        },
+        { timeoutMs: 180_000 }
+      );
 
       setMessages((current) => [
         ...current,

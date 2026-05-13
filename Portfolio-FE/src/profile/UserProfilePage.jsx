@@ -276,10 +276,14 @@ export function UserProfilePage() {
         throw new Error("Vui lòng nhập User ID cần cập nhật.");
       }
 
-      const result = await apiClient.postProtected(endpoint, {
-        imageBase64: base64,
-        fileName: file.name
-      });
+      const result = await apiClient.postProtected(
+        endpoint,
+        {
+          imageBase64: base64,
+          fileName: file.name
+        },
+        { timeoutMs: 180_000 }
+      );
 
       if (mode === "self") {
         setProfile(mapUserToProfile(result?.user));

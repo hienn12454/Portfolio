@@ -32,10 +32,11 @@ export function createApiClient(getToken) {
     getPublic(path) {
       return getJson(`${API_BASE_URL}${path}`);
     },
-    postPublic(path, payload = {}) {
+    postPublic(path, payload = {}, fetchExtras = {}) {
       return getJson(`${API_BASE_URL}${path}`, {
         method: "POST",
-        body: JSON.stringify(payload)
+        body: JSON.stringify(payload),
+        ...fetchExtras
       });
     },
     async getProtected(path) {
@@ -52,13 +53,14 @@ export function createApiClient(getToken) {
         body: JSON.stringify(payload)
       });
     },
-    async postProtected(path, payload) {
+    async postProtected(path, payload, fetchExtras = {}) {
       const headers = await createAuthHeaders(getToken);
       logAuthDebug("HAS AUTH HEADER", { method: "POST", path, hasAuthorization: !!headers.Authorization });
       return getJson(`${API_BASE_URL}${path}`, {
         method: "POST",
         headers,
-        body: JSON.stringify(payload)
+        body: JSON.stringify(payload),
+        ...fetchExtras
       });
     },
     async deleteProtected(path) {

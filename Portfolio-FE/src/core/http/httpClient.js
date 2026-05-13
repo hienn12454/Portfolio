@@ -1,16 +1,21 @@
 const DEFAULT_TIMEOUT_MS = 10000;
 
+/**
+ * @param {string} url
+ * @param {RequestInit & { timeoutMs?: number }} [options]
+ */
 export async function getJson(url, options = {}) {
+  const { timeoutMs = DEFAULT_TIMEOUT_MS, ...fetchOptions } = options;
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), DEFAULT_TIMEOUT_MS);
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
 
   try {
     const response = await fetch(url, {
-      ...options,
+      ...fetchOptions,
       signal: controller.signal,
       headers: {
         "Content-Type": "application/json",
-        ...(options.headers ?? {})
+        ...(fetchOptions.headers ?? {})
       }
     });
 

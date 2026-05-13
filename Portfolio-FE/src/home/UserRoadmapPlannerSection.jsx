@@ -89,10 +89,14 @@ export function UserRoadmapPlannerSection({ language, isSignedIn, apiClient }) {
     setError("");
     setIsLoading(true);
     try {
-      const result = await apiClient.postProtected("/api/roadmap-plans/mine/generate", {
-        track,
-        specialty
-      });
+      const result = await apiClient.postProtected(
+        "/api/roadmap-plans/mine/generate",
+        {
+          track,
+          specialty
+        },
+        { timeoutMs: 180_000 }
+      );
       setTodayPlan(result);
       setExpandedPlanId(result.id);
       setPlans((current) => [result, ...current]);
