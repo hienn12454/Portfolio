@@ -14,6 +14,7 @@ public sealed class OpenRouterClient(
     IConfiguration configuration,
     ILogger<OpenRouterClient> logger) : IOpenRouterClient
 {
+    internal const string HttpClientName = "OpenRouter";
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
     private static readonly JsonSerializerOptions RelaxedJsonOptions = new(JsonSerializerDefaults.Web)
     {
@@ -90,7 +91,7 @@ public sealed class OpenRouterClient(
                 }
             };
 
-            var httpClient = httpClientFactory.CreateClient();
+            var httpClient = httpClientFactory.CreateClient(HttpClientName);
             using var request = new HttpRequestMessage(HttpMethod.Post, $"{baseUrl}/chat/completions")
             {
                 Content = new StringContent(JsonSerializer.Serialize(payload, JsonOptions), Encoding.UTF8, "application/json")
@@ -263,7 +264,7 @@ public sealed class OpenRouterClient(
         }
 
         var baseUrl = (configuration["OpenRouter:BaseUrl"] ?? "https://openrouter.ai/api/v1").Trim().TrimEnd('/');
-        var visionModel = (configuration["OpenRouter:CvVisionModel"] ?? "openai/gpt-4.1-mini").Trim();
+        var visionModel = (configuration["OpenRouter:CvVisionModel"] ?? "meta-llama/llama-3.2-11b-vision-instruct:free").Trim();
         var referer = configuration["OpenRouter:HttpReferer"] ?? "https://localhost";
         var appTitle = configuration["OpenRouter:SiteTitle"] ?? configuration["OpenRouter:AppTitle"] ?? "Portfolio Planner";
 
@@ -318,7 +319,7 @@ public sealed class OpenRouterClient(
             }
         };
 
-        var httpClient = httpClientFactory.CreateClient();
+        var httpClient = httpClientFactory.CreateClient(HttpClientName);
         using var request = new HttpRequestMessage(HttpMethod.Post, $"{baseUrl}/chat/completions")
         {
             Content = new StringContent(JsonSerializer.Serialize(payload, JsonOptions), Encoding.UTF8, "application/json")
@@ -398,7 +399,7 @@ public sealed class OpenRouterClient(
             ? Math.Min(configuredMaxTokens.Value, maxTokens)
             : maxTokens;
 
-        var httpClient = httpClientFactory.CreateClient();
+        var httpClient = httpClientFactory.CreateClient(HttpClientName);
         Exception? lastError = null;
         var requestAttempts = configuration.GetValue<int?>("OpenRouter:RetryCount");
         var maxAttemptsPerModel = Math.Clamp(requestAttempts ?? 3, 1, 5);
@@ -503,10 +504,15 @@ public sealed class OpenRouterClient(
 
                     return normalizedAnswer;
                 }
-                catch (TaskCanceledException ex) when (!cancellationToken.IsCancellationRequested)
+                catch (OperationCanceledException ex) when (!cancellationToken.IsCancellationRequested)
                 {
                     lastError = ex;
-                    logger.LogWarning(ex, "OpenRouter request timed out. Model: {Model}; Attempt: {Attempt}/{MaxAttempts}", model, attempt, maxAttemptsPerModel);
+                    logger.LogWarning(
+                        ex,
+                        "OpenRouter request timed out or connection aborted (not user cancel). Model: {Model}; Attempt: {Attempt}/{MaxAttempts}",
+                        model,
+                        attempt,
+                        maxAttemptsPerModel);
                     if (attempt == maxAttemptsPerModel)
                     {
                         break;

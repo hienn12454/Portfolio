@@ -30,6 +30,12 @@ var serviceVersion = typeof(Program).Assembly.GetName().Version?.ToString();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddHttpClient("OpenRouter")
+    .ConfigureHttpClient((sp, client) =>
+    {
+        var seconds = sp.GetRequiredService<IConfiguration>().GetValue("OpenRouter:RequestTimeoutSeconds", 180);
+        client.Timeout = TimeSpan.FromSeconds(Math.Clamp(seconds, 30, 600));
+    });
 builder.Services.AddHttpClient();
 if (openTelemetryEnabled)
 {
