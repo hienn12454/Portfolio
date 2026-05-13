@@ -609,6 +609,7 @@ export function HomePage() {
   const [scrollProgress, setScrollProgress] = useState(0);
   const [notesPeeked, setNotesPeeked] = useState(false);
   const siteRef = useRef(null);
+  const cursorMoveRaf = useRef(0);
   const [typedHeroTitle, setTypedHeroTitle] = useState("");
   const userMenuRef = useRef(null);
   const content = contentByLanguage[language];
@@ -718,32 +719,48 @@ export function HomePage() {
   }, [selectVaultTab]);
 
   useEffect(() => {
-    function onScroll() {
-      const el = document.documentElement;
-      const max = el.scrollHeight - el.clientHeight;
-      const p = max > 0 ? el.scrollTop / max : 0;
-      setScrollProgress(Math.min(1, Math.max(0, p)));
+    const scrollRoot = document.getElementById("root");
+    if (!scrollRoot) {
+      return undefined;
     }
 
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+    function onRootScroll() {
+      const max = scrollRoot.scrollHeight - scrollRoot.clientHeight;
+      const p = max > 0 ? scrollRoot.scrollTop / max : 0;
+      setScrollProgress(Math.min(1, Math.max(0, p)));
+      setShowBackToTop(scrollRoot.scrollTop > 420);
+    }
+
+    onRootScroll();
+    scrollRoot.addEventListener("scroll", onRootScroll, { passive: true });
+    return () => scrollRoot.removeEventListener("scroll", onRootScroll);
   }, []);
 
   useEffect(() => {
     function onPointerMove(event) {
-      const root = siteRef.current;
-      if (!root) {
+      const el = siteRef.current;
+      if (!el) {
         return;
       }
-      const x = (event.clientX / Math.max(window.innerWidth, 1)) * 100;
-      const y = (event.clientY / Math.max(window.innerHeight, 1)) * 100;
-      root.style.setProperty("--mx", `${x}%`);
-      root.style.setProperty("--my", `${y}%`);
+      if (cursorMoveRaf.current) {
+        cancelAnimationFrame(cursorMoveRaf.current);
+      }
+      cursorMoveRaf.current = requestAnimationFrame(() => {
+        cursorMoveRaf.current = 0;
+        const x = (event.clientX / Math.max(window.innerWidth, 1)) * 100;
+        const y = (event.clientY / Math.max(window.innerHeight, 1)) * 100;
+        el.style.setProperty("--mx", `${x}%`);
+        el.style.setProperty("--my", `${y}%`);
+      });
     }
 
     window.addEventListener("pointermove", onPointerMove, { passive: true });
-    return () => window.removeEventListener("pointermove", onPointerMove);
+    return () => {
+      window.removeEventListener("pointermove", onPointerMove);
+      if (cursorMoveRaf.current) {
+        cancelAnimationFrame(cursorMoveRaf.current);
+      }
+    };
   }, []);
 
   useEffect(() => {
@@ -799,15 +816,6 @@ export function HomePage() {
     document.documentElement.setAttribute("data-theme", theme);
     localStorage.setItem("portfolio-theme", theme);
   }, [theme]);
-
-  useEffect(() => {
-    function handleScroll() {
-      setShowBackToTop(window.scrollY > 420);
-    }
-
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
 
   useEffect(() => {
     if (!copiedEmail) {
@@ -1477,7 +1485,7 @@ export function HomePage() {
           className="back-to-top portfolio-back-to-top"
           aria-label={content.backToTop}
           title={content.backToTop}
-          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+          onClick={() => document.getElementById("root")?.scrollTo({ top: 0, behavior: "smooth" })}
         />
       ) : null}
     </main>
