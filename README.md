@@ -9,6 +9,7 @@
 [![Domain](https://img.shields.io/badge/Domain-PAVIETNAM-2563EB?style=plastic&logo=globe&logoColor=FFFFFF&labelColor=0B1220)](https://www.pavietnam.vn)
 [![LLM / AI](https://img.shields.io/badge/LLM%20%2F%20AI-OpenRouter-6366F1?style=plastic&logo=openrouter&logoColor=FFFFFF&labelColor=0B1220)](https://openrouter.ai)
 [![DNS](https://img.shields.io/badge/DNS-Cloudflare-F38020?style=plastic&logo=cloudflare&logoColor=FFFFFF&labelColor=0B1220)](https://www.cloudflare.com)
+[![Observability](https://img.shields.io/badge/Observability-Grafana%20%2B%20OpenTelemetry-F46800?style=plastic&logo=grafana&logoColor=FFFFFF&labelColor=0B1220)](./docs/grafana.md)
 
 Website portfolio cá nhân theo hướng hiện đại, tập trung vào trải nghiệm người dùng, khả năng quản trị nội dung linh hoạt và kiến trúc sạch để mở rộng lâu dài.
 
@@ -74,6 +75,7 @@ Website portfolio cá nhân theo hướng hiện đại, tập trung vào trải
 - Database: Supabase
 - DNS/CDN: Cloudflare
 - LLM (Career Direction Lab): [OpenRouter](https://openrouter.ai)
+- Observability: [Grafana Cloud + OpenTelemetry](./docs/grafana.md)
 
 ## Cấu trúc repository
 
@@ -141,11 +143,12 @@ OpenRouter__MaxTokens=500
 
 - Frontend tự động deploy qua workflow Azure Static Web Apps khi push `main`.
 - Backend có thể deploy tự động lên Azure Web Apps bằng publish profile secret (workflow đã hỗ trợ mở rộng theo profile thực tế của dự án).
+- Grafana annotations được tạo sau deploy nếu đã cấu hình `GRAFANA_URL` và `GRAFANA_SERVICE_ACCOUNT_TOKEN`.
 
 ## Lộ trình mở rộng
 
 - Bổ sung test tự động cho auth flow và roadmap flow.
-- Thêm logging/monitoring production sâu hơn.
+- Mở rộng dashboard Grafana cho database/cache và các luồng AI quan trọng.
 - Tối ưu SEO/social metadata cho từng section và bài viết.
 
 ## Tác giả

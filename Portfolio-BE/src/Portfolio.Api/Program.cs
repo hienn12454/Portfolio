@@ -1,6 +1,10 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
+using OpenTelemetry.Logs;
+using OpenTelemetry.Metrics;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
 using System.Text.Json;
 using Portfolio.Api.Auth;
 using Portfolio.Api.Extensions;
@@ -11,11 +15,62 @@ var builder = WebApplication.CreateBuilder(args);
 var clerkAuthority = builder.Configuration["Clerk:Authority"];
 var clerkAudience = builder.Configuration["Clerk:Audience"];
 var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? Array.Empty<string>();
+var openTelemetryEnabled = new[]
+{
+    "OTEL_EXPORTER_OTLP_ENDPOINT",
+    "OTEL_EXPORTER_OTLP_TRACES_ENDPOINT",
+    "OTEL_EXPORTER_OTLP_METRICS_ENDPOINT",
+    "OTEL_EXPORTER_OTLP_LOGS_ENDPOINT"
+}.Any(key => !string.IsNullOrWhiteSpace(builder.Configuration[key]));
+var serviceName = builder.Configuration["OTEL_SERVICE_NAME"]
+    ?? builder.Configuration["Observability:ServiceName"]
+    ?? "portfolio-api";
+var serviceVersion = typeof(Program).Assembly.GetName().Version?.ToString();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddHttpClient();
+if (openTelemetryEnabled)
+{
+    var resourceBuilder = ResourceBuilder.CreateDefault()
+        .AddService(
+            serviceName: serviceName,
+            serviceVersion: serviceVersion,
+            serviceInstanceId: Environment.MachineName)
+        .AddAttributes(new[]
+        {
+            new KeyValuePair<string, object>("deployment.environment", builder.Environment.EnvironmentName)
+        });
+
+    builder.Services.AddOpenTelemetry()
+        .ConfigureResource(resource => resource.AddService(
+            serviceName: serviceName,
+            serviceVersion: serviceVersion,
+            serviceInstanceId: Environment.MachineName)
+            .AddAttributes(new[]
+            {
+                new KeyValuePair<string, object>("deployment.environment", builder.Environment.EnvironmentName)
+            }))
+        .WithMetrics(metrics => metrics
+            .AddAspNetCoreInstrumentation()
+            .AddHttpClientInstrumentation()
+            .AddRuntimeInstrumentation()
+            .AddOtlpExporter())
+        .WithTracing(tracing => tracing
+            .AddAspNetCoreInstrumentation(options => options.RecordException = true)
+            .AddHttpClientInstrumentation(options => options.RecordException = true)
+            .AddOtlpExporter());
+
+    builder.Logging.AddOpenTelemetry(logging =>
+    {
+        logging.IncludeFormattedMessage = true;
+        logging.IncludeScopes = true;
+        logging.ParseStateValues = true;
+        logging.SetResourceBuilder(resourceBuilder);
+        logging.AddOtlpExporter();
+    });
+}
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("FrontendPolicy", policy =>

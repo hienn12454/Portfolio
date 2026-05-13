@@ -17,16 +17,15 @@ const contentByLanguage = {
     },
     eyebrow: "Software Engineer",
     heroTitle: "Hello, I am an IT developer focused on reliable and maintainable digital products.",
-    heroDescription:
-      "I build professional web systems with a clean and structured mindset. I prioritize code quality, clean architecture, and a polished user experience.",
+    heroDescription: "Modern web delivery · clean architecture · UX that feels intentional.",
     primaryAction: "View projects",
     secondaryAction: "Contact me",
     aboutTitle: "About Me",
     aboutDescription:
-      "I am a software engineer who values discipline, clarity, and long-term maintainability. My goal is to deliver solutions that are practical, scalable, and dependable.",
+      "Engineer with a product lens—shipping systems that stay readable as they grow.",
     skillsTitle: "Core Skills",
     projectsTitle: "Selected Projects",
-    projectsDescription: "Curated projects with context, role, stack, and measurable outcomes.",
+    projectsDescription: "Role, stack, and outcomes—toggle detail when you want depth.",
     projectFilterLabel: "Filter by",
     projectViewLabel: "View",
     projectViewDetailed: "Detailed",
@@ -52,6 +51,16 @@ const contentByLanguage = {
     },
     themeDark: "Dark",
     themeLight: "Light",
+    workspaceLabel: "Vault",
+    workspaceHint: "Pick a board—scene shifts stay smooth, and you control how much text shows at once.",
+    workspaceTabs: {
+      intro: "Overview",
+      work: "Build",
+      path: "Journey",
+      lab: "AI Lab",
+      reach: "Connect"
+    },
+    skillsTapHint: "Tap a skill chip to expand its note.",
     contactFormTitle: "Send a quick message",
     contactFormFields: {
       name: "Name",
@@ -74,16 +83,14 @@ const contentByLanguage = {
     },
     eyebrow: "Kỹ sư phần mềm",
     heroTitle: "Xin chào, tôi là một lập trình viên IT tập trung vào sản phẩm bền vững và đáng tin cậy.",
-    heroDescription:
-      "Tôi xây dựng hệ thống web chuyên nghiệp với tư duy rõ ràng, có cấu trúc. Tôi ưu tiên chất lượng code, clean architecture và trải nghiệm người dùng chỉn chu.",
+    heroDescription: "Web hiện đại · kiến trúc rõ · UX có chủ đích.",
     primaryAction: "Xem dự án",
     secondaryAction: "Liên hệ",
     aboutTitle: "Về tôi",
-    aboutDescription:
-      "Tôi là kỹ sư phần mềm theo đuổi sự kỷ luật, minh bạch và khả năng bảo trì lâu dài. Mục tiêu của tôi là tạo ra giải pháp thực tế, dễ mở rộng và ổn định.",
+    aboutDescription: "Làm theo kiểu sản phẩm—ưu tiên hệ thống đọc được và mở rộng dễ.",
     skillsTitle: "Kỹ năng cốt lõi",
     projectsTitle: "Dự án tiêu biểu",
-    projectsDescription: "Các dự án được chọn lọc, có bối cảnh, vai trò, công nghệ và kết quả cụ thể.",
+    projectsDescription: "Vai trò, stack, impact—bật chi tiết khi cần đào sâu.",
     projectFilterLabel: "Lọc theo",
     projectViewLabel: "Chế độ xem",
     projectViewDetailed: "Chi tiết",
@@ -109,6 +116,16 @@ const contentByLanguage = {
     },
     themeDark: "Tối",
     themeLight: "Sáng",
+    workspaceLabel: "Vault",
+    workspaceHint: "Chọn từng \"bảng\" để xem nội dung—chuyển cảnh mượt, không phải đọc tường chữ một lúc.",
+    workspaceTabs: {
+      intro: "Tổng quan",
+      work: "Build",
+      path: "Hành trình",
+      lab: "AI Lab",
+      reach: "Kết nối"
+    },
+    skillsTapHint: "Chạm chip kỹ năng để mở ghi chú ngắn.",
     contactFormTitle: "Gửi tin nhắn nhanh",
     contactFormFields: {
       name: "Họ và tên",
@@ -570,6 +587,8 @@ export function HomePage() {
   const [showBackToTop, setShowBackToTop] = useState(false);
   const [isAdminUser, setIsAdminUser] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [workspaceTab, setWorkspaceTab] = useState("intro");
+  const [expandedSkill, setExpandedSkill] = useState(null);
   const [typedHeroTitle, setTypedHeroTitle] = useState("");
   const userMenuRef = useRef(null);
   const content = contentByLanguage[language];
@@ -631,6 +650,47 @@ export function HomePage() {
     () => localizedProjects.filter((project) => projectCategory === "all" || project.category === projectCategory),
     [localizedProjects, projectCategory]
   );
+
+  useEffect(() => {
+    setExpandedSkill(null);
+  }, [language]);
+
+  useEffect(() => {
+    function syncVaultFromHash() {
+      const key = window.location.hash.replace(/^#/, "").trim().toLowerCase();
+      if (!key) {
+        return;
+      }
+
+      const map = {
+        workspace: { tab: "intro", scrollId: "workspace" },
+        about: { tab: "intro", scrollId: "about" },
+        skills: { tab: "work", scrollId: "skills" },
+        projects: { tab: "work", scrollId: "projects" },
+        contact: { tab: "reach", scrollId: "contact" }
+      };
+
+      const target = map[key];
+      if (!target) {
+        return;
+      }
+
+      setWorkspaceTab(target.tab);
+      const reduceMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches ?? false;
+      window.requestAnimationFrame(() => {
+        window.requestAnimationFrame(() => {
+          document.getElementById(target.scrollId)?.scrollIntoView({
+            behavior: reduceMotion ? "auto" : "smooth",
+            block: "start"
+          });
+        });
+      });
+    }
+
+    syncVaultFromHash();
+    window.addEventListener("hashchange", syncVaultFromHash);
+    return () => window.removeEventListener("hashchange", syncVaultFromHash);
+  }, []);
 
   useEffect(() => {
     const savedLanguage = localStorage.getItem("portfolio-language");
@@ -784,21 +844,68 @@ export function HomePage() {
     }
   };
 
+  const focusWorkspace = (tab) => {
+    setWorkspaceTab(tab);
+    window.requestAnimationFrame(() => {
+      document.getElementById("workspace")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  };
+
   return (
     <main className="site">
       <div className="glitch-grid" aria-hidden="true" />
       <header className="topbar">
         <div className="container topbar__content">
-          <Link to="/" className="brand" aria-label="Go to homepage">
+          <Link
+            to="/"
+            className="brand"
+            aria-label="Go to homepage"
+            onClick={() => {
+              setWorkspaceTab("intro");
+              setExpandedSkill(null);
+            }}
+          >
             <img src="/logo-mark.svg" alt="HienNT logo" className="brand__logo" />
             <span>{content.brand}</span>
           </Link>
           <div className="topbar__actions">
             <nav className="nav">
-              <a href="#about">{content.nav.about}</a>
-              <a href="#skills">{content.nav.skills}</a>
-              <a href="#projects">{content.nav.projects}</a>
-              <a href="#contact">{content.nav.contact}</a>
+              <a
+                href="#workspace"
+                onClick={(event) => {
+                  event.preventDefault();
+                  focusWorkspace("intro");
+                }}
+              >
+                {content.nav.about}
+              </a>
+              <a
+                href="#workspace"
+                onClick={(event) => {
+                  event.preventDefault();
+                  focusWorkspace("work");
+                }}
+              >
+                {content.nav.skills}
+              </a>
+              <a
+                href="#workspace"
+                onClick={(event) => {
+                  event.preventDefault();
+                  focusWorkspace("work");
+                }}
+              >
+                {content.nav.projects}
+              </a>
+              <a
+                href="#workspace"
+                onClick={(event) => {
+                  event.preventDefault();
+                  focusWorkspace("reach");
+                }}
+              >
+                {content.nav.contact}
+              </a>
             </nav>
             <div className="auth-actions">
               <button
@@ -901,284 +1008,330 @@ export function HomePage() {
           {page?.heroDescription || content.heroDescription}
         </p>
         <div className="hero__actions">
-          <a className="button button--primary" href="#projects">
+          <button type="button" className="button button--primary" onClick={() => focusWorkspace("work")}>
             {content.primaryAction}
-          </a>
-          <a className="button button--ghost" href="#contact">
+          </button>
+          <button type="button" className="button button--ghost" onClick={() => focusWorkspace("reach")}>
             {content.secondaryAction}
-          </a>
+          </button>
         </div>
       </section>
 
-      <section id="about" className="section container">
-        <h2 style={aboutTitleColor ? { color: aboutTitleColor } : undefined}>{page?.aboutTitle || content.aboutTitle}</h2>
-        <p style={aboutDescriptionColor ? { color: aboutDescriptionColor } : undefined}>{page?.aboutDescription || content.aboutDescription}</p>
-        <div className="highlight-grid">
-          {localizedHighlights.map((item) => (
-            <article key={item.title} className="card">
-              <h3>{item.title}</h3>
-              <p>{item.text}</p>
-            </article>
-          ))}
-        </div>
-      </section>
-
-      <section className="section section--alt">
-        <div className="container">
-          <h2>{localizedCareerObjectives.title}</h2>
-          <p>{localizedCareerObjectives.summary}</p>
-          <ul className="bullet-list">
-            {localizedCareerObjectives.goals.map((goal) => (
-              <li key={goal}>{goal}</li>
-            ))}
-          </ul>
-        </div>
-      </section>
-
-      <section id="skills" className="section section--alt">
-        <div className="container">
-          <h2 style={skillsTitleColor ? { color: skillsTitleColor } : undefined}>{content.skillsTitle}</h2>
-          <div className="skill-list">
-            {displayedSkills.map((skill) => (
-              <article key={skill.name} className="skill-item">
-                <h3>{skill.name}</h3>
-                <p>{skill.description}</p>
-              </article>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section id="projects" className="section container">
-        <h2 style={projectsTitleColor ? { color: projectsTitleColor } : undefined}>{content.projectsTitle}</h2>
-        <p style={projectsDescriptionColor ? { color: projectsDescriptionColor } : undefined}>{content.projectsDescription}</p>
-        <div className="project-filter">
-          <span>{content.projectFilterLabel}</span>
-          <div className="project-filter__chips">
-            {localizedCategories.map((category) => (
+      <section id="workspace" className="vault-wrap">
+        <div className="container vault-head">
+          <p className="vault-eyebrow">{content.workspaceLabel}</p>
+          <p className="vault-hint">{content.workspaceHint}</p>
+          <div className="vault-tabs" role="tablist" aria-label={content.workspaceLabel}>
+            {["intro", "work", "path", "lab", "reach"].map((id) => (
               <button
-                key={category.id}
+                key={id}
                 type="button"
-                className={projectCategory === category.id ? "filter-chip is-active" : "filter-chip"}
-                onClick={() => setProjectCategory(category.id)}
+                role="tab"
+                aria-selected={workspaceTab === id}
+                className={workspaceTab === id ? "vault-tab is-active" : "vault-tab"}
+                onClick={() => setWorkspaceTab(id)}
               >
-                {category.label}
+                {content.workspaceTabs[id]}
               </button>
             ))}
           </div>
-          <span>{content.projectViewLabel}</span>
-          <div className="project-filter__chips">
-            <button
-              type="button"
-              className={projectView === "detailed" ? "filter-chip is-active" : "filter-chip"}
-              onClick={() => setProjectView("detailed")}
-            >
-              {content.projectViewDetailed}
-            </button>
-            <button
-              type="button"
-              className={projectView === "compact" ? "filter-chip is-active" : "filter-chip"}
-              onClick={() => setProjectView("compact")}
-            >
-              {content.projectViewCompact}
-            </button>
-          </div>
         </div>
-        <div className="project-list">
-          {filteredProjects.map((project) => (
-            <article className="card card--project" key={project.id}>
-              <p className="project-role">{project.role}</p>
-              <h3>{project.name}</h3>
-              <p>{project.summary}</p>
-              <p className="project-stack">{project.stack}</p>
-              {projectView === "detailed" ? (
-                <>
-                  <h4>{content.projectCaseStudyLabel}</h4>
-                  <p>{project.caseStudy}</p>
-                  <h4>{content.projectMetricsLabel}</h4>
-                  <p>{project.impact}</p>
-                </>
-              ) : null}
-              <div className="card__links">
-                <a href={project.demoUrl}>{content.projectLinks.demo}</a>
-                <a href={project.sourceUrl}>{content.projectLinks.source}</a>
-              </div>
-            </article>
-          ))}
-        </div>
-      </section>
 
-      <section className="section section--alt">
-        <div className="container">
-          <h2>{language === "vi" ? "Lộ trình học theo hướng nghề" : "Role-Based Learning Roadmaps"}</h2>
-          <p>
-            {language === "vi"
-              ? "Các lộ trình này giúp bạn học tập có trọng tâm, xây project đúng mục tiêu tuyển dụng."
-              : "These guided journeys help you learn with focus and build projects aligned with hiring needs."}
-          </p>
-          <div className="highlight-grid">
-            {localizedLearningTracks.map((track) => (
-              <article key={track.title} className="card">
-                <h3>{track.title}</h3>
+        <div className="vault-canvas container">
+          {workspaceTab === "intro" ? (
+            <div className="vault-panel">
+              <section id="about" className="vault-section">
+                <h2 style={aboutTitleColor ? { color: aboutTitleColor } : undefined}>{page?.aboutTitle || content.aboutTitle}</h2>
+                <p style={aboutDescriptionColor ? { color: aboutDescriptionColor } : undefined}>{page?.aboutDescription || content.aboutDescription}</p>
+                <div className="highlight-grid">
+                  {localizedHighlights.map((item) => (
+                    <article key={item.title} className="card">
+                      <h3>{item.title}</h3>
+                      <p>{item.text}</p>
+                    </article>
+                  ))}
+                </div>
+              </section>
+
+              <details className="vault-note">
+                <summary>{localizedCareerObjectives.title}</summary>
+                <p>{localizedCareerObjectives.summary}</p>
                 <ul className="bullet-list">
-                  {track.points.map((point) => (
-                    <li key={point}>{point}</li>
+                  {localizedCareerObjectives.goals.map((goal) => (
+                    <li key={goal}>{goal}</li>
                   ))}
                 </ul>
-              </article>
-            ))}
-          </div>
-        </div>
-      </section>
+              </details>
+            </div>
+          ) : null}
 
-      <CareerAdvisorSection language={language} apiClient={apiClient} />
-      <UserRoadmapPlannerSection language={language} isSignedIn={isSignedIn} apiClient={apiClient} />
+          {workspaceTab === "work" ? (
+            <div className="vault-panel">
+              <section id="skills" className="vault-section">
+                <h2 style={skillsTitleColor ? { color: skillsTitleColor } : undefined}>{content.skillsTitle}</h2>
+                <div className="skill-chips" role="list">
+                  {displayedSkills.map((skill) => {
+                    const isOpen = expandedSkill === skill.name;
+                    return (
+                      <button
+                        key={skill.name}
+                        type="button"
+                        role="listitem"
+                        className={isOpen ? "skill-chip is-active" : "skill-chip"}
+                        aria-expanded={isOpen}
+                        onClick={() => setExpandedSkill(isOpen ? null : skill.name)}
+                      >
+                        <span className="skill-chip__name">{skill.name}</span>
+                        {isOpen ? <span className="skill-chip__desc">{skill.description}</span> : null}
+                      </button>
+                    );
+                  })}
+                </div>
+                <p className="skill-chips-hint">{content.skillsTapHint}</p>
+              </section>
 
-      <section className="section section--alt">
-        <div className="container">
-          <h2>{content.servicesTitle}</h2>
-          <ul className="bullet-list">
-            {localizedServices.map((service) => (
-              <li key={service}>{service}</li>
-            ))}
-          </ul>
-        </div>
-      </section>
+              <section id="projects" className="vault-section">
+                <h2 style={projectsTitleColor ? { color: projectsTitleColor } : undefined}>{content.projectsTitle}</h2>
+                <p style={projectsDescriptionColor ? { color: projectsDescriptionColor } : undefined}>{content.projectsDescription}</p>
+                <div className="project-filter">
+                  <span>{content.projectFilterLabel}</span>
+                  <div className="project-filter__chips">
+                    {localizedCategories.map((category) => (
+                      <button
+                        key={category.id}
+                        type="button"
+                        className={projectCategory === category.id ? "filter-chip is-active" : "filter-chip"}
+                        onClick={() => setProjectCategory(category.id)}
+                      >
+                        {category.label}
+                      </button>
+                    ))}
+                  </div>
+                  <span>{content.projectViewLabel}</span>
+                  <div className="project-filter__chips">
+                    <button
+                      type="button"
+                      className={projectView === "detailed" ? "filter-chip is-active" : "filter-chip"}
+                      onClick={() => setProjectView("detailed")}
+                    >
+                      {content.projectViewDetailed}
+                    </button>
+                    <button
+                      type="button"
+                      className={projectView === "compact" ? "filter-chip is-active" : "filter-chip"}
+                      onClick={() => setProjectView("compact")}
+                    >
+                      {content.projectViewCompact}
+                    </button>
+                  </div>
+                </div>
+                <div className="project-list">
+                  {filteredProjects.map((project) => (
+                    <article className="card card--project" key={project.id}>
+                      <p className="project-role">{project.role}</p>
+                      <h3>{project.name}</h3>
+                      <p>{project.summary}</p>
+                      <p className="project-stack">{project.stack}</p>
+                      {projectView === "detailed" ? (
+                        <>
+                          <h4>{content.projectCaseStudyLabel}</h4>
+                          <p>{project.caseStudy}</p>
+                          <h4>{content.projectMetricsLabel}</h4>
+                          <p>{project.impact}</p>
+                        </>
+                      ) : null}
+                      <div className="card__links">
+                        <a href={project.demoUrl}>{content.projectLinks.demo}</a>
+                        <a href={project.sourceUrl}>{content.projectLinks.source}</a>
+                      </div>
+                    </article>
+                  ))}
+                </div>
+              </section>
+            </div>
+          ) : null}
 
-      <section className="section container">
-        <h2>{content.experienceTitle}</h2>
-        <div className="timeline">
-          {localizedExperiences.map((experience) => (
-            <article key={experience.period} className="timeline__item">
-              <p className="timeline__period">{experience.period}</p>
-              <h3>{experience.role}</h3>
-              <p>{experience.detail}</p>
-            </article>
-          ))}
-        </div>
-      </section>
+          {workspaceTab === "path" ? (
+            <div className="vault-panel">
+              <section className="vault-section">
+                <h2>{language === "vi" ? "Lộ trình theo vai trò" : "Role roadmaps"}</h2>
+                <p className="vault-hint" style={{ marginTop: 0 }}>
+                  {language === "vi"
+                    ? "Bấm từng ghi chú để bung chi tiết tuần — gọn hơn một lườn thẳng."
+                    : "Open each note to unpack weekly milestones without a wall of bullets."}
+                </p>
+                <div>
+                  {localizedLearningTracks.map((track) => (
+                    <details key={track.title} className="vault-note">
+                      <summary>{track.title}</summary>
+                      <ul className="bullet-list">
+                        {track.points.map((point) => (
+                          <li key={point}>{point}</li>
+                        ))}
+                      </ul>
+                    </details>
+                  ))}
+                </div>
+              </section>
 
-      <section className="section section--alt">
-        <div className="container split-grid">
-          <div>
-            <h2>{localizedAchievements.title}</h2>
-            <ul className="bullet-list">
-              {localizedCertifications.map((cert) => (
-                <li key={cert}>{cert}</li>
-              ))}
-            </ul>
-            <h3>{localizedAchievements.awardsTitle}</h3>
-            <ul className="bullet-list">
-              {localizedAchievements.awards.map((award) => (
-                <li key={award}>{award}</li>
-              ))}
-            </ul>
-          </div>
-          <div>
-            <h2>{content.blogTitle}</h2>
-            <ul className="bullet-list">
-              {(articles.length > 0 ? articles.map((article) => article.title) : localizedBlogs).map((blog) => (
-                <li key={blog}>{blog}</li>
-              ))}
-            </ul>
-          </div>
-        </div>
-      </section>
+              <section className="vault-section">
+                <h2>{content.experienceTitle}</h2>
+                <div className="timeline">
+                  {localizedExperiences.map((experience) => (
+                    <article key={experience.period} className="timeline__item">
+                      <p className="timeline__period">{experience.period}</p>
+                      <h3>{experience.role}</h3>
+                      <p>{experience.detail}</p>
+                    </article>
+                  ))}
+                </div>
+              </section>
 
-      <section className="section container">
-        <div className="split-grid">
-          <article className="card">
-            <h3>{localizedOwnership.title}</h3>
-            <p>{localizedOwnership.description}</p>
-            <ul className="bullet-list">
-              {localizedOwnership.assets.map((asset) => (
-                <li key={asset}>{asset}</li>
-              ))}
-            </ul>
-          </article>
-          <article className="card">
-            <h3>{localizedPhilosophy.title}</h3>
-            <ul className="bullet-list">
-              {localizedPhilosophy.principles.map((principle) => (
-                <li key={principle}>{principle}</li>
-              ))}
-            </ul>
-          </article>
-        </div>
-      </section>
+              <section className="vault-section">
+                <div className="split-grid">
+                  <div>
+                    <h2>{localizedAchievements.title}</h2>
+                    <ul className="bullet-list">
+                      {localizedCertifications.map((cert) => (
+                        <li key={cert}>{cert}</li>
+                      ))}
+                    </ul>
+                    <h3>{localizedAchievements.awardsTitle}</h3>
+                    <ul className="bullet-list">
+                      {localizedAchievements.awards.map((award) => (
+                        <li key={award}>{award}</li>
+                      ))}
+                    </ul>
+                  </div>
+                  <div>
+                    <h2>{content.blogTitle}</h2>
+                    <ul className="bullet-list">
+                      {(articles.length > 0 ? articles.map((article) => article.title) : localizedBlogs).map((blog) => (
+                        <li key={blog}>{blog}</li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              </section>
+            </div>
+          ) : null}
 
-      <section className="section container">
-        <h2>{content.testimonialsTitle}</h2>
-        <div className="highlight-grid">
-          {localizedTestimonials.map((testimonial) => (
-            <article key={testimonial.author} className="card">
-              <p>"{testimonial.quote}"</p>
-              <p className="testimonial-author">- {testimonial.author}</p>
-            </article>
-          ))}
-        </div>
-      </section>
+          {workspaceTab === "lab" ? (
+            <div className="vault-panel vault-panel--lab">
+              <CareerAdvisorSection language={language} apiClient={apiClient} />
+              <UserRoadmapPlannerSection language={language} isSignedIn={isSignedIn} apiClient={apiClient} />
+            </div>
+          ) : null}
 
-      <section className="section section--alt">
-        <div className="container">
-          <h2>{content.faqTitle}</h2>
-          <div className="faq-list">
-            {localizedFaqs.map((faq, index) => {
-              const isOpen = openedFaqIndex === index;
-              return (
-                <article key={faq.question} className="faq-item">
-                  <button
-                    type="button"
-                    className="faq-item__question"
-                    onClick={() => setOpenedFaqIndex(isOpen ? -1 : index)}
-                  >
-                    {faq.question}
-                  </button>
-                  {isOpen ? <p className="faq-item__answer">{faq.answer}</p> : null}
+          {workspaceTab === "reach" ? (
+            <div className="vault-panel">
+              <section className="vault-section">
+                <h2>{content.servicesTitle}</h2>
+                <div className="service-pills">
+                  {localizedServices.map((service) => (
+                    <span key={service} className="service-pill">
+                      {service}
+                    </span>
+                  ))}
+                </div>
+              </section>
+
+              <section className="vault-section">
+                <div className="split-grid">
+                  <article className="card">
+                    <h3>{localizedOwnership.title}</h3>
+                    <p>{localizedOwnership.description}</p>
+                    <ul className="bullet-list">
+                      {localizedOwnership.assets.map((asset) => (
+                        <li key={asset}>{asset}</li>
+                      ))}
+                    </ul>
+                  </article>
+                  <article className="card">
+                    <h3>{localizedPhilosophy.title}</h3>
+                    <ul className="bullet-list">
+                      {localizedPhilosophy.principles.map((principle) => (
+                        <li key={principle}>{principle}</li>
+                      ))}
+                    </ul>
+                  </article>
+                </div>
+              </section>
+
+              <section className="vault-section">
+                <h2>{content.testimonialsTitle}</h2>
+                <div className="highlight-grid">
+                  {localizedTestimonials.map((testimonial) => (
+                    <article key={testimonial.author} className="card">
+                      <p>"{testimonial.quote}"</p>
+                      <p className="testimonial-author">- {testimonial.author}</p>
+                    </article>
+                  ))}
+                </div>
+              </section>
+
+              <section className="vault-section">
+                <h2>{content.faqTitle}</h2>
+                <div className="faq-list">
+                  {localizedFaqs.map((faq, index) => {
+                    const isOpen = openedFaqIndex === index;
+                    return (
+                      <article key={faq.question} className="faq-item">
+                        <button
+                          type="button"
+                          className="faq-item__question"
+                          onClick={() => setOpenedFaqIndex(isOpen ? -1 : index)}
+                        >
+                          {faq.question}
+                        </button>
+                        {isOpen ? <p className="faq-item__answer">{faq.answer}</p> : null}
+                      </article>
+                    );
+                  })}
+                </div>
+              </section>
+
+              <section id="contact" className="vault-section contact">
+                <h2 style={contactTitleColor ? { color: contactTitleColor } : undefined}>{content.contactTitle}</h2>
+                <p style={contactDescriptionColor ? { color: contactDescriptionColor } : undefined}>{content.contactDescription}</p>
+                <a className="button button--primary" href={`mailto:${displayEmail}`}>
+                  {displayEmail}
+                </a>
+                <button type="button" className="button button--ghost" onClick={handleCopyEmail}>
+                  {copiedEmail ? content.copiedEmail : content.copyEmail}
+                </button>
+                <div className="social-links">
+                  <a href={contact?.githubUrl || "#"}>GitHub</a>
+                  <a href={contact?.linkedInUrl || "#"}>LinkedIn</a>
+                  <a href="#">Resume</a>
+                </div>
+                <article className="contact-form">
+                  <h3>{content.contactFormTitle}</h3>
+                  <form>
+                    <label>
+                      {content.contactFormFields.name}
+                      <input type="text" placeholder={content.contactFormFields.name} />
+                    </label>
+                    <label>
+                      {content.contactFormFields.email}
+                      <input type="email" placeholder={content.contactFormFields.email} />
+                    </label>
+                    <label>
+                      {content.contactFormFields.message}
+                      <textarea rows={4} placeholder={content.contactFormFields.message} />
+                    </label>
+                    <button type="button" className="button button--primary">
+                      {content.contactFormFields.submit}
+                    </button>
+                  </form>
                 </article>
-              );
-            })}
-          </div>
+              </section>
+            </div>
+          ) : null}
         </div>
       </section>
 
-      <section id="contact" className="section section--alt">
-        <div className="container contact">
-          <h2 style={contactTitleColor ? { color: contactTitleColor } : undefined}>{content.contactTitle}</h2>
-          <p style={contactDescriptionColor ? { color: contactDescriptionColor } : undefined}>{content.contactDescription}</p>
-          <a className="button button--primary" href={`mailto:${displayEmail}`}>
-            {displayEmail}
-          </a>
-          <button type="button" className="button button--ghost" onClick={handleCopyEmail}>
-            {copiedEmail ? content.copiedEmail : content.copyEmail}
-          </button>
-          <div className="social-links">
-            <a href={contact?.githubUrl || "#"}>GitHub</a>
-            <a href={contact?.linkedInUrl || "#"}>LinkedIn</a>
-            <a href="#">Resume</a>
-          </div>
-          <article className="contact-form">
-            <h3>{content.contactFormTitle}</h3>
-            <form>
-              <label>
-                {content.contactFormFields.name}
-                <input type="text" placeholder={content.contactFormFields.name} />
-              </label>
-              <label>
-                {content.contactFormFields.email}
-                <input type="email" placeholder={content.contactFormFields.email} />
-              </label>
-              <label>
-                {content.contactFormFields.message}
-                <textarea rows={4} placeholder={content.contactFormFields.message} />
-              </label>
-              <button type="button" className="button button--primary">
-                {content.contactFormFields.submit}
-              </button>
-            </form>
-          </article>
-        </div>
-      </section>
+
 
       <footer className="footer">
         <div className="container footer__inner">
