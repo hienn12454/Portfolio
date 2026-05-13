@@ -6,6 +6,9 @@
 [![Hosting](https://img.shields.io/badge/Hosting-Azure-0078D4?style=plastic&logo=microsoftazure&logoColor=FFFFFF&labelColor=0B1220)](https://azure.microsoft.com/)
 [![Database](https://img.shields.io/badge/Database-Supabase-3ECF8E?style=plastic&logo=supabase&logoColor=0B1220&labelColor=0B1220)](https://supabase.com/)
 [![Authentication](https://img.shields.io/badge/Authentication-Clerk-6C47FF?style=plastic&logo=clerk&logoColor=FFFFFF&labelColor=0B1220)](https://clerk.com/)
+[![Domain](https://img.shields.io/badge/Domain-PAVIETNAM-2563EB?style=plastic&logo=globe&logoColor=FFFFFF&labelColor=0B1220)](https://www.pavietnam.vn)
+[![LLM / AI](https://img.shields.io/badge/LLM%20%2F%20AI-OpenRouter-6366F1?style=plastic&logo=openrouter&logoColor=FFFFFF&labelColor=0B1220)](https://openrouter.ai)
+[![DNS](https://img.shields.io/badge/DNS-Cloudflare-F38020?style=plastic&logo=cloudflare&logoColor=FFFFFF&labelColor=0B1220)](https://www.cloudflare.com)
 
 Website portfolio cá nhân theo hướng hiện đại, tập trung vào trải nghiệm người dùng, khả năng quản trị nội dung linh hoạt và kiến trúc sạch để mở rộng lâu dài.
 
@@ -65,10 +68,12 @@ Website portfolio cá nhân theo hướng hiện đại, tập trung vào trải
 
 ### Hạ tầng triển khai
 
+- Domain: [PAVIETNAM](https://www.pavietnam.vn)
 - Frontend: Azure Static Web Apps
 - Backend: Azure Web Apps
 - Database: Supabase
 - DNS/CDN: Cloudflare
+- LLM (Career Direction Lab): [OpenRouter](https://openrouter.ai)
 
 ## Cấu trúc repository
 
