@@ -11,7 +11,8 @@ public interface ICareerAdvisorService
 public sealed class CareerAdvisorService(
     IOpenRouterClient openRouterClient,
     IRoadmapShClient roadmapShClient,
-    IWebResearchClient webResearchClient) : ICareerAdvisorService
+    IWebResearchClient webResearchClient,
+    ICareerChatCache careerChatCache) : ICareerAdvisorService
 {
     private static readonly IReadOnlyCollection<CareerKnowledgeChunk> KnowledgeBase =
     [
@@ -65,6 +66,21 @@ public sealed class CareerAdvisorService(
     public async Task<CareerChatResult> AskAsync(CareerChatRequest request, CancellationToken cancellationToken)
     {
         var normalizedQuestion = request.Message.Trim();
+        var normalizedTrack = request.Track?.Trim() ?? "general";
+
+        var cachedResult = await careerChatCache.GetAsync(normalizedTrack, normalizedQuestion, cancellationToken);
+        if (cachedResult is not null)
+        {
+            return cachedResult with
+            {
+                Sources =
+                [
+                    new CareerSource("cache-hit", "Redis cache reuse"),
+                    ..cachedResult.Sources
+                ]
+            };
+        }
+
         var userContext = BuildUserContextSnippet(normalizedQuestion, request.Track, request.History);
         var retrievedChunks = RetrieveRelevantChunks(normalizedQuestion, request.Track);
         var ragContext = string.Join(
@@ -92,7 +108,7 @@ public sealed class CareerAdvisorService(
             .Select(item => new CareerSource($"web-{Slugify(item.Source)}", $"{item.Source}: {item.Title}"))
             .ToList();
 
-        return new CareerChatResult(
+        var result = new CareerChatResult(
             Answer: answer.Trim(),
             Track: request.Track,
             Model: "openrouter",
@@ -102,6 +118,10 @@ public sealed class CareerAdvisorService(
                 new CareerSource($"roadmap-{roadmapSlug}", $"roadmap.sh/{roadmapSlug}"),
                 ..topWebSources
             ]);
+
+        await careerChatCache.SetAsync(normalizedTrack, normalizedQuestion, result, cancellationToken);
+
+        return result;
     }
 
     private static string BuildHistorySnippet(IReadOnlyCollection<CareerChatHistoryItem>? history)

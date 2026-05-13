@@ -20,11 +20,26 @@ public static class DependencyInjection
         services.AddDbContext<ApplicationDbContext>(options =>
             options.UseNpgsql(connectionString));
 
+        var redisConnectionString = configuration["Redis:ConnectionString"];
+        if (!string.IsNullOrWhiteSpace(redisConnectionString))
+        {
+            services.AddStackExchangeRedisCache(options =>
+            {
+                options.Configuration = redisConnectionString;
+                options.InstanceName = configuration["Redis:InstanceName"] ?? "portfolio:";
+            });
+        }
+        else
+        {
+            services.AddDistributedMemoryCache();
+        }
+
         services.AddScoped<IApplicationDbContext>(provider =>
             provider.GetRequiredService<ApplicationDbContext>());
         services.AddScoped<IOpenRouterClient, OpenRouterClient>();
         services.AddScoped<IRoadmapShClient, RoadmapShClient>();
         services.AddScoped<IWebResearchClient, WebResearchClient>();
+        services.AddScoped<ICareerChatCache, RedisCareerChatCache>();
         services.AddSingleton<IDateTimeProvider, SystemDateTimeProvider>();
 
         return services;

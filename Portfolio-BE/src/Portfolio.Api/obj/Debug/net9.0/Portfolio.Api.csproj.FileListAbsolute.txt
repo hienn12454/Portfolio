@@ -336,3 +336,6 @@ C:\Users\TUF\Desktop\Github\Portfolio\Portfolio-BE\src\Portfolio.Api\bin\Debug\n
 C:\Users\TUF\Desktop\Github\Portfolio\Portfolio-BE\src\Portfolio.Api\bin\Debug\net9.0\Microsoft.Extensions.Diagnostics.Abstractions.dll
 C:\Users\TUF\Desktop\Github\Portfolio\Portfolio-BE\src\Portfolio.Api\bin\Debug\net9.0\Microsoft.Extensions.Http.dll
 C:\Users\TUF\Desktop\Github\Portfolio\Portfolio-BE\src\Portfolio.Api\bin\Debug\net9.0\Microsoft.Extensions.Options.ConfigurationExtensions.dll
+C:\Users\TUF\Desktop\Github\Portfolio\Portfolio-BE\src\Portfolio.Api\bin\Debug\net9.0\Microsoft.Extensions.Caching.StackExchangeRedis.dll
+C:\Users\TUF\Desktop\Github\Portfolio\Portfolio-BE\src\Portfolio.Api\bin\Debug\net9.0\Pipelines.Sockets.Unofficial.dll
+C:\Users\TUF\Desktop\Github\Portfolio\Portfolio-BE\src\Portfolio.Api\bin\Debug\net9.0\StackExchange.Redis.dll
