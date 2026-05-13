@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useAuth, useClerk } from "@clerk/react";
 import { Link, useNavigate } from "react-router-dom";
 import { usePublicPortfolioData } from "./usePublicPortfolioData";
@@ -61,6 +61,10 @@ const contentByLanguage = {
       reach: "Connect"
     },
     skillsTapHint: "Tap a skill chip to expand its note.",
+    vaultDockHelp: "Quick jump between boards",
+    peekNotes: "Expand all notes",
+    peekNotesClose: "Collapse notes",
+    scrollProgressLabel: "Page scroll progress",
     contactFormTitle: "Send a quick message",
     contactFormFields: {
       name: "Name",
@@ -126,6 +130,10 @@ const contentByLanguage = {
       reach: "Kết nối"
     },
     skillsTapHint: "Chạm chip kỹ năng để mở ghi chú ngắn.",
+    vaultDockHelp: "Chuyển nhanh giữa các bảng",
+    peekNotes: "Mở hết ghi chú",
+    peekNotesClose: "Thu gọn ghi chú",
+    scrollProgressLabel: "Tiến độ cuộn trang",
     contactFormTitle: "Gửi tin nhắn nhanh",
     contactFormFields: {
       name: "Họ và tên",
@@ -562,6 +570,15 @@ const learningTracksByLanguage = {
   ]
 };
 
+const VAULT_TAB_ORDER = ["intro", "work", "path", "lab", "reach"];
+const VAULT_TAB_ICONS = {
+  intro: "◈",
+  work: "◆",
+  path: "↗",
+  lab: "✦",
+  reach: "◇"
+};
+
 function resolveColor(value) {
   if (typeof value !== "string") {
     return undefined;
@@ -589,6 +606,9 @@ export function HomePage() {
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [workspaceTab, setWorkspaceTab] = useState("intro");
   const [expandedSkill, setExpandedSkill] = useState(null);
+  const [scrollProgress, setScrollProgress] = useState(0);
+  const [notesPeeked, setNotesPeeked] = useState(false);
+  const siteRef = useRef(null);
   const [typedHeroTitle, setTypedHeroTitle] = useState("");
   const userMenuRef = useRef(null);
   const content = contentByLanguage[language];
@@ -651,6 +671,11 @@ export function HomePage() {
     [localizedProjects, projectCategory]
   );
 
+  const selectVaultTab = useCallback((tab) => {
+    setNotesPeeked(false);
+    setWorkspaceTab(tab);
+  }, []);
+
   useEffect(() => {
     setExpandedSkill(null);
   }, [language]);
@@ -675,7 +700,7 @@ export function HomePage() {
         return;
       }
 
-      setWorkspaceTab(target.tab);
+      selectVaultTab(target.tab);
       const reduceMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches ?? false;
       window.requestAnimationFrame(() => {
         window.requestAnimationFrame(() => {
@@ -690,10 +715,55 @@ export function HomePage() {
     syncVaultFromHash();
     window.addEventListener("hashchange", syncVaultFromHash);
     return () => window.removeEventListener("hashchange", syncVaultFromHash);
+  }, [selectVaultTab]);
+
+  useEffect(() => {
+    function onScroll() {
+      const el = document.documentElement;
+      const max = el.scrollHeight - el.clientHeight;
+      const p = max > 0 ? el.scrollTop / max : 0;
+      setScrollProgress(Math.min(1, Math.max(0, p)));
+    }
+
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
   useEffect(() => {
-    const savedLanguage = localStorage.getItem("portfolio-language");
+    function onPointerMove(event) {
+      const root = siteRef.current;
+      if (!root) {
+        return;
+      }
+      const x = (event.clientX / Math.max(window.innerWidth, 1)) * 100;
+      const y = (event.clientY / Math.max(window.innerHeight, 1)) * 100;
+      root.style.setProperty("--mx", `${x}%`);
+      root.style.setProperty("--my", `${y}%`);
+    }
+
+    window.addEventListener("pointermove", onPointerMove, { passive: true });
+    return () => window.removeEventListener("pointermove", onPointerMove);
+  }, []);
+
+  useEffect(() => {
+    const deck = siteRef.current?.querySelector(".vault-slide-deck");
+    if (!deck) {
+      return undefined;
+    }
+
+    deck.querySelectorAll(".vault-note").forEach((el) => {
+      if (notesPeeked) {
+        el.setAttribute("open", "");
+      } else {
+        el.removeAttribute("open");
+      }
+    });
+
+    return undefined;
+  }, [notesPeeked, workspaceTab]);
+
+  useEffect(() => {
     const savedCategory = localStorage.getItem("portfolio-project-category");
     const savedView = localStorage.getItem("portfolio-project-view");
     const savedTheme = localStorage.getItem("portfolio-theme");
@@ -845,14 +915,26 @@ export function HomePage() {
   };
 
   const focusWorkspace = (tab) => {
-    setWorkspaceTab(tab);
+    selectVaultTab(tab);
     window.requestAnimationFrame(() => {
       document.getElementById("workspace")?.scrollIntoView({ behavior: "smooth", block: "start" });
     });
   };
 
   return (
-    <main className="site">
+    <main ref={siteRef} className="site">
+      <div
+        className="scroll-progress"
+        style={{ transform: `scaleX(${scrollProgress})` }}
+        role="progressbar"
+        aria-valuenow={Math.round(scrollProgress * 100)}
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-label={content.scrollProgressLabel}
+      />
+      <div className="galaxy-layer" aria-hidden="true" />
+      <div className="shard-layer" aria-hidden="true" />
+      <div className="cursor-glow" aria-hidden="true" />
       <div className="glitch-grid" aria-hidden="true" />
       <header className="topbar">
         <div className="container topbar__content">
@@ -861,7 +943,7 @@ export function HomePage() {
             className="brand"
             aria-label="Go to homepage"
             onClick={() => {
-              setWorkspaceTab("intro");
+              selectVaultTab("intro");
               setExpandedSkill(null);
             }}
           >
@@ -1022,24 +1104,52 @@ export function HomePage() {
           <p className="vault-eyebrow">{content.workspaceLabel}</p>
           <p className="vault-hint">{content.workspaceHint}</p>
           <div className="vault-tabs" role="tablist" aria-label={content.workspaceLabel}>
-            {["intro", "work", "path", "lab", "reach"].map((id) => (
+            {VAULT_TAB_ORDER.map((id) => (
               <button
                 key={id}
                 type="button"
                 role="tab"
                 aria-selected={workspaceTab === id}
                 className={workspaceTab === id ? "vault-tab is-active" : "vault-tab"}
-                onClick={() => setWorkspaceTab(id)}
+                onClick={() => selectVaultTab(id)}
               >
                 {content.workspaceTabs[id]}
               </button>
             ))}
           </div>
+          <div className="vault-dock" role="toolbar" aria-label={content.vaultDockHelp}>
+            {VAULT_TAB_ORDER.map((id) => (
+              <button
+                key={`dock-${id}`}
+                type="button"
+                className={workspaceTab === id ? "vault-dock__btn is-active" : "vault-dock__btn"}
+                onClick={() => selectVaultTab(id)}
+                aria-label={content.workspaceTabs[id]}
+                title={content.workspaceTabs[id]}
+              >
+                <span className="vault-dock__glyph" aria-hidden="true">
+                  {VAULT_TAB_ICONS[id]}
+                </span>
+              </button>
+            ))}
+            <button
+              type="button"
+              className={`vault-dock__peek ${notesPeeked ? "is-active" : ""}`}
+              onClick={() => setNotesPeeked((open) => !open)}
+              aria-pressed={notesPeeked}
+            >
+              {notesPeeked ? content.peekNotesClose : content.peekNotes}
+            </button>
+          </div>
         </div>
 
-        <div className="vault-canvas container">
-          {workspaceTab === "intro" ? (
-            <div className="vault-panel">
+        <div className="vault-canvas container vault-canvas--deck">
+          <div className="vault-slide-deck">
+            <div
+              className={workspaceTab === "intro" ? "vault-slide is-active" : "vault-slide"}
+              aria-hidden={workspaceTab !== "intro"}
+            >
+              <div className="vault-panel">
               <section id="about" className="vault-section">
                 <h2 style={aboutTitleColor ? { color: aboutTitleColor } : undefined}>{page?.aboutTitle || content.aboutTitle}</h2>
                 <p style={aboutDescriptionColor ? { color: aboutDescriptionColor } : undefined}>{page?.aboutDescription || content.aboutDescription}</p>
@@ -1063,10 +1173,13 @@ export function HomePage() {
                 </ul>
               </details>
             </div>
-          ) : null}
+            </div>
 
-          {workspaceTab === "work" ? (
-            <div className="vault-panel">
+            <div
+              className={workspaceTab === "work" ? "vault-slide is-active" : "vault-slide"}
+              aria-hidden={workspaceTab !== "work"}
+            >
+              <div className="vault-panel">
               <section id="skills" className="vault-section">
                 <h2 style={skillsTitleColor ? { color: skillsTitleColor } : undefined}>{content.skillsTitle}</h2>
                 <div className="skill-chips" role="list">
@@ -1149,10 +1262,13 @@ export function HomePage() {
                 </div>
               </section>
             </div>
-          ) : null}
+            </div>
 
-          {workspaceTab === "path" ? (
-            <div className="vault-panel">
+            <div
+              className={workspaceTab === "path" ? "vault-slide is-active" : "vault-slide"}
+              aria-hidden={workspaceTab !== "path"}
+            >
+              <div className="vault-panel">
               <section className="vault-section">
                 <h2>{language === "vi" ? "Lộ trình theo vai trò" : "Role roadmaps"}</h2>
                 <p className="vault-hint" style={{ marginTop: 0 }}>
@@ -1214,17 +1330,23 @@ export function HomePage() {
                 </div>
               </section>
             </div>
-          ) : null}
+            </div>
 
-          {workspaceTab === "lab" ? (
+            <div
+              className={workspaceTab === "lab" ? "vault-slide is-active" : "vault-slide"}
+              aria-hidden={workspaceTab !== "lab"}
+            >
             <div className="vault-panel vault-panel--lab">
               <CareerAdvisorSection language={language} apiClient={apiClient} />
               <UserRoadmapPlannerSection language={language} isSignedIn={isSignedIn} apiClient={apiClient} />
             </div>
-          ) : null}
+            </div>
 
-          {workspaceTab === "reach" ? (
-            <div className="vault-panel">
+            <div
+              className={workspaceTab === "reach" ? "vault-slide is-active" : "vault-slide"}
+              aria-hidden={workspaceTab !== "reach"}
+            >
+              <div className="vault-panel">
               <section className="vault-section">
                 <h2>{content.servicesTitle}</h2>
                 <div className="service-pills">
@@ -1327,7 +1449,8 @@ export function HomePage() {
                 </article>
               </section>
             </div>
-          ) : null}
+            </div>
+          </div>
         </div>
       </section>
 
