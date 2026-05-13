@@ -737,9 +737,18 @@ export function HomePage() {
   }, []);
 
   useEffect(() => {
+    const el = siteRef.current;
+    if (theme === "light") {
+      if (el) {
+        el.style.setProperty("--mx", "50%");
+        el.style.setProperty("--my", "42%");
+      }
+      return undefined;
+    }
+
     function onPointerMove(event) {
-      const el = siteRef.current;
-      if (!el) {
+      const root = siteRef.current;
+      if (!root) {
         return;
       }
       if (cursorMoveRaf.current) {
@@ -749,8 +758,8 @@ export function HomePage() {
         cursorMoveRaf.current = 0;
         const x = (event.clientX / Math.max(window.innerWidth, 1)) * 100;
         const y = (event.clientY / Math.max(window.innerHeight, 1)) * 100;
-        el.style.setProperty("--mx", `${x}%`);
-        el.style.setProperty("--my", `${y}%`);
+        root.style.setProperty("--mx", `${x}%`);
+        root.style.setProperty("--my", `${y}%`);
       });
     }
 
@@ -761,7 +770,7 @@ export function HomePage() {
         cancelAnimationFrame(cursorMoveRaf.current);
       }
     };
-  }, []);
+  }, [theme]);
 
   useEffect(() => {
     const deck = siteRef.current?.querySelector(".vault-slide-deck");
