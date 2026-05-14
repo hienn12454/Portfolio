@@ -89,7 +89,7 @@ public sealed class AuthController(
                 shouldSave = true;
             }
 
-            var resolvedRole = ResolveRole(clerkUserId, email ?? appUser.Email, username);
+            var resolvedRole = ResolveRole(clerkUserId, email ?? appUser.Email, username, appUser.Role);
             if (!string.Equals(appUser.Role, resolvedRole, StringComparison.Ordinal))
             {
                 appUser.Role = resolvedRole;
@@ -128,7 +128,7 @@ public sealed class AuthController(
         }
 
         var username = User.FindFirst("username")?.Value ?? User.FindFirst("preferred_username")?.Value;
-        var resolvedRole = ResolveRole(clerkUserId, email ?? appUser.Email, username);
+        var resolvedRole = ResolveRole(clerkUserId, email ?? appUser.Email, username, appUser.Role);
         if (!string.Equals(appUser.Role, resolvedRole, StringComparison.Ordinal))
         {
             appUser.Role = resolvedRole;
@@ -294,8 +294,13 @@ public sealed class AuthController(
             ?? user.FindFirst("user_id")?.Value;
     }
 
-    private string ResolveRole(string clerkUserId, string? email, string? username)
+    private string ResolveRole(string clerkUserId, string? email, string? username, string? currentRole = null)
     {
+        if (string.Equals(currentRole, "Admin", StringComparison.Ordinal))
+        {
+            return "Admin";
+        }
+
         var adminIds = configuration["Clerk:AdminClerkUserIds"];
         if (!string.IsNullOrWhiteSpace(adminIds))
         {

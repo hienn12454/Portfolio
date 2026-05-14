@@ -108,8 +108,6 @@ public sealed class ClerkWebhooksController(
             return;
         }
 
-        var role = ResolveRole(userData, clerkUserId, email, username);
-
         var user = await dbContext.Users.FirstOrDefaultAsync(x => x.ClerkUserId == clerkUserId, cancellationToken);
         if (user is null)
         {
@@ -119,6 +117,8 @@ public sealed class ClerkWebhooksController(
             };
             dbContext.Users.Add(user);
         }
+
+        var role = ResolveRole(userData, clerkUserId, email, username, user.Role);
 
         user.Email = email;
         user.FirstName = firstName;
@@ -151,8 +151,13 @@ public sealed class ClerkWebhooksController(
         await dbContext.SaveChangesAsync(cancellationToken);
     }
 
-    private string ResolveRole(JsonElement userData, string clerkUserId, string? email, string? username)
+    private string ResolveRole(JsonElement userData, string clerkUserId, string? email, string? username, string? currentRole = null)
     {
+        if (string.Equals(currentRole, "Admin", StringComparison.Ordinal))
+        {
+            return "Admin";
+        }
+
         var adminIds = configuration["Clerk:AdminClerkUserIds"];
         if (!string.IsNullOrWhiteSpace(adminIds))
         {
