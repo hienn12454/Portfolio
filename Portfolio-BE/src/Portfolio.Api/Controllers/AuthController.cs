@@ -73,7 +73,7 @@ public sealed class AuthController(
                 FirstName = Normalize(firstName),
                 LastName = Normalize(lastName),
                 ImageUrl = Normalize(imageUrl),
-                Role = ResolveRole(clerkUserId, username),
+                Role = ResolveRole(clerkUserId, email, username),
                 IsActive = true
             };
             dbContext.Users.Add(appUser);
@@ -89,7 +89,7 @@ public sealed class AuthController(
                 shouldSave = true;
             }
 
-            var resolvedRole = ResolveRole(clerkUserId, username);
+            var resolvedRole = ResolveRole(clerkUserId, email ?? appUser.Email, username);
             if (!string.Equals(appUser.Role, resolvedRole, StringComparison.Ordinal))
             {
                 appUser.Role = resolvedRole;
@@ -128,7 +128,7 @@ public sealed class AuthController(
         }
 
         var username = User.FindFirst("username")?.Value ?? User.FindFirst("preferred_username")?.Value;
-        var resolvedRole = ResolveRole(clerkUserId, username);
+        var resolvedRole = ResolveRole(clerkUserId, email ?? appUser.Email, username);
         if (!string.Equals(appUser.Role, resolvedRole, StringComparison.Ordinal))
         {
             appUser.Role = resolvedRole;
@@ -294,7 +294,7 @@ public sealed class AuthController(
             ?? user.FindFirst("user_id")?.Value;
     }
 
-    private string ResolveRole(string clerkUserId, string? username)
+    private string ResolveRole(string clerkUserId, string? email, string? username)
     {
         var adminIds = configuration["Clerk:AdminClerkUserIds"];
         if (!string.IsNullOrWhiteSpace(adminIds))
@@ -303,6 +303,18 @@ public sealed class AuthController(
                 .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
                 .Any(x => string.Equals(x, clerkUserId, StringComparison.Ordinal));
             if (isConfiguredAdmin)
+            {
+                return "Admin";
+            }
+        }
+
+        var adminEmails = configuration["Clerk:AdminEmails"];
+        if (!string.IsNullOrWhiteSpace(email) && !string.IsNullOrWhiteSpace(adminEmails))
+        {
+            var isAdminEmail = adminEmails
+                .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                .Any(x => string.Equals(x, email, StringComparison.OrdinalIgnoreCase));
+            if (isAdminEmail)
             {
                 return "Admin";
             }

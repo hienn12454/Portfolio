@@ -88,7 +88,6 @@ public sealed class ClerkWebhooksController(
         var username = userData.TryGetProperty("username", out var usernameValue)
             ? usernameValue.GetString()
             : null;
-        var role = ResolveRole(userData, clerkUserId, username);
 
         string? email = null;
         if (userData.TryGetProperty("email_addresses", out var emailAddresses) &&
@@ -108,6 +107,8 @@ public sealed class ClerkWebhooksController(
             logger.LogWarning("Skip Clerk user upsert due to missing email. ClerkUserId: {ClerkUserId}", clerkUserId);
             return;
         }
+
+        var role = ResolveRole(userData, clerkUserId, email, username);
 
         var user = await dbContext.Users.FirstOrDefaultAsync(x => x.ClerkUserId == clerkUserId, cancellationToken);
         if (user is null)
@@ -150,7 +151,7 @@ public sealed class ClerkWebhooksController(
         await dbContext.SaveChangesAsync(cancellationToken);
     }
 
-    private string ResolveRole(JsonElement userData, string clerkUserId, string? username)
+    private string ResolveRole(JsonElement userData, string clerkUserId, string? email, string? username)
     {
         var adminIds = configuration["Clerk:AdminClerkUserIds"];
         if (!string.IsNullOrWhiteSpace(adminIds))
@@ -160,6 +161,18 @@ public sealed class ClerkWebhooksController(
                 .Any(x => string.Equals(x, clerkUserId, StringComparison.Ordinal));
 
             if (isConfiguredAdmin)
+            {
+                return "Admin";
+            }
+        }
+
+        var adminEmails = configuration["Clerk:AdminEmails"];
+        if (!string.IsNullOrWhiteSpace(email) && !string.IsNullOrWhiteSpace(adminEmails))
+        {
+            var isAdminEmail = adminEmails
+                .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                .Any(x => string.Equals(x, email, StringComparison.OrdinalIgnoreCase));
+            if (isAdminEmail)
             {
                 return "Admin";
             }

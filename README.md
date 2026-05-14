@@ -131,6 +131,7 @@ OpenRouter__HttpReferer=https://hiennt.website
 OpenRouter__AppTitle=HienNT Portfolio Career Advisor
 OpenRouter__Temperature=0.35
 OpenRouter__MaxTokens=500
+Clerk__AdminEmails=admin@example.com
 ```
 
 ## Lưu ý môi trường production
