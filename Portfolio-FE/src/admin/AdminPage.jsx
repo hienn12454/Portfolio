@@ -39,7 +39,7 @@ export function AdminPage() {
 
   if (isChecking) {
     return (
-      <main className="site">
+      <main className="site admin-page">
         <section className="section container">
           <h2>Checking admin access...</h2>
         </section>
@@ -48,7 +48,7 @@ export function AdminPage() {
   }
 
   return (
-    <main className="site">
+    <main className="site admin-page">
       <header className="topbar">
         <div className="container topbar__content">
           <Link to="/" className="brand" aria-label="Go to homepage">

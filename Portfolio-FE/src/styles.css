@@ -17,16 +17,13 @@ a {
 html,
 body {
   margin: 0;
-  height: 100%;
-  overflow: hidden;
+  min-height: 100%;
+  overflow-x: hidden;
 }
 
 #root {
-  height: 100%;
+  min-height: 100%;
   overflow-x: hidden;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-gutter: stable;
   background: var(--bg);
 }
 
@@ -2880,4 +2877,214 @@ html[data-theme="light"] .vault-canvas--deck {
   background: radial-gradient(ellipse 80% 60% at 50% 0%, color-mix(in oklab, var(--accent) 16%, transparent), transparent 70%);
   pointer-events: none;
   z-index: -1;
+}
+
+/* ===== Admin dashboard workspace ===== */
+.admin-page {
+  min-height: 100vh;
+  background: var(--bg);
+}
+
+.admin-page .topbar {
+  width: min(1480px, 96vw);
+}
+
+.admin-page .topbar .container {
+  width: min(1420px, 94vw);
+}
+
+.admin-shell {
+  width: min(1500px, 96vw);
+  padding-top: clamp(1.4rem, 2vw, 2rem);
+  padding-bottom: clamp(2rem, 3vw, 3.2rem);
+}
+
+.admin-shell__header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  padding: clamp(1rem, 2vw, 1.35rem);
+  border: 1px solid color-mix(in oklab, var(--surface-border) 90%, transparent);
+  border-radius: 18px;
+  background: linear-gradient(
+      135deg,
+      color-mix(in oklab, var(--surface) 92%, transparent),
+      color-mix(in oklab, var(--surface-alt) 74%, transparent)
+    ),
+    var(--surface);
+  box-shadow: 0 18px 42px rgba(2, 8, 23, 0.28), inset 0 1px 0 color-mix(in oklab, white 9%, transparent);
+}
+
+.admin-shell__header h2 {
+  margin: 0.15rem 0 0;
+  font-size: 2.05rem;
+}
+
+.admin-status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.65rem;
+  flex-wrap: wrap;
+}
+
+.admin-status p,
+.admin-save-state {
+  margin: 0;
+  border: 1px solid color-mix(in oklab, var(--accent) 24%, var(--surface-border));
+  border-radius: 999px;
+  padding: 0.48rem 0.75rem;
+  background: color-mix(in oklab, var(--accent-soft) 32%, var(--surface));
+  color: var(--text-muted);
+  font-size: 0.86rem;
+}
+
+.admin-status strong,
+.admin-save-state {
+  color: var(--text);
+}
+
+.admin-layout {
+  margin-top: 1rem;
+  display: grid;
+  grid-template-columns: minmax(280px, 330px) minmax(0, 1fr);
+  gap: clamp(1rem, 1.8vw, 1.45rem);
+  align-items: start;
+}
+
+.admin-sidebar {
+  position: sticky;
+  top: 112px;
+  display: grid;
+  gap: 0.6rem;
+  padding: 0.8rem;
+  border: 1px solid color-mix(in oklab, var(--surface-border) 90%, transparent);
+  border-radius: 18px;
+  background: color-mix(in oklab, var(--surface) 86%, transparent);
+  box-shadow: 0 14px 34px rgba(2, 8, 23, 0.22), inset 0 1px 0 color-mix(in oklab, white 8%, transparent);
+}
+
+.admin-sidebar__item {
+  width: 100%;
+  min-height: 48px;
+  justify-content: flex-start;
+  border-radius: 12px;
+  padding: 0.68rem 0.85rem;
+  text-align: left;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.admin-content {
+  min-width: 0;
+}
+
+.admin-content .contact-form {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  border-radius: 18px;
+  padding: clamp(1rem, 1.8vw, 1.35rem);
+  background: color-mix(in oklab, var(--surface) 88%, transparent);
+  box-shadow: 0 18px 46px rgba(2, 8, 23, 0.24), inset 0 1px 0 color-mix(in oklab, white 8%, transparent);
+}
+
+.admin-content .contact-form > h3 {
+  font-size: 1.45rem;
+}
+
+.admin-content .contact-form form {
+  grid-template-columns: repeat(2, minmax(260px, 1fr));
+  gap: 0.95rem 1rem;
+}
+
+.admin-content .contact-form label:has(textarea),
+.admin-content .contact-form .form-actions,
+.admin-content .contact-form button[type="button"]:only-child {
+  grid-column: 1 / -1;
+}
+
+.admin-content .contact-form input,
+.admin-content .contact-form textarea,
+.admin-content .contact-form select {
+  min-height: 44px;
+}
+
+.admin-overview-grid {
+  grid-template-columns: repeat(3, minmax(180px, 1fr));
+  gap: 1rem;
+}
+
+.admin-overview-grid .card {
+  min-height: 132px;
+  border-radius: 16px;
+  padding: 1rem;
+  background: linear-gradient(
+      145deg,
+      color-mix(in oklab, var(--accent-soft) 34%, transparent),
+      color-mix(in oklab, var(--surface-alt) 78%, transparent)
+    ),
+    var(--surface);
+}
+
+.admin-overview-grid .card h4 {
+  margin: 0 0 0.65rem;
+  color: var(--text-muted);
+}
+
+.admin-overview-grid .card p {
+  color: var(--text) !important;
+  font-size: 2.35rem;
+  line-height: 1;
+  font-weight: 800;
+}
+
+.admin-article-list,
+.admin-skill-list {
+  gap: 1rem;
+}
+
+.admin-content .admin-article-list .card,
+.admin-content .admin-skill-list .card {
+  border-radius: 14px;
+  padding: 1rem;
+  background: color-mix(in oklab, var(--surface-alt) 70%, var(--surface));
+}
+
+@media (max-width: 980px) {
+  .admin-shell {
+    width: min(100% - 1.5rem, 900px);
+  }
+
+  .admin-shell__header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .admin-shell__header h2 {
+    font-size: 1.65rem;
+  }
+
+  .admin-status {
+    justify-content: flex-start;
+  }
+
+  .admin-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-sidebar {
+    position: static;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  }
+
+  .admin-content .contact-form form {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-overview-grid {
+    grid-template-columns: 1fr;
+  }
 }

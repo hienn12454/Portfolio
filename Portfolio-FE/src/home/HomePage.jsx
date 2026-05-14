@@ -719,21 +719,21 @@ export function HomePage() {
   }, [selectVaultTab]);
 
   useEffect(() => {
-    const scrollRoot = document.getElementById("root");
-    if (!scrollRoot) {
-      return undefined;
-    }
-
-    function onRootScroll() {
-      const max = scrollRoot.scrollHeight - scrollRoot.clientHeight;
-      const p = max > 0 ? scrollRoot.scrollTop / max : 0;
+    function onWindowScroll() {
+      const documentElement = document.documentElement;
+      const max = documentElement.scrollHeight - window.innerHeight;
+      const p = max > 0 ? window.scrollY / max : 0;
       setScrollProgress(Math.min(1, Math.max(0, p)));
-      setShowBackToTop(scrollRoot.scrollTop > 420);
+      setShowBackToTop(window.scrollY > 420);
     }
 
-    onRootScroll();
-    scrollRoot.addEventListener("scroll", onRootScroll, { passive: true });
-    return () => scrollRoot.removeEventListener("scroll", onRootScroll);
+    onWindowScroll();
+    window.addEventListener("scroll", onWindowScroll, { passive: true });
+    window.addEventListener("resize", onWindowScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onWindowScroll);
+      window.removeEventListener("resize", onWindowScroll);
+    };
   }, []);
 
   useEffect(() => {
@@ -1494,7 +1494,7 @@ export function HomePage() {
           className="back-to-top portfolio-back-to-top"
           aria-label={content.backToTop}
           title={content.backToTop}
-          onClick={() => document.getElementById("root")?.scrollTo({ top: 0, behavior: "smooth" })}
+          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
         />
       ) : null}
     </main>

@@ -673,21 +673,26 @@ export function AdminPanel({ language = "en" }) {
   }
 
   return (
-    <section className="section container" id="admin-panel">
-      <h2>{labels.title}</h2>
-      {!isSignedIn ? <p>{labels.signInHint}</p> : null}
-      {me ? (
-        <div className="admin-status">
-          <p>
-            {labels.role}: <strong>{me.user?.role ?? "User"}</strong>
-          </p>
-          <p>
-            {labels.mapped}: <strong>{me.isMapped ? labels.yes : labels.no}</strong>
-          </p>
+    <section className="section container admin-shell" id="admin-panel">
+      <div className="admin-shell__header">
+        <div>
+          <p className="project-role">Portfolio control center</p>
+          <h2>{labels.title}</h2>
+          {!isSignedIn ? <p>{labels.signInHint}</p> : null}
         </div>
-      ) : null}
+        {me ? (
+          <div className="admin-status">
+            <p>
+              {labels.role}: <strong>{me.user?.role ?? "User"}</strong>
+            </p>
+            <p>
+              {labels.mapped}: <strong>{me.isMapped ? labels.yes : labels.no}</strong>
+            </p>
+          </div>
+        ) : null}
+      </div>
       {error ? <p className="error">{error}</p> : null}
-      {saveState ? <p>{saveState}</p> : null}
+      {saveState ? <p className="admin-save-state">{saveState}</p> : null}
 
       {adminStatus === "admin" ? (
         <div className="admin-layout">
