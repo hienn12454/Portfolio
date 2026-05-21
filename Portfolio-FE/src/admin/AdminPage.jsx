@@ -6,18 +6,20 @@ import { createApiClient } from "../core/http/apiClient";
 
 export function AdminPage() {
   const navigate = useNavigate();
-  const { isSignedIn, getToken } = useAuth();
+  const { isSignedIn, isLoaded, getToken } = useAuth();
   const apiClient = useMemo(() => createApiClient(getToken), [getToken]);
   const [isAdmin, setIsAdmin] = useState(false);
   const [isChecking, setIsChecking] = useState(true);
 
   useEffect(() => {
     async function resolveAdminAccess() {
+      if (!isLoaded) {
+        return;
+      }
       if (!isSignedIn) {
         navigate("/", { replace: true });
         return;
       }
-
       try {
         const me = await apiClient.getProtected("/api/auth/me");
         const hasAdminRole = me?.user?.role === "Admin";
@@ -33,34 +35,21 @@ export function AdminPage() {
         setIsChecking(false);
       }
     }
-
     resolveAdminAccess();
-  }, [apiClient, isSignedIn, navigate]);
+  }, [apiClient, isLoaded, isSignedIn, navigate]);
 
   if (isChecking) {
     return (
-      <main className="site admin-page">
-        <section className="section container">
-          <h2>Checking admin access...</h2>
-        </section>
-      </main>
+      <div className="dash-loading">
+        <div className="dash-loading__spinner" />
+        <p>Đang kiểm tra quyền truy cập...</p>
+      </div>
     );
   }
 
   return (
-    <main className="site admin-page">
-      <header className="topbar">
-        <div className="container topbar__content">
-          <Link to="/" className="brand" aria-label="Go to homepage">
-            Dashboard
-          </Link>
-          <nav className="nav">
-            <Link to="/">Home</Link>
-          </nav>
-        </div>
-      </header>
-
-      {isAdmin ? <AdminPanel language="en" /> : null}
-    </main>
+    <div className="dash-root">
+      {isAdmin ? <AdminPanel language="vi" /> : null}
+    </div>
   );
 }
