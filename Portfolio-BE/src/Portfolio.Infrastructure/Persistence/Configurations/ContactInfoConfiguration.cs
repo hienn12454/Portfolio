@@ -13,8 +13,7 @@ public sealed class ContactInfoConfiguration : IEntityTypeConfiguration<ContactI
         builder.HasKey(x => x.Id);
 
         builder.Property(x => x.Email)
-            .HasMaxLength(320)
-            .IsRequired();
+            .HasMaxLength(320);
 
         builder.Property(x => x.Phone).HasMaxLength(30);
         builder.Property(x => x.Location).HasMaxLength(150);

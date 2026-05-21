@@ -2,9 +2,10 @@ import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "@clerk/react";
 import { createApiClient } from "../core/http/apiClient";
 
-const EMPTY_CONTACT = { id: "", email: "", phone: "", location: "", githubUrl: "", linkedInUrl: "" };
+const EMPTY_GUID = "00000000-0000-0000-0000-000000000000";
+const EMPTY_CONTACT = { id: EMPTY_GUID, email: "", phone: "", location: "", githubUrl: "", linkedInUrl: "" };
 const EMPTY_PAGE = {
-  id: "",
+  id: EMPTY_GUID,
   heroTitle: "",
   heroDescription: "",
   aboutTitle: "",
@@ -21,10 +22,10 @@ const EMPTY_PAGE = {
   contactTitleColor: "",
   contactDescriptionColor: ""
 };
-const EMPTY_ARTICLE = { id: "", title: "", slug: "", summary: "", content: "", isPublished: false };
-const EMPTY_SKILL = { id: "", name: "", description: "", displayOrder: 0, isVisible: true };
+const EMPTY_ARTICLE = { id: EMPTY_GUID, title: "", slug: "", summary: "", content: "", isPublished: false };
+const EMPTY_SKILL = { id: EMPTY_GUID, name: "", description: "", displayOrder: 0, isVisible: true };
 const EMPTY_PROJECT = {
-  id: "",
+  id: EMPTY_GUID,
   title: "",
   slug: "",
   category: "fullstack",
