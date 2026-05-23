@@ -1,7 +1,7 @@
-@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,600&family=Playfair+Display:ital,wght@0,500;0,600;0,700;0,800;1,500;1,600&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap");
 
 :root {
-  font-family: "Times New Roman", Georgia, Times, serif;
+  font-family: "Cormorant Garamond", Georgia, "Times New Roman", serif;
   line-height: 1.65;
   color: var(--text, #0f172a);
   background-color: var(--bg, #f6f8f5);
@@ -4134,15 +4134,39 @@ html[data-theme="light"] .nav a:hover::after {
    =================================================================== */
 
 /* --- Global font enforcement --- */
-body, input, textarea, select, button {
-  font-family: "Times New Roman", Georgia, Times, serif;
+body {
+  font-family: "Cormorant Garamond", Georgia, "Times New Roman", serif;
+  font-size: 1.08rem;
+  font-weight: 400;
+  letter-spacing: 0.01em;
 }
 
-/* Headings use Space Grotesk for modern contrast */
-h1, h2, h3, h4, h5, h6,
-.brand, .nav-cv-link, .button, .filter-chip,
-.topbar__actions .button, .eyebrow {
-  font-family: "Space Grotesk", Georgia, "Times New Roman", serif;
+/* UI elements use DM Sans — clean modern sans */
+input, textarea, select, button,
+.nav a, .nav-cv-link, .filter-chip, .vault-tab, .vault-dock__btn,
+.topbar__actions, .auth-actions, .eyebrow, .project-role,
+.page-shell-header__back, .page-shell-footer__link,
+.skill-chip, label {
+  font-family: "DM Sans", system-ui, sans-serif;
+}
+
+/* Display headings use Playfair Display — elegant, high contrast */
+h1, h2, h3, h4, h5, h6 {
+  font-family: "Playfair Display", "Cormorant Garamond", Georgia, serif;
+  letter-spacing: -0.02em;
+  font-weight: 600;
+}
+
+/* Brand + hero use Playfair Display italic for luxury feel */
+.brand, .hero__title {
+  font-family: "Playfair Display", Georgia, serif;
+  font-style: normal;
+}
+
+/* Buttons retain DM Sans for clarity */
+.button, .nav-cv-link {
+  font-family: "DM Sans", system-ui, sans-serif;
+  letter-spacing: 0.04em;
 }
 
 /* --- Realistic Input Fields --- */
@@ -4155,7 +4179,7 @@ input[type="password"],
 input[type="date"],
 textarea,
 select {
-  font-family: "Times New Roman", Georgia, Times, serif;
+  font-family: "DM Sans", system-ui, sans-serif;
   font-size: 0.97rem;
   line-height: 1.55;
   color: var(--text);
@@ -4231,12 +4255,15 @@ label {
 /* --- Page Shell — shared header/footer bar --- */
 .page-shell-header {
   position: sticky;
-  top: 0;
+  top: 0.7rem;
   z-index: 100;
+  margin: 0.7rem 0.75rem 0;
+  border-radius: 16px;
   background: color-mix(in oklab, var(--bg, #0b1213) 78%, transparent);
   backdrop-filter: blur(20px) saturate(1.5);
   -webkit-backdrop-filter: blur(20px) saturate(1.5);
-  border-bottom: 1px solid color-mix(in oklab, var(--surface-border) 60%, transparent);
+  border: 1px solid color-mix(in oklab, var(--surface-border) 60%, transparent);
+  box-shadow: 0 8px 32px rgba(2, 8, 23, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
 .page-shell-header__inner {
@@ -4250,10 +4277,10 @@ label {
 }
 
 .page-shell-header__brand {
-  font-family: "Space Grotesk", Georgia, serif;
+  font-family: "Playfair Display", Georgia, serif;
   font-weight: 700;
-  font-size: 1rem;
-  letter-spacing: -0.01em;
+  font-size: 1.05rem;
+  letter-spacing: -0.02em;
   color: var(--text);
   text-decoration: none;
   display: flex;
@@ -4282,9 +4309,14 @@ label {
 }
 
 .page-shell-footer {
-  margin-top: auto;
-  border-top: 1px solid color-mix(in oklab, var(--surface-border) 50%, transparent);
-  padding: 1.2rem 1.5rem;
+  margin: auto 0.75rem 0.7rem;
+  border-radius: 16px;
+  border: 1px solid color-mix(in oklab, var(--surface-border) 50%, transparent);
+  padding: 1.1rem 1.5rem;
+  background: color-mix(in oklab, var(--bg, #0b1213) 72%, transparent);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 4px 24px rgba(2, 8, 23, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
 
 .page-shell-footer__inner {
@@ -4315,16 +4347,10 @@ label {
   background: var(--bg);
 }
 
-/* --- Topbar corner radius fix (both themes) --- */
-.topbar {
-  border-radius: 0;
-}
-
-/* --- Footer corner radius on small screens --- */
+/* --- Footer margin reset on small screens (preserve radius) --- */
 @media (max-width: 860px) {
   .footer {
-    border-radius: 14px 14px 0 0;
-    margin-bottom: 0;
+    margin-bottom: 0.4rem;
   }
 }
 
@@ -4338,8 +4364,8 @@ label {
 
 /* --- CV page topbar brand style update --- */
 .cv-topbar__logo {
-  font-family: "Space Grotesk", Georgia, serif;
-  font-size: 0.95rem;
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: 0.98rem;
   font-weight: 700;
 }
 
@@ -4358,14 +4384,20 @@ label {
 
 /* --- Nav button font --- */
 .nav a, .nav-cv-link {
-  font-family: "Space Grotesk", Georgia, serif;
+  font-family: "DM Sans", system-ui, sans-serif;
 }
 
 /* --- Eyebrow/badge text --- */
 .eyebrow, .project-role {
-  font-family: "Space Grotesk", Georgia, serif;
-  font-size: 0.78rem;
-  letter-spacing: 0.10em;
+  font-family: "DM Sans", system-ui, sans-serif;
+  font-size: 0.76rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+}
+
+/* --- CV topbar brand --- */
+.cv-topbar__logo, .cv-topbar__brand {
+  font-family: "Playfair Display", Georgia, serif;
 }
 
 /* ===================================================================
@@ -4600,5 +4632,332 @@ html[data-theme="light"] .card:hover {
   .vault-tab {
     animation: none !important;
     transition: none !important;
+  }
+}
+
+/* ===================================================================
+   3D DEPTH SYSTEM — Perspective, shard cuts, card tilt, depth layers
+   =================================================================== */
+
+/* ---- Diagonal shard / slash cut background overlays ---- */
+@keyframes shard-cut-drift {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) rotate(0deg) skewX(0deg);
+    opacity: 0.06;
+  }
+  25% {
+    transform: translate3d(20px, -14px, 0) rotate(0.4deg) skewX(0.3deg);
+    opacity: 0.09;
+  }
+  50% {
+    transform: translate3d(-12px, 22px, 0) rotate(-0.3deg) skewX(-0.2deg);
+    opacity: 0.07;
+  }
+  75% {
+    transform: translate3d(16px, 8px, 0) rotate(0.5deg) skewX(0.4deg);
+    opacity: 0.10;
+  }
+}
+
+@keyframes shard-cut-drift-b {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+    opacity: 0.05;
+  }
+  33% {
+    transform: translate3d(-18px, 14px, 0) rotate(-0.6deg);
+    opacity: 0.08;
+  }
+  66% {
+    transform: translate3d(14px, -18px, 0) rotate(0.4deg);
+    opacity: 0.06;
+  }
+}
+
+/* Shard cut overlays — placed on the site background */
+.site::before {
+  /* Inherits existing slit pattern + add shard cuts via multiple bg */
+  background-image:
+    /* Existing slit pattern (inherited from theme) */
+    repeating-linear-gradient(
+      -32deg,
+      transparent 0px, transparent 58px,
+      rgba(255,255,255,0.028) 58px, rgba(255,255,255,0.028) 60px
+    ),
+    repeating-linear-gradient(
+      58deg,
+      transparent 0px, transparent 80px,
+      rgba(255,255,255,0.018) 80px, rgba(255,255,255,0.018) 82px
+    ),
+    /* Random diagonal slash cuts */
+    linear-gradient(
+      127deg,
+      transparent 0%, transparent 34%,
+      rgba(34,197,94,0.025) 34%, rgba(34,197,94,0.025) 34.6%,
+      transparent 34.6%
+    ),
+    linear-gradient(
+      -48deg,
+      transparent 0%, transparent 58%,
+      rgba(20,184,166,0.020) 58%, rgba(20,184,166,0.020) 58.5%,
+      transparent 58.5%
+    ),
+    linear-gradient(
+      75deg,
+      transparent 0%, transparent 71%,
+      rgba(34,197,94,0.018) 71%, rgba(34,197,94,0.018) 71.4%,
+      transparent 71.4%
+    );
+}
+
+/* ---- 3D card perspective hover tilt ---- */
+.card {
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+html[data-theme="dark"] .card:hover {
+  transform: perspective(700px) rotateY(-2.5deg) rotateX(1.8deg) translateY(-7px) translateZ(14px);
+  box-shadow:
+    0 22px 60px rgba(0, 0, 0, 0.55),
+    0 0 0 1px rgba(34, 197, 94, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.10);
+  border-color: rgba(34, 197, 94, 0.25);
+  animation: none;
+}
+
+html[data-theme="light"] .card:hover {
+  transform: perspective(700px) rotateY(-2.5deg) rotateX(1.8deg) translateY(-7px) translateZ(14px);
+  box-shadow:
+    0 18px 50px rgba(22, 163, 74, 0.20),
+    0 0 0 1px rgba(22, 163, 74, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.98);
+  animation: none;
+}
+
+/* ---- Vault canvas 3D depth tilt ---- */
+.vault-canvas--deck {
+  transform-style: preserve-3d;
+  perspective: 1400px;
+}
+
+/* ---- Section cards: subtle depth layer with pseudo ---- */
+.card {
+  position: relative;
+}
+
+.card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.06) 0%,
+    transparent 50%,
+    rgba(0, 0, 0, 0.04) 100%
+  );
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.card:hover::after {
+  opacity: 1;
+}
+
+/* ---- 3D depth separator lines between sections ---- */
+@keyframes depth-line-pulse {
+  0%, 100% { opacity: 0.4; transform: scaleX(1); }
+  50%       { opacity: 0.7; transform: scaleX(1.02); }
+}
+
+.vault-section + .vault-section {
+  position: relative;
+}
+
+.vault-section + .vault-section::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in oklab, var(--accent) 30%, transparent) 30%,
+    color-mix(in oklab, var(--accent) 50%, transparent) 50%,
+    color-mix(in oklab, var(--accent) 30%, transparent) 70%,
+    transparent
+  );
+  animation: depth-line-pulse 4s ease-in-out infinite;
+}
+
+/* ---- Diagonal slash decorations on vault-canvas ---- */
+.vault-canvas--deck::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  background:
+    linear-gradient(
+      138deg,
+      transparent 0%, transparent 28%,
+      color-mix(in oklab, var(--accent) 4%, transparent) 28%, color-mix(in oklab, var(--accent) 4%, transparent) 28.4%,
+      transparent 28.4%
+    ),
+    linear-gradient(
+      -52deg,
+      transparent 0%, transparent 62%,
+      color-mix(in oklab, var(--accent) 3%, transparent) 62%, color-mix(in oklab, var(--accent) 3%, transparent) 62.3%,
+      transparent 62.3%
+    );
+  pointer-events: none;
+  z-index: 0;
+  animation: shard-cut-drift 24s ease-in-out infinite;
+  border-radius: inherit;
+}
+
+/* ---- Perspective grid on hero section ---- */
+@keyframes grid-perspective-shift {
+  0%, 100% { transform: perspective(800px) rotateX(12deg) translateY(0); opacity: 0.06; }
+  50%       { transform: perspective(800px) rotateX(10deg) translateY(-6px); opacity: 0.10; }
+}
+
+.hero {
+  position: relative;
+}
+
+.hero::before {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 260px;
+  background-image:
+    linear-gradient(to right, color-mix(in oklab, var(--accent) 18%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in oklab, var(--accent) 18%, transparent) 1px, transparent 1px);
+  background-size: 60px 60px;
+  transform-origin: bottom center;
+  animation: grid-perspective-shift 12s ease-in-out infinite;
+  pointer-events: none;
+  mask-image: linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 100%);
+  z-index: 0;
+}
+
+/* ---- Floating depth cards — extra 3D shadow layers ---- */
+@keyframes float-depth {
+  0%, 100% { transform: translateY(0px) translateZ(0px); }
+  50%       { transform: translateY(-4px) translateZ(8px); }
+}
+
+.highlight-grid .card,
+.project-list .card {
+  animation: float-depth 6s ease-in-out infinite;
+  animation-delay: calc(var(--card-index, 0) * 0.8s);
+}
+
+.highlight-grid .card:nth-child(1) { --card-index: 0; }
+.highlight-grid .card:nth-child(2) { --card-index: 1; }
+.highlight-grid .card:nth-child(3) { --card-index: 2; }
+.highlight-grid .card:nth-child(4) { --card-index: 3; }
+
+/* ---- Topbar 3D floating shadow depth ---- */
+.topbar {
+  transform-style: preserve-3d;
+}
+
+.topbar::after {
+  content: "";
+  position: absolute;
+  inset: 4px;
+  border-radius: inherit;
+  background: transparent;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.22);
+  transform: translateZ(-4px);
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* ---- Admin page shell with glass morphism ---- */
+html[data-theme="dark"] .admin-page-shell {
+  background:
+    radial-gradient(ellipse 60% 50% at 0% 0%, rgba(34,197,94,0.15), transparent 50%),
+    radial-gradient(ellipse 40% 35% at 100% 100%, rgba(20,184,166,0.12), transparent 45%),
+    var(--bg);
+}
+
+html[data-theme="light"] .admin-page-shell {
+  background:
+    radial-gradient(ellipse 60% 50% at 0% 0%, rgba(134,239,172,0.30), transparent 50%),
+    radial-gradient(ellipse 40% 35% at 100% 100%, rgba(94,234,212,0.25), transparent 45%),
+    var(--bg);
+}
+
+/* ---- Slash cut accent on skill cards ---- */
+.skill-item {
+  position: relative;
+  overflow: hidden;
+}
+
+.skill-item::before {
+  content: "";
+  position: absolute;
+  top: -30%;
+  right: -10%;
+  width: 60%;
+  height: 200%;
+  background: linear-gradient(
+    135deg,
+    transparent 45%,
+    color-mix(in oklab, var(--accent) 6%, transparent) 45%,
+    color-mix(in oklab, var(--accent) 6%, transparent) 46%,
+    transparent 46%
+  );
+  transform: rotate(-15deg);
+  pointer-events: none;
+}
+
+/* ---- Typography size improvements ---- */
+:root {
+  --font-body: "Cormorant Garamond", Georgia, serif;
+  --font-display: "Playfair Display", Georgia, serif;
+  --font-ui: "DM Sans", system-ui, sans-serif;
+}
+
+/* Make Cormorant Garamond slightly larger since it has smaller x-height */
+body {
+  font-size: 1.12rem;
+  line-height: 1.72;
+}
+
+h1 { font-size: clamp(2.2rem, 5vw, 3.8rem); font-weight: 700; }
+h2 { font-size: clamp(1.5rem, 3vw, 2.4rem); font-weight: 600; }
+h3 { font-size: clamp(1.1rem, 2vw, 1.55rem); font-weight: 600; }
+h4 { font-size: clamp(1rem, 1.5vw, 1.25rem); font-weight: 600; }
+
+/* Italic variant for hero subtext */
+.hero__description,
+.vault-hint,
+.about-text {
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-style: italic;
+  font-size: 1.18rem;
+  letter-spacing: 0.005em;
+}
+
+/* ---- Reduced motion final ---- */
+@media (prefers-reduced-motion: reduce) {
+  .card, .highlight-grid .card, .project-list .card {
+    animation: none !important;
+    transform: none !important;
+  }
+  .hero::before,
+  .vault-canvas--deck::before,
+  .vault-section + .vault-section::before {
+    animation: none !important;
   }
 }
