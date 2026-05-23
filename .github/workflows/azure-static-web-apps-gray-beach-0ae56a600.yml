@@ -90,8 +90,73 @@ jobs:
       - name: Restore backend dependencies
         run: dotnet restore "./Portfolio-BE/src/Portfolio.Api/Portfolio.Api.csproj"
 
+      # ── Build trước để EF tooling dùng --no-build (nhanh hơn) ──────────────
+      - name: Build backend (Release)
+        run: dotnet build "./Portfolio-BE/src/Portfolio.Api/Portfolio.Api.csproj" -c Release --no-restore
+
+      # ── Cài dotnet-ef CLI ───────────────────────────────────────────────────
+      - name: Install dotnet-ef tool
+        run: |
+          dotnet tool install --global dotnet-ef --version '9.*' 2>/dev/null \
+            || dotnet tool update --global dotnet-ef
+          echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
+
+      # ── Bước 1: Phát hiện entity thay đổi nhưng chưa có migration ──────────
+      - name: Scan for unmigrated entity changes
+        id: model_check
+        continue-on-error: true          # chỉ cảnh báo, không dừng pipeline
+        env:
+          ConnectionStrings__DefaultConnection: ${{ secrets.DB_CONNECTION_STRING }}
+        run: |
+          echo "=== Kiểm tra model changes chưa được tạo migration ==="
+          dotnet ef migrations has-pending-model-changes \
+            --project  "./Portfolio-BE/src/Portfolio.Infrastructure/Portfolio.Infrastructure.csproj" \
+            --startup-project "./Portfolio-BE/src/Portfolio.Api/Portfolio.Api.csproj" \
+            --no-build
+
+      - name: Warn if entity changes have no migration
+        if: steps.model_check.outcome == 'failure'
+        run: |
+          echo "::warning title=Missing Migration::Có thay đổi trong Entity model chưa được tạo migration!"
+          echo "::warning::Chạy lệnh sau để tạo migration:"
+          echo "::warning::  cd Portfolio-BE"
+          echo "::warning::  dotnet ef migrations add <TênMigration> --project src/Portfolio.Infrastructure --startup-project src/Portfolio.Api"
+          echo "::warning::Sau đó push lại migration file lên repo."
+
+      # ── Bước 2: Quét và tự động áp dụng migration còn pending ─────────────
+      - name: Scan and apply pending migrations
+        env:
+          ConnectionStrings__DefaultConnection: ${{ secrets.DB_CONNECTION_STRING }}
+        run: |
+          echo "=== Quét danh sách migrations ==="
+
+          MIGS=$(dotnet ef migrations list \
+            --project  "./Portfolio-BE/src/Portfolio.Infrastructure/Portfolio.Infrastructure.csproj" \
+            --startup-project "./Portfolio-BE/src/Portfolio.Api/Portfolio.Api.csproj" \
+            --no-build \
+            2>&1)
+
+          echo "$MIGS"
+          echo ""
+
+          # Đếm dòng có "(Pending)" trong output
+          PENDING=$(echo "$MIGS" | grep -c "(Pending)" || true)
+
+          if [ "$PENDING" -gt 0 ]; then
+            echo "=== Phát hiện $PENDING migration chưa được áp dụng. Đang update database... ==="
+            dotnet ef database update \
+              --project  "./Portfolio-BE/src/Portfolio.Infrastructure/Portfolio.Infrastructure.csproj" \
+              --startup-project "./Portfolio-BE/src/Portfolio.Api/Portfolio.Api.csproj" \
+              --no-build
+            echo ""
+            echo "✅ Đã áp dụng tất cả migrations thành công."
+          else
+            echo "✅ Database đã up-to-date — không có migration nào cần áp dụng."
+          fi
+
+      # ── Build lại sau migration để đảm bảo consistency ─────────────────────
       - name: Publish backend
-        run: dotnet publish "./Portfolio-BE/src/Portfolio.Api/Portfolio.Api.csproj" -c Release -o "${{ github.workspace }}/backend-publish"
+        run: dotnet publish "./Portfolio-BE/src/Portfolio.Api/Portfolio.Api.csproj" -c Release --no-restore -o "${{ github.workspace }}/backend-publish"
 
       - name: Validate backend publish profile
         env:
