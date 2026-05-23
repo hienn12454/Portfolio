@@ -2462,6 +2462,7 @@ html[data-theme="light"] .hero::after {
 .vault-tab.is-active {
   color: #f8fafc;
   border-color: color-mix(in oklab, var(--accent) 55%, white);
+  animation: tab-pill-pop 0.30s cubic-bezier(0.34, 1.56, 0.64, 1) both;
   background: linear-gradient(
     135deg,
     color-mix(in oklab, var(--accent) 78%, white),
@@ -2676,6 +2677,7 @@ html[data-theme="light"] .hero::after {
 
   .vault-slide {
     transition: none !important;
+    animation: none !important;
   }
 
   .galaxy-layer,
@@ -2867,11 +2869,28 @@ html[data-theme="light"] .vault-canvas--deck {
   min-height: min(72vh, 920px);
 }
 
+@keyframes tab-enter {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.975);
+    filter: blur(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0px);
+  }
+}
+
+@keyframes tab-glow-in {
+  from { box-shadow: 0 0 0 0 transparent; }
+  50%  { box-shadow: 0 0 28px 4px color-mix(in oklab, var(--accent) 22%, transparent); }
+  to   { box-shadow: none; }
+}
+
 .vault-slide {
   width: 100%;
   opacity: 0;
-  transform: translate3d(12px, 0, 0);
-  transition: opacity 0.22s ease-out, transform 0.24s cubic-bezier(0.22, 1, 0.36, 1);
   pointer-events: none;
   position: absolute;
   top: 0;
@@ -2882,9 +2901,9 @@ html[data-theme="light"] .vault-canvas--deck {
 .vault-slide.is-active {
   position: relative;
   opacity: 1;
-  transform: translate3d(0, 0, 0);
   pointer-events: auto;
   z-index: 2;
+  animation: tab-enter 0.42s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 .vault-slide .vault-panel {
@@ -3747,20 +3766,34 @@ html[data-theme="light"] .vault-canvas {
 
 /* --- Shared animations --- */
 @keyframes glass-orb-a {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  38% { transform: translate(55px, -38px) scale(1.06); }
-  72% { transform: translate(-28px, 24px) scale(0.97); }
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1) rotate(0deg); }
+  20%      { transform: translate3d(70px, -55px, 0) scale(1.10) rotate(0.8deg); }
+  45%      { transform: translate3d(100px, 30px, 0) scale(1.16) rotate(-0.5deg); }
+  70%      { transform: translate3d(-35px, 65px, 0) scale(1.05) rotate(0.6deg); }
 }
 
 @keyframes glass-orb-b {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  40% { transform: translate(-50px, 32px) scale(1.04); }
-  76% { transform: translate(36px, -44px) scale(0.96); }
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1) rotate(0deg); }
+  30%      { transform: translate3d(-75px, 45px, 0) scale(1.09) rotate(-0.7deg); }
+  60%      { transform: translate3d(55px, -68px, 0) scale(1.13) rotate(0.5deg); }
+  80%      { transform: translate3d(-20px, -30px, 0) scale(0.96) rotate(-0.3deg); }
 }
 
 @keyframes glass-aurora {
-  0%, 100% { opacity: 0.38; }
-  50%       { opacity: 0.62; }
+  0%, 100% { opacity: 0.55; transform: translate3d(0, 0, 0) scale(1); }
+  35%      { opacity: 0.82; transform: translate3d(28px, -20px, 0) scale(1.07); }
+  65%      { opacity: 0.64; transform: translate3d(-14px, 34px, 0) scale(1.03); }
+}
+
+@keyframes slit-drift {
+  0%, 100% { transform: translate3d(0, 0, 0) rotate(0deg) scale(1); }
+  33%      { transform: translate3d(-18px, -12px, 0) rotate(0.6deg) scale(1.015); }
+  66%      { transform: translate3d(12px, 18px, 0) rotate(-0.4deg) scale(0.99); }
+}
+
+@keyframes depth-pulse {
+  0%, 100% { opacity: 0.72; transform: scale(1); }
+  50%      { opacity: 1; transform: scale(1.04); }
 }
 
 /* ---- DARK THEME ---- */
@@ -3784,18 +3817,17 @@ html[data-theme="dark"] .site::before {
       -32deg,
       transparent 0px,
       transparent 58px,
-      rgba(255, 255, 255, 0.028) 58px,
-      rgba(255, 255, 255, 0.028) 60px
+      rgba(255, 255, 255, 0.032) 58px,
+      rgba(255, 255, 255, 0.032) 60px
     ),
     repeating-linear-gradient(
       58deg,
       transparent 0px,
       transparent 80px,
-      rgba(255, 255, 255, 0.014) 80px,
-      rgba(255, 255, 255, 0.014) 82px
+      rgba(255, 255, 255, 0.018) 80px,
+      rgba(255, 255, 255, 0.018) 82px
     );
-  animation: none;
-  transform: none;
+  animation: slit-drift 28s ease-in-out infinite;
 }
 
 /* Aurora color blobs — dark */
@@ -3885,14 +3917,15 @@ html[data-theme="dark"] .footer {
 
 html[data-theme="light"] .site {
   background:
-    radial-gradient(ellipse 65% 55% at 4% 4%, rgba(167, 243, 208, 0.50), transparent 55%),
-    radial-gradient(ellipse 50% 45% at 97% 7%, rgba(153, 246, 228, 0.40), transparent 50%),
-    radial-gradient(ellipse 58% 48% at 50% 108%, rgba(254, 240, 138, 0.30), transparent 55%),
-    radial-gradient(ellipse 44% 36% at 94% 96%, rgba(186, 230, 253, 0.32), transparent 48%),
-    linear-gradient(155deg, #fafffe 0%, #f0fdf6 35%, #ecfef9 65%, #fafffe 100%);
+    radial-gradient(ellipse 70% 60% at 2% 2%, rgba(134, 239, 172, 0.72), transparent 52%),
+    radial-gradient(ellipse 55% 50% at 98% 5%, rgba(94, 234, 212, 0.60), transparent 48%),
+    radial-gradient(ellipse 60% 52% at 52% 110%, rgba(253, 224, 71, 0.42), transparent 52%),
+    radial-gradient(ellipse 48% 40% at 95% 95%, rgba(147, 197, 253, 0.48), transparent 46%),
+    radial-gradient(ellipse 40% 35% at 50% 50%, rgba(167, 243, 208, 0.30), transparent 60%),
+    linear-gradient(155deg, #edfdf4 0%, #d1fae5 30%, #ccfbf1 60%, #eff6ff 90%, #f0fdf4 100%);
 }
 
-/* Diagonal slit pattern — light */
+/* Diagonal slit pattern — light (visible at 0.07) */
 html[data-theme="light"] .site::before {
   display: block;
   inset: -30%;
@@ -3902,17 +3935,17 @@ html[data-theme="light"] .site::before {
       -32deg,
       transparent 0px,
       transparent 58px,
-      rgba(0, 0, 0, 0.020) 58px,
-      rgba(0, 0, 0, 0.020) 60px
+      rgba(16, 185, 129, 0.065) 58px,
+      rgba(16, 185, 129, 0.065) 60px
     ),
     repeating-linear-gradient(
       58deg,
       transparent 0px,
       transparent 80px,
-      rgba(0, 0, 0, 0.010) 80px,
-      rgba(0, 0, 0, 0.010) 82px
+      rgba(20, 184, 166, 0.040) 80px,
+      rgba(20, 184, 166, 0.040) 82px
     );
-  animation: none;
+  animation: slit-drift 26s ease-in-out infinite;
   mask-image: none;
   -webkit-mask-image: none;
 }
@@ -3922,34 +3955,34 @@ html[data-theme="light"] .site::after {
   inset: -25%;
   opacity: 1;
   background:
-    radial-gradient(ellipse 50% 38% at 14% 16%, rgba(34, 197, 94, 0.22), transparent 60%),
-    radial-gradient(ellipse 42% 32% at 84% 12%, rgba(20, 184, 166, 0.18), transparent 55%),
-    radial-gradient(ellipse 36% 28% at 10% 88%, rgba(245, 158, 11, 0.13), transparent 50%),
-    radial-gradient(ellipse 44% 34% at 80% 86%, rgba(96, 165, 250, 0.14), transparent 52%);
-  animation: glass-aurora 18s ease-in-out infinite;
+    radial-gradient(ellipse 52% 40% at 14% 16%, rgba(22, 163, 74, 0.35), transparent 58%),
+    radial-gradient(ellipse 44% 34% at 84% 10%, rgba(13, 148, 136, 0.30), transparent 53%),
+    radial-gradient(ellipse 38% 30% at 8% 90%, rgba(234, 179, 8, 0.22), transparent 48%),
+    radial-gradient(ellipse 46% 36% at 82% 88%, rgba(59, 130, 246, 0.22), transparent 50%);
+  animation: glass-aurora 16s ease-in-out infinite;
 }
 
 html[data-theme="light"] .galaxy-layer {
   display: block;
   opacity: 1;
   mix-blend-mode: multiply;
-  animation: glass-orb-a 24s ease-in-out infinite;
+  animation: glass-orb-a 22s ease-in-out infinite;
   background:
-    radial-gradient(circle 520px at 10% 20%, rgba(34, 197, 94, 0.13), transparent),
-    radial-gradient(circle 380px at 88% 18%, rgba(20, 184, 166, 0.11), transparent),
-    radial-gradient(circle 440px at 65% 84%, rgba(245, 158, 11, 0.09), transparent),
-    radial-gradient(circle 310px at 28% 72%, rgba(59, 130, 246, 0.09), transparent);
+    radial-gradient(circle 600px at 8% 18%, rgba(22, 163, 74, 0.20), transparent),
+    radial-gradient(circle 440px at 90% 16%, rgba(13, 148, 136, 0.17), transparent),
+    radial-gradient(circle 500px at 62% 86%, rgba(234, 179, 8, 0.14), transparent),
+    radial-gradient(circle 360px at 26% 70%, rgba(59, 130, 246, 0.14), transparent);
 }
 
 html[data-theme="light"] .shard-layer {
   display: block;
   opacity: 1;
   mix-blend-mode: multiply;
-  animation: glass-orb-b 32s ease-in-out infinite;
+  animation: glass-orb-b 30s ease-in-out infinite;
   background:
-    radial-gradient(circle 380px at 75% 32%, rgba(16, 185, 129, 0.11), transparent),
-    radial-gradient(circle 300px at 18% 52%, rgba(245, 158, 11, 0.09), transparent),
-    radial-gradient(circle 350px at 52% 92%, rgba(99, 102, 241, 0.08), transparent);
+    radial-gradient(circle 440px at 72% 30%, rgba(5, 150, 105, 0.17), transparent),
+    radial-gradient(circle 340px at 16% 52%, rgba(234, 179, 8, 0.14), transparent),
+    radial-gradient(circle 400px at 50% 94%, rgba(99, 102, 241, 0.12), transparent);
 }
 
 html[data-theme="light"] .card {
@@ -4333,4 +4366,239 @@ label {
   font-family: "Space Grotesk", Georgia, serif;
   font-size: 0.78rem;
   letter-spacing: 0.10em;
+}
+
+/* ===================================================================
+   UNIQUE EFFECTS — Tab animations, shimmer, glows, sparkle, particles
+   =================================================================== */
+
+/* Tab pill pop keyframe */
+@keyframes tab-pill-pop {
+  0%   { transform: scale(0.88); opacity: 0.6; }
+  60%  { transform: scale(1.06); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* ---- Shimmer sweep on CTA buttons & nav-cv-link ---- */
+@keyframes shimmer-sweep {
+  0%   { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+.nav-cv-link {
+  background-size: 200% auto;
+  background-image: linear-gradient(
+    135deg,
+    #16a34a 0%,
+    #059669 40%,
+    #4ade80 50%,
+    #059669 60%,
+    #16a34a 100%
+  );
+  background-position: 0% center;
+  transition: background-position 0.5s ease, box-shadow 0.25s ease, transform 0.18s cubic-bezier(0.34,1.56,0.64,1);
+}
+.nav-cv-link:hover {
+  background-position: 100% center;
+  transform: translateY(-1px) scale(1.04);
+  box-shadow: 0 4px 20px rgba(22, 163, 74, 0.55), inset 0 1px 0 rgba(255,255,255,0.30);
+}
+
+/* ---- Card magnetic glow on hover ---- */
+@keyframes card-glow-pulse {
+  0%, 100% { box-shadow: 0 8px 32px rgba(22, 163, 74, 0.10); }
+  50%       { box-shadow: 0 14px 44px rgba(22, 163, 74, 0.22), 0 0 0 1px rgba(22, 163, 74, 0.12); }
+}
+
+.card:hover {
+  animation: card-glow-pulse 2s ease-in-out infinite;
+}
+
+/* ---- Skill chip shimmer ---- */
+@keyframes chip-shimmer {
+  0%   { background-position: -100% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.skill-chip {
+  position: relative;
+  overflow: hidden;
+}
+
+.skill-chip::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    110deg,
+    transparent 20%,
+    rgba(255, 255, 255, 0.25) 50%,
+    transparent 80%
+  );
+  background-size: 200% 100%;
+  background-position: -100% 0;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+.skill-chip:hover::after {
+  opacity: 1;
+  animation: chip-shimmer 0.7s linear both;
+}
+
+/* ---- Section heading reveal underline ---- */
+@keyframes heading-line-draw {
+  from { width: 0; opacity: 0; }
+  to   { width: 3rem; opacity: 1; }
+}
+
+.vault-section > h2 {
+  position: relative;
+  display: inline-block;
+}
+
+.vault-section > h2::after {
+  content: "";
+  position: absolute;
+  bottom: -6px;
+  left: 0;
+  width: 0;
+  height: 3px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--accent), color-mix(in oklab, var(--accent) 45%, transparent));
+  animation: heading-line-draw 0.55s cubic-bezier(0.22, 1, 0.36, 1) 0.2s both;
+}
+
+/* ---- Hero heading glint ---- */
+@keyframes hero-glint {
+  0%, 90%, 100% { opacity: 0; transform: translateX(-100%) skewX(-20deg); }
+  92%           { opacity: 0.55; transform: translateX(300%) skewX(-20deg); }
+}
+
+.hero__title {
+  position: relative;
+  overflow: hidden;
+}
+
+.hero__title::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(100deg, transparent 35%, rgba(255,255,255,0.30) 50%, transparent 65%);
+  animation: hero-glint 8s ease-in-out infinite 2s;
+  pointer-events: none;
+}
+
+/* ---- Floating micro-dots (CSS-only particles) ---- */
+@keyframes micro-float-a {
+  0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.45; }
+  25%      { transform: translate(12px, -18px) scale(1.15); opacity: 0.70; }
+  50%      { transform: translate(-8px, -32px) scale(0.90); opacity: 0.35; }
+  75%      { transform: translate(18px, -20px) scale(1.10); opacity: 0.60; }
+}
+
+@keyframes micro-float-b {
+  0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.40; }
+  33%      { transform: translate(-14px, -24px) scale(1.20); opacity: 0.65; }
+  66%      { transform: translate(10px, -38px) scale(0.85); opacity: 0.30; }
+}
+
+.galaxy-layer::before,
+.galaxy-layer::after {
+  content: "";
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.galaxy-layer::before {
+  width: 6px; height: 6px;
+  top: 22%; left: 18%;
+  background: var(--accent, #16a34a);
+  box-shadow:
+    140px 60px 0 2px color-mix(in oklab, var(--accent) 55%, transparent),
+    300px 120px 0 1px color-mix(in oklab, var(--accent) 40%, transparent),
+    480px 30px 0 2px rgba(20, 184, 166, 0.55),
+    620px 200px 0 1px rgba(245, 158, 11, 0.45),
+    80px 280px 0 2px color-mix(in oklab, var(--accent) 35%, transparent),
+    400px 340px 0 1px rgba(99, 102, 241, 0.40);
+  animation: micro-float-a 14s ease-in-out infinite;
+  opacity: 0.45;
+}
+
+.galaxy-layer::after {
+  width: 4px; height: 4px;
+  top: 60%; left: 72%;
+  background: rgba(20, 184, 166, 0.7);
+  box-shadow:
+    -180px -80px 0 2px color-mix(in oklab, var(--accent) 45%, transparent),
+    -320px 40px 0 1px rgba(245, 158, 11, 0.50),
+    120px -140px 0 2px rgba(99, 102, 241, 0.45),
+    -60px 180px 0 1px color-mix(in oklab, var(--accent) 30%, transparent);
+  animation: micro-float-b 18s ease-in-out infinite 3s;
+  opacity: 0.40;
+}
+
+/* ---- Button press effect ---- */
+.button:active,
+.nav-cv-link:active {
+  transform: scale(0.95) translateY(1px) !important;
+  transition: transform 0.08s ease !important;
+}
+
+/* ---- Vault dock button ripple ---- */
+@keyframes dock-ripple {
+  from { box-shadow: 0 0 0 0 color-mix(in oklab, var(--accent) 40%, transparent); }
+  to   { box-shadow: 0 0 0 10px transparent; }
+}
+
+.vault-dock__btn:active {
+  animation: dock-ripple 0.35s ease-out both;
+}
+
+/* ---- Scroll progress bar glow ---- */
+@keyframes progress-glow {
+  0%, 100% { box-shadow: 0 0 8px 1px color-mix(in oklab, var(--accent) 50%, transparent); }
+  50%      { box-shadow: 0 0 14px 3px color-mix(in oklab, var(--accent) 70%, transparent); }
+}
+
+.scroll-progress-bar {
+  animation: progress-glow 2.5s ease-in-out infinite;
+}
+
+/* ---- Light theme specific: make slits colored not grey ---- */
+html[data-theme="light"] .galaxy-layer::before {
+  background: #16a34a;
+  box-shadow:
+    140px 60px 0 2px rgba(22, 163, 74, 0.55),
+    300px 120px 0 1px rgba(13, 148, 136, 0.45),
+    480px 30px 0 2px rgba(13, 148, 136, 0.55),
+    620px 200px 0 1px rgba(234, 179, 8, 0.50),
+    80px 280px 0 2px rgba(22, 163, 74, 0.40),
+    400px 340px 0 1px rgba(99, 102, 241, 0.45);
+}
+
+/* ---- Light theme card glow (green toned) ---- */
+html[data-theme="light"] .card:hover {
+  animation: none;
+  box-shadow: 0 8px 38px rgba(22, 163, 74, 0.18), 0 0 0 1px rgba(22, 163, 74, 0.14), inset 0 1px 0 rgba(255,255,255,0.98);
+}
+
+/* ---- Reduced motion overrides ---- */
+@media (prefers-reduced-motion: reduce) {
+  .nav-cv-link,
+  .skill-chip::after,
+  .vault-section > h2::after,
+  .hero__title::after,
+  .galaxy-layer::before,
+  .galaxy-layer::after,
+  .card,
+  .scroll-progress-bar,
+  .vault-dock__btn,
+  .vault-tab {
+    animation: none !important;
+    transition: none !important;
+  }
 }
