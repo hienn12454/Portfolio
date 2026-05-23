@@ -3530,3 +3530,194 @@ html[data-theme="light"] .site {
     radial-gradient(ellipse 75% 58% at 100% 72%, rgba(253, 186, 116, 0.2), transparent 48%),
     linear-gradient(168deg, #ffffff 0%, #f3f7f4 40%, #ecfdf3 100%);
 }
+
+/* ===================================================================
+   LIGHT THEME VISUAL EFFECTS — animated orbs, dot grid, glass polish
+   =================================================================== */
+
+@keyframes lt-dot-drift {
+  0%   { transform: translate(0, 0); }
+  100% { transform: translate(36px, 36px); }
+}
+
+@keyframes lt-aurora-pulse {
+  0%, 100% { opacity: 0.38; }
+  50%       { opacity: 0.62; }
+}
+
+@keyframes lt-orb-a {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  35%      { transform: translate(50px, -35px) scale(1.06); }
+  70%      { transform: translate(-28px, 22px) scale(0.97); }
+}
+
+@keyframes lt-orb-b {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  40%      { transform: translate(-45px, 30px) scale(1.04); }
+  75%      { transform: translate(32px, -42px) scale(0.96); }
+}
+
+@keyframes lt-shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+/* Dot grid overlay */
+html[data-theme="light"] .site::before {
+  display: block;
+  inset: -5%;
+  opacity: 1;
+  background-image: radial-gradient(circle, rgba(16, 185, 129, 0.18) 1.5px, transparent 1.5px);
+  background-size: 36px 36px;
+  animation: lt-dot-drift 10s linear infinite;
+  mask-image: radial-gradient(ellipse 90% 75% at 50% 35%, black 20%, transparent 78%);
+  -webkit-mask-image: radial-gradient(ellipse 90% 75% at 50% 35%, black 20%, transparent 78%);
+}
+
+/* Aurora glow blobs */
+html[data-theme="light"] .site::after {
+  display: block;
+  inset: -25%;
+  opacity: 1;
+  background:
+    radial-gradient(ellipse 55% 42% at 14% 18%, rgba(34, 197, 94, 0.18), transparent 60%),
+    radial-gradient(ellipse 48% 36% at 85% 12%, rgba(20, 184, 166, 0.16), transparent 55%),
+    radial-gradient(ellipse 42% 32% at 68% 88%, rgba(245, 158, 11, 0.12), transparent 50%),
+    radial-gradient(ellipse 52% 40% at 28% 80%, rgba(59, 130, 246, 0.13), transparent 55%);
+  animation: lt-aurora-pulse 14s ease-in-out infinite;
+}
+
+/* Large floating orb layer A */
+html[data-theme="light"] .galaxy-layer {
+  display: block;
+  opacity: 1;
+  mix-blend-mode: multiply;
+  animation: lt-orb-a 22s ease-in-out infinite;
+  background:
+    radial-gradient(circle 520px at 10% 20%, rgba(34, 197, 94, 0.13), transparent),
+    radial-gradient(circle 380px at 88% 16%, rgba(20, 184, 166, 0.11), transparent),
+    radial-gradient(circle 440px at 65% 84%, rgba(249, 115, 22, 0.09), transparent),
+    radial-gradient(circle 310px at 28% 70%, rgba(59, 130, 246, 0.10), transparent);
+}
+
+/* Large floating orb layer B */
+html[data-theme="light"] .shard-layer {
+  display: block;
+  opacity: 1;
+  mix-blend-mode: multiply;
+  animation: lt-orb-b 30s ease-in-out infinite;
+  background:
+    radial-gradient(circle 380px at 75% 32%, rgba(16, 185, 129, 0.10), transparent),
+    radial-gradient(circle 300px at 18% 52%, rgba(245, 158, 11, 0.09), transparent),
+    radial-gradient(circle 350px at 52% 92%, rgba(99, 102, 241, 0.08), transparent);
+}
+
+/* Enhanced hero gradient — more vivid for light theme */
+html[data-theme="light"] .hero::after {
+  background:
+    radial-gradient(ellipse 85% 65% at 50% -8%, rgba(16, 185, 129, 0.20), transparent 65%),
+    radial-gradient(ellipse 55% 46% at 90% 18%, rgba(20, 184, 166, 0.14), transparent 55%),
+    radial-gradient(ellipse 46% 40% at 8% 28%, rgba(59, 130, 246, 0.11), transparent 52%);
+}
+
+/* Topbar — stronger frosted glass */
+html[data-theme="light"] .topbar {
+  background: rgba(255, 255, 255, 0.72) !important;
+  backdrop-filter: blur(22px) saturate(1.9) !important;
+  -webkit-backdrop-filter: blur(22px) saturate(1.9) !important;
+  border-color: rgba(16, 185, 129, 0.16) !important;
+  box-shadow: 0 2px 28px rgba(16, 185, 129, 0.10), inset 0 1px 0 rgba(255,255,255,0.92) !important;
+}
+
+/* Cards — glass with hover lift */
+html[data-theme="light"] .card {
+  background: rgba(255, 255, 255, 0.78);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(16, 185, 129, 0.13);
+  box-shadow: 0 4px 24px rgba(16, 185, 129, 0.07), inset 0 1px 0 rgba(255,255,255,0.95);
+  transition: box-shadow 0.22s ease, transform 0.20s cubic-bezier(0.34,1.56,0.64,1), border-color 0.22s ease;
+}
+
+html[data-theme="light"] .card:hover {
+  border-color: rgba(16, 185, 129, 0.26);
+  box-shadow: 0 10px 40px rgba(16, 185, 129, 0.13), inset 0 1px 0 rgba(255,255,255,0.98);
+  transform: translateY(-3px);
+}
+
+/* Skill items */
+html[data-theme="light"] .skill-item {
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(16, 185, 129, 0.12);
+  box-shadow: 0 2px 10px rgba(16, 185, 129, 0.06);
+  transition: box-shadow 0.2s ease, border-color 0.2s ease, transform 0.18s ease;
+}
+
+html[data-theme="light"] .skill-item:hover {
+  background: rgba(236, 253, 243, 0.88);
+  border-color: rgba(16, 185, 129, 0.28);
+  box-shadow: 0 6px 22px rgba(16, 185, 129, 0.12);
+  transform: translateY(-2px);
+}
+
+/* Footer */
+html[data-theme="light"] .footer {
+  background: rgba(255, 255, 255, 0.65) !important;
+  border-color: rgba(16, 185, 129, 0.12) !important;
+  backdrop-filter: blur(18px) !important;
+  -webkit-backdrop-filter: blur(18px) !important;
+  box-shadow: 0 -2px 24px rgba(16, 185, 129, 0.06), inset 0 1px 0 rgba(255,255,255,0.90) !important;
+}
+
+/* Contact form */
+html[data-theme="light"] .contact-form {
+  background: rgba(255, 255, 255, 0.75);
+  border: 1px solid rgba(16, 185, 129, 0.14);
+  box-shadow: 0 8px 32px rgba(16, 185, 129, 0.08), inset 0 1px 0 rgba(255,255,255,0.96);
+  backdrop-filter: blur(12px);
+}
+
+/* Nav link shimmer on hover */
+html[data-theme="light"] .nav a {
+  position: relative;
+}
+
+html[data-theme="light"] .nav a::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -3px;
+  width: 0;
+  height: 2px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(16,185,129,0.8), rgba(20,184,166,0.6));
+  transition: width 0.22s cubic-bezier(0.34,1.56,0.64,1);
+}
+
+html[data-theme="light"] .nav a:hover::after {
+  width: 100%;
+}
+
+/* Vault canvas — more vivid glass for light */
+html[data-theme="light"] .vault-canvas {
+  background: rgba(255, 255, 255, 0.80) !important;
+  border-color: rgba(16, 185, 129, 0.16) !important;
+  box-shadow: 0 16px 48px rgba(16, 185, 129, 0.10), inset 0 1px 0 rgba(255, 255, 255, 0.98) !important;
+  backdrop-filter: blur(20px) saturate(1.5) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(1.5) !important;
+}
+
+/* Reduced motion: disable all light-theme animations */
+@media (prefers-reduced-motion: reduce) {
+  html[data-theme="light"] .site::before,
+  html[data-theme="light"] .site::after,
+  html[data-theme="light"] .galaxy-layer,
+  html[data-theme="light"] .shard-layer {
+    animation: none;
+  }
+
+  html[data-theme="light"] .card,
+  html[data-theme="light"] .skill-item {
+    transition: none;
+  }
+}
