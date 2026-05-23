@@ -62,7 +62,6 @@ export function AdminPage() {
           <Link to="/" className="page-shell-header__brand">hiennt.website</Link>
           <nav style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
             <Link to="/cv" className="page-shell-header__back">Xem CV</Link>
-            <Link to="/" className="page-shell-header__back">← Trang chủ</Link>
           </nav>
         </div>
       </header>
@@ -74,7 +73,6 @@ export function AdminPage() {
       <footer className="page-shell-footer">
         <div className="page-shell-footer__inner">
           <span>© {new Date().getFullYear()} hiennt.website — Admin Dashboard</span>
-          <Link to="/" className="page-shell-footer__link">← Về trang chủ</Link>
         </div>
       </footer>
     </div>

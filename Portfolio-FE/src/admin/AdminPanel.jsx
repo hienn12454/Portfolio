@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useAuth } from "@clerk/react";
 import { createApiClient } from "../core/http/apiClient";
 
@@ -38,6 +38,119 @@ const EMPTY_PROJECT = {
   repositoryUrl: "",
   isFeatured: false
 };
+
+const DAY_LABELS = ["T2", "T3", "T4", "T5", "T6", "T7", "CN"];
+const WEIGHTS = [0.07, 0.10, 0.13, 0.15, 0.17, 0.18, 0.20];
+
+function distribute(total, n = 7) {
+  if (total === 0) return Array(n).fill(0);
+  const w = WEIGHTS.slice(0, n);
+  const sum = w.reduce((a, b) => a + b, 0);
+  return w.map((v) => Math.max(1, Math.round((total * v) / sum)));
+}
+
+function buildSmoothPath(points) {
+  if (points.length < 2) return "";
+  let d = `M ${points[0].x},${points[0].y}`;
+  for (let i = 1; i < points.length; i++) {
+    const prev = points[i - 1];
+    const curr = points[i];
+    const cpx = (prev.x + curr.x) / 2;
+    d += ` C ${cpx},${prev.y} ${cpx},${curr.y} ${curr.x},${curr.y}`;
+  }
+  return d;
+}
+
+function AdminLineChart({ pageViews, logins, users }) {
+  const svgRef = useRef(null);
+  const W = 680, H = 200;
+  const PAD = { top: 16, right: 24, bottom: 36, left: 44 };
+  const cw = W - PAD.left - PAD.right;
+  const ch = H - PAD.top - PAD.bottom;
+
+  const pvData = distribute(pageViews);
+  const lgData = distribute(logins);
+  const usData = distribute(users);
+
+  const maxVal = Math.max(...pvData, ...lgData, ...usData, 1);
+
+  const xs = (i) => PAD.left + (i / (DAY_LABELS.length - 1)) * cw;
+  const ys = (v) => PAD.top + ch - (v / maxVal) * ch;
+
+  const pvPts = pvData.map((v, i) => ({ x: xs(i), y: ys(v) }));
+  const lgPts = lgData.map((v, i) => ({ x: xs(i), y: ys(v) }));
+  const usPts = usData.map((v, i) => ({ x: xs(i), y: ys(v) }));
+
+  const areaPath = (pts) => {
+    const line = buildSmoothPath(pts);
+    const lastX = pts[pts.length - 1].x;
+    const firstX = pts[0].x;
+    const bot = PAD.top + ch;
+    return `${line} L ${lastX},${bot} L ${firstX},${bot} Z`;
+  };
+
+  const gridLines = [0, 0.25, 0.5, 0.75, 1].map((f) => ({
+    y: PAD.top + ch * (1 - f),
+    label: Math.round(maxVal * f),
+  }));
+
+  return (
+    <div className="adm-chart-wrap">
+      <div className="adm-chart-legend">
+        <span className="adm-legend-dot" style={{ background: "var(--accent)" }} />
+        <span>Lượt truy cập</span>
+        <span className="adm-legend-dot" style={{ background: "#38bdf8" }} />
+        <span>Đăng nhập</span>
+        <span className="adm-legend-dot" style={{ background: "#fb923c" }} />
+        <span>Người dùng</span>
+      </div>
+      <svg ref={svgRef} viewBox={`0 0 ${W} ${H}`} className="adm-chart-svg">
+        <defs>
+          <linearGradient id="grad-pv" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="var(--accent)" stopOpacity="0.28" />
+            <stop offset="100%" stopColor="var(--accent)" stopOpacity="0.02" />
+          </linearGradient>
+          <linearGradient id="grad-lg" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#38bdf8" stopOpacity="0.22" />
+            <stop offset="100%" stopColor="#38bdf8" stopOpacity="0.02" />
+          </linearGradient>
+          <linearGradient id="grad-us" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#fb923c" stopOpacity="0.22" />
+            <stop offset="100%" stopColor="#fb923c" stopOpacity="0.02" />
+          </linearGradient>
+        </defs>
+
+        {/* Grid */}
+        {gridLines.map((g) => (
+          <g key={g.y}>
+            <line x1={PAD.left} y1={g.y} x2={W - PAD.right} y2={g.y} stroke="rgba(255,255,255,0.07)" strokeWidth="1" strokeDasharray="4,4" />
+            <text x={PAD.left - 6} y={g.y + 4} textAnchor="end" fontSize="10" fill="rgba(255,255,255,0.35)">{g.label}</text>
+          </g>
+        ))}
+
+        {/* X labels */}
+        {DAY_LABELS.map((lbl, i) => (
+          <text key={lbl} x={xs(i)} y={H - 8} textAnchor="middle" fontSize="11" fill="rgba(255,255,255,0.40)">{lbl}</text>
+        ))}
+
+        {/* Area fills */}
+        <path d={areaPath(pvPts)} fill="url(#grad-pv)" />
+        <path d={areaPath(lgPts)} fill="url(#grad-lg)" />
+        <path d={areaPath(usPts)} fill="url(#grad-us)" />
+
+        {/* Lines */}
+        <path d={buildSmoothPath(pvPts)} fill="none" stroke="var(--accent)" strokeWidth="2.2" strokeLinecap="round" />
+        <path d={buildSmoothPath(lgPts)} fill="none" stroke="#38bdf8" strokeWidth="2.2" strokeLinecap="round" />
+        <path d={buildSmoothPath(usPts)} fill="none" stroke="#fb923c" strokeWidth="2.2" strokeLinecap="round" />
+
+        {/* Dots */}
+        {pvPts.map((p, i) => <circle key={i} cx={p.x} cy={p.y} r="3.5" fill="var(--accent)" stroke="#0f172a" strokeWidth="1.5" />)}
+        {lgPts.map((p, i) => <circle key={i} cx={p.x} cy={p.y} r="3" fill="#38bdf8" stroke="#0f172a" strokeWidth="1.5" />)}
+        {usPts.map((p, i) => <circle key={i} cx={p.x} cy={p.y} r="3" fill="#fb923c" stroke="#0f172a" strokeWidth="1.5" />)}
+      </svg>
+    </div>
+  );
+}
 
 export function AdminPanel({ language = "en" }) {
   const { isSignedIn, getToken } = useAuth();
@@ -313,34 +426,56 @@ export function AdminPanel({ language = "en" }) {
   }
 
   function renderOverview() {
+    const statCards = [
+      { label: language === "vi" ? "Lượt truy cập" : "Page views", value: analytics.totalPageViews, icon: "👁", color: "var(--accent)" },
+      { label: language === "vi" ? "Đăng nhập" : "Logins", value: analytics.totalLogins, icon: "🔐", color: "#38bdf8" },
+      { label: language === "vi" ? "Người dùng" : "Users", value: analytics.totalUsers, icon: "👤", color: "#fb923c" },
+    ];
     return (
-      <article className="contact-form">
-        <h3>{labels.analyticsTitle}</h3>
-        <div className="admin-overview-grid">
-          <div className="card">
-            <h4>Page views</h4>
-            <p>{analytics.totalPageViews}</p>
-          </div>
-          <div className="card">
-            <h4>Logins</h4>
-            <p>{analytics.totalLogins}</p>
-          </div>
-          <div className="card">
-            <h4>Users</h4>
-            <p>{analytics.totalUsers}</p>
-          </div>
-        </div>
-        <h4>Latest technical updates</h4>
-        <div className="admin-article-list">
-          {latestTechnical.length === 0 ? <p>No updates yet.</p> : null}
-          {latestTechnical.map((item) => (
-            <article key={item.key} className="card">
-              <p className="project-role">{item.type}</p>
-              <h4>{item.title}</h4>
-            </article>
+      <div className="adm-overview">
+        {/* Stat cards */}
+        <div className="adm-stat-row">
+          {statCards.map((s) => (
+            <div key={s.label} className="adm-stat-card" style={{ "--stat-color": s.color }}>
+              <div className="adm-stat-card__icon">{s.icon}</div>
+              <div className="adm-stat-card__body">
+                <span className="adm-stat-card__label">{s.label}</span>
+                <span className="adm-stat-card__value">{s.value.toLocaleString()}</span>
+              </div>
+              <div className="adm-stat-card__bar" />
+            </div>
           ))}
         </div>
-      </article>
+
+        {/* Line chart */}
+        <div className="adm-chart-card card">
+          <div className="adm-chart-card__header">
+            <h4>{language === "vi" ? "Xu hướng 7 ngày gần nhất" : "Last 7-day trend"}</h4>
+            <span className="adm-chart-note">{language === "vi" ? "Dữ liệu mô phỏng" : "Simulated trend"}</span>
+          </div>
+          <AdminLineChart
+            pageViews={analytics.totalPageViews}
+            logins={analytics.totalLogins}
+            users={analytics.totalUsers}
+          />
+        </div>
+
+        {/* Latest updates */}
+        <div className="adm-latest">
+          <h4>{language === "vi" ? "Cập nhật gần đây" : "Latest updates"}</h4>
+          <div className="adm-latest-list">
+            {latestTechnical.length === 0 ? (
+              <p style={{ color: "var(--text-muted)", fontSize: "0.9rem" }}>{language === "vi" ? "Chưa có cập nhật." : "No updates yet."}</p>
+            ) : null}
+            {latestTechnical.map((item) => (
+              <div key={item.key} className="adm-latest-item">
+                <span className="adm-latest-item__badge">{item.type}</span>
+                <span className="adm-latest-item__title">{item.title}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
     );
   }
 

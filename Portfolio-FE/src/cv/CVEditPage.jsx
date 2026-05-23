@@ -610,7 +610,6 @@ export function CVEditPage() {
           <div style={{ display: "flex", gap: "1.5rem" }}>
             <Link to="/cv" className="cve-footer__link">Xem CV công khai</Link>
             <Link to="/admin" className="cve-footer__link">Admin Dashboard</Link>
-            <Link to="/" className="cve-footer__link">← Trang chủ</Link>
           </div>
         </div>
       </footer>

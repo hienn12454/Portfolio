@@ -4961,3 +4961,325 @@ h4 { font-size: clamp(1rem, 1.5vw, 1.25rem); font-weight: 600; }
     animation: none !important;
   }
 }
+
+/* ===================================================================
+   ADMIN DASHBOARD — TopCV-inspired layout, line chart, stat cards
+   =================================================================== */
+
+/* ---- Overview container ---- */
+.adm-overview {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* ---- Stat cards row ---- */
+.adm-stat-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+@media (max-width: 640px) {
+  .adm-stat-row { grid-template-columns: 1fr; }
+}
+
+.adm-stat-card {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.2rem 1.4rem;
+  border-radius: 14px;
+  background: color-mix(in oklab, var(--bg-elevated) 85%, transparent);
+  border: 1px solid color-mix(in oklab, var(--stat-color, var(--accent)) 22%, transparent);
+  overflow: hidden;
+  transition: transform 0.20s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.22s ease;
+}
+
+.adm-stat-card:hover {
+  transform: translateY(-3px) scale(1.01);
+  box-shadow: 0 10px 32px rgba(0,0,0,0.28), 0 0 0 1px color-mix(in oklab, var(--stat-color) 30%, transparent);
+}
+
+.adm-stat-card__bar {
+  position: absolute;
+  top: 0; left: 0;
+  width: 4px; height: 100%;
+  background: var(--stat-color, var(--accent));
+  border-radius: 4px 0 0 4px;
+}
+
+.adm-stat-card__icon {
+  font-size: 1.8rem;
+  line-height: 1;
+  filter: drop-shadow(0 2px 6px color-mix(in oklab, var(--stat-color) 40%, transparent));
+}
+
+.adm-stat-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.adm-stat-card__label {
+  font-family: "DM Sans", system-ui, sans-serif;
+  font-size: 0.77rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.adm-stat-card__value {
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--stat-color, var(--accent));
+}
+
+/* ---- Chart card ---- */
+.adm-chart-card {
+  padding: 1.4rem 1.5rem 1rem;
+  border-radius: 16px;
+}
+
+.adm-chart-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+  gap: 1rem;
+}
+
+.adm-chart-card__header h4 {
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin: 0;
+  color: var(--text);
+}
+
+.adm-chart-note {
+  font-family: "DM Sans", system-ui, sans-serif;
+  font-size: 0.72rem;
+  color: var(--text-soft);
+  background: color-mix(in oklab, var(--surface-border) 40%, transparent);
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  border: 1px solid color-mix(in oklab, var(--surface-border) 60%, transparent);
+}
+
+/* ---- Chart SVG ---- */
+.adm-chart-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.adm-chart-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+  overflow: visible;
+}
+
+.adm-chart-legend {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  font-family: "DM Sans", system-ui, sans-serif;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.adm-legend-dot {
+  display: inline-block;
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* ---- Latest updates list ---- */
+.adm-latest h4 {
+  font-size: 0.88rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  margin: 0 0 0.75rem;
+}
+
+.adm-latest-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.adm-latest-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  background: color-mix(in oklab, var(--surface) 60%, transparent);
+  border: 1px solid color-mix(in oklab, var(--surface-border) 50%, transparent);
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.adm-latest-item:hover {
+  background: color-mix(in oklab, var(--surface) 90%, transparent);
+  border-color: color-mix(in oklab, var(--accent) 22%, transparent);
+}
+
+.adm-latest-item__badge {
+  font-family: "DM Sans", system-ui, sans-serif;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent);
+  background: color-mix(in oklab, var(--accent) 12%, transparent);
+  padding: 0.18rem 0.55rem;
+  border-radius: 999px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.adm-latest-item__title {
+  font-size: 0.9rem;
+  color: var(--text);
+  font-weight: 500;
+}
+
+/* ---- Light theme adjustments for admin ---- */
+html[data-theme="light"] .adm-stat-card {
+  background: rgba(255,255,255,0.88);
+  box-shadow: 0 2px 14px rgba(16,185,129,0.07);
+}
+
+html[data-theme="light"] .adm-latest-item {
+  background: rgba(255,255,255,0.78);
+}
+
+html[data-theme="light"] .adm-chart-svg text {
+  fill: rgba(15,23,42,0.45) !important;
+}
+
+html[data-theme="light"] .adm-chart-svg line {
+  stroke: rgba(15,23,42,0.08) !important;
+}
+
+/* ---- Improved button system ---- */
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.6rem 1.25rem;
+  border-radius: 10px;
+  font-family: "DM Sans", system-ui, sans-serif;
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.16s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.18s ease, background 0.16s ease;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.button--primary {
+  background: linear-gradient(135deg, var(--accent, #16a34a) 0%, color-mix(in oklab, var(--accent) 80%, #059669) 100%);
+  color: #fff;
+  box-shadow: 0 2px 14px color-mix(in oklab, var(--accent) 35%, transparent), inset 0 1px 0 rgba(255,255,255,0.18);
+}
+
+.button--primary:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 6px 22px color-mix(in oklab, var(--accent) 45%, transparent), inset 0 1px 0 rgba(255,255,255,0.22);
+}
+
+.button--ghost {
+  background: transparent;
+  color: var(--text-muted);
+  border: 1.5px solid color-mix(in oklab, var(--surface-border) 80%, transparent);
+}
+
+.button--ghost:hover {
+  background: color-mix(in oklab, var(--surface) 80%, transparent);
+  color: var(--text);
+  border-color: color-mix(in oklab, var(--accent) 30%, transparent);
+  transform: translateY(-1px);
+}
+
+.button--danger {
+  background: rgba(239,68,68,0.12);
+  color: #f87171;
+  border: 1.5px solid rgba(239,68,68,0.22);
+}
+
+.button--danger:hover {
+  background: rgba(239,68,68,0.22);
+  border-color: rgba(239,68,68,0.40);
+  transform: translateY(-1px);
+}
+
+.button--small {
+  padding: 0.38rem 0.85rem;
+  font-size: 0.80rem;
+  border-radius: 8px;
+}
+
+/* Form action row */
+.form-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  align-items: center;
+  padding-top: 0.5rem;
+}
+
+/* Admin sidebar improved */
+.admin-sidebar__item {
+  text-align: left;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.72rem 1rem;
+  border-radius: 10px;
+  font-family: "DM Sans", system-ui, sans-serif;
+  font-size: 0.88rem;
+  font-weight: 500;
+  background: transparent;
+  color: var(--text-muted);
+  border: none;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, transform 0.14s ease;
+}
+
+.admin-sidebar__item:hover {
+  background: color-mix(in oklab, var(--accent) 10%, transparent);
+  color: var(--text);
+  transform: translateX(3px);
+}
+
+.admin-sidebar__item.is-active {
+  background: linear-gradient(135deg, var(--accent), color-mix(in oklab, var(--accent) 75%, #059669));
+  color: #fff;
+  font-weight: 600;
+  box-shadow: 0 4px 14px color-mix(in oklab, var(--accent) 35%, transparent);
+}
+
+/* Delete buttons in card list become danger style */
+.card__links .button--ghost:last-child {
+  color: #f87171;
+  border-color: rgba(239,68,68,0.22);
+}
+
+.card__links .button--ghost:last-child:hover {
+  background: rgba(239,68,68,0.10);
+  border-color: rgba(239,68,68,0.36);
+}

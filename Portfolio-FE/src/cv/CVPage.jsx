@@ -145,7 +145,6 @@ export function CVPage() {
         <div className="cv-topbar__content">
           <div className="cv-topbar__left">
             <Link to="/" className="cv-topbar__brand">◆ hiennt.website</Link>
-            <Link to="/" className="cv-topbar__back">← Trang chủ</Link>
           </div>
           <div className="cv-topbar__actions">
             <button
