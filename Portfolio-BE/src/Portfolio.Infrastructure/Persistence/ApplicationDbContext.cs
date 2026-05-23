@@ -10,6 +10,7 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
 {
     public DbSet<Article> Articles => Set<Article>();
     public DbSet<ContactInfo> ContactInfos => Set<ContactInfo>();
+    public DbSet<CvProfile> CvProfiles => Set<CvProfile>();
     public DbSet<PageContent> PageContents => Set<PageContent>();
     public DbSet<Project> Projects => Set<Project>();
     public DbSet<SiteMetric> SiteMetrics => Set<SiteMetric>();

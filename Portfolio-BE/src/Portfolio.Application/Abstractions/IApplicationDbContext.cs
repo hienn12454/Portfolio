@@ -8,6 +8,7 @@ public interface IApplicationDbContext
     DbSet<Project> Projects { get; }
     DbSet<User> Users { get; }
     DbSet<ContactInfo> ContactInfos { get; }
+    DbSet<CvProfile> CvProfiles { get; }
     DbSet<PageContent> PageContents { get; }
     DbSet<Article> Articles { get; }
     DbSet<Skill> Skills { get; }
