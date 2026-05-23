@@ -353,3 +353,4 @@ Fonts: `Manrope` (body), `Space Grotesk` (headings) from Google Fonts.
 |------|--------|
 | 2026-05-23 | Added CV feature: `CvProfile` entity, `CvController`, migration `AddCvProfile`, `CVPage` (public), `CVEditPage` (admin), routes `/cv` and `/cv/edit` |
 | 2026-05-24 | Created `CLAUDE.md`; Redesigned CVPage & CVEditPage with modern 3D glassmorphism UI |
+| 2026-05-24 | CI: workflow auto-detects & applies pending EF migrations on push to main; warns on unmigrated entity changes. Requires GitHub secret `DB_CONNECTION_STRING` |
