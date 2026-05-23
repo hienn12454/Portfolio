@@ -5153,6 +5153,185 @@ h4 { font-size: clamp(1rem, 1.5vw, 1.25rem); font-weight: 600; }
   font-weight: 500;
 }
 
+/* ---- Two-column layout ---- */
+.adm-two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.2rem;
+}
+
+@media (max-width: 860px) {
+  .adm-two-col { grid-template-columns: 1fr; }
+}
+
+/* ---- User activity table ---- */
+.adm-table-card {
+  padding: 1.2rem 1.4rem;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.adm-table-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  gap: 0.75rem;
+}
+
+.adm-table-card__header h4 {
+  font-size: 0.92rem;
+  font-weight: 600;
+  margin: 0;
+  color: var(--text);
+}
+
+.adm-table-wrap {
+  overflow-x: auto;
+}
+
+.adm-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.83rem;
+  font-family: "DM Sans", system-ui, sans-serif;
+}
+
+.adm-table th {
+  text-align: left;
+  padding: 0.5rem 0.6rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  border-bottom: 1px solid color-mix(in oklab, var(--surface-border) 60%, transparent);
+  white-space: nowrap;
+}
+
+.adm-table td {
+  padding: 0.6rem 0.6rem;
+  border-bottom: 1px solid color-mix(in oklab, var(--surface-border) 30%, transparent);
+  vertical-align: middle;
+}
+
+.adm-table tr:last-child td {
+  border-bottom: none;
+}
+
+.adm-table tr:hover td {
+  background: color-mix(in oklab, var(--accent) 5%, transparent);
+}
+
+.adm-table__name {
+  font-weight: 600;
+  color: var(--text);
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.adm-table__muted {
+  color: var(--text-muted);
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.adm-table__count {
+  font-weight: 700;
+  color: var(--accent);
+  text-align: center;
+}
+
+.adm-table__time {
+  font-size: 0.78rem;
+  white-space: nowrap;
+}
+
+.adm-role-badge {
+  display: inline-block;
+  padding: 0.18rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  background: color-mix(in oklab, var(--surface-border) 50%, transparent);
+  color: var(--text-muted);
+}
+
+.adm-role-badge--admin {
+  background: color-mix(in oklab, var(--accent) 15%, transparent);
+  color: var(--accent);
+}
+
+/* ---- Page origins card ---- */
+.adm-origins-card {
+  padding: 1.2rem 1.4rem;
+  border-radius: 16px;
+}
+
+.adm-origins-label {
+  font-family: "DM Sans", system-ui, sans-serif;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin: 0 0 0.6rem;
+}
+
+.adm-bar-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.adm-bar-row {
+  display: grid;
+  grid-template-columns: 110px 1fr 36px;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.adm-bar-row__label {
+  font-family: "DM Sans", system-ui, sans-serif;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.adm-bar-row__track {
+  height: 7px;
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--surface-border) 50%, transparent);
+  overflow: hidden;
+}
+
+.adm-bar-row__fill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--accent), color-mix(in oklab, var(--accent) 65%, #10b981));
+  transition: width 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.adm-bar-row__fill--teal {
+  background: linear-gradient(90deg, #38bdf8, #06b6d4);
+}
+
+.adm-bar-row__count {
+  font-family: "DM Sans", system-ui, sans-serif;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text);
+  text-align: right;
+}
+
 /* ---- Light theme adjustments for admin ---- */
 html[data-theme="light"] .adm-stat-card {
   background: rgba(255,255,255,0.88);

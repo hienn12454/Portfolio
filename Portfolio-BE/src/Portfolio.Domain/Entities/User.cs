@@ -28,4 +28,6 @@ public sealed class User : BaseAuditableEntity
     public string? CoverImageUrl { get; set; }
     public string Role { get; set; } = "User";
     public bool IsActive { get; set; } = true;
+    public int LoginCount { get; set; }
+    public DateTime? LastLoginAtUtc { get; set; }
 }

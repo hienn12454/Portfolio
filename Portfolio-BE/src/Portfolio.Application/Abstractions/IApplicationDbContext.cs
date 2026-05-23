@@ -14,5 +14,7 @@ public interface IApplicationDbContext
     DbSet<Skill> Skills { get; }
     DbSet<SiteMetric> SiteMetrics { get; }
     DbSet<UserRoadmapPlan> UserRoadmapPlans { get; }
+    DbSet<PageViewLog> PageViewLogs { get; }
+    DbSet<UserLoginLog> UserLoginLogs { get; }
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

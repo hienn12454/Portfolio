@@ -840,7 +840,10 @@ export function HomePage() {
   useEffect(() => {
     async function trackPageView() {
       try {
-        await apiClient.postPublic("/api/analytics/page-view");
+        await apiClient.postPublic("/api/analytics/page-view", {
+          path: window.location.pathname,
+          referrer: document.referrer || null,
+        });
       } catch {
         // Ignore analytics errors on public page.
       }

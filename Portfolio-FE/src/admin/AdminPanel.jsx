@@ -167,6 +167,8 @@ export function AdminPanel({ language = "en" }) {
   const [projects, setProjects] = useState([]);
   const [draftProject, setDraftProject] = useState(EMPTY_PROJECT);
   const [analytics, setAnalytics] = useState({ totalPageViews: 0, totalLogins: 0, totalUsers: 0 });
+  const [usersActivity, setUsersActivity] = useState([]);
+  const [pageOrigins, setPageOrigins] = useState({ pathSummary: [], referrerSummary: [], recentViews: [] });
   const [saveState, setSaveState] = useState("");
   const [activeSection, setActiveSection] = useState("overview");
 
@@ -205,13 +207,15 @@ export function AdminPanel({ language = "en" }) {
 
     async function loadContent() {
       try {
-        const [contactData, pageData, articleData, skillData, projectData, analyticsData] = await Promise.all([
+        const [contactData, pageData, articleData, skillData, projectData, analyticsData, usersData, originsData] = await Promise.all([
           apiClient.getPublic("/api/content/contact"),
           apiClient.getPublic("/api/content/page"),
           apiClient.getProtected("/api/articles/admin"),
           apiClient.getProtected("/api/skills/admin"),
           apiClient.getPublic("/api/projects"),
-          apiClient.getProtected("/api/analytics/summary")
+          apiClient.getProtected("/api/analytics/summary"),
+          apiClient.getProtected("/api/analytics/users-activity"),
+          apiClient.getProtected("/api/analytics/page-origins"),
         ]);
 
         setContact((current) => ({ ...current, ...(contactData ?? {}) }));
@@ -222,7 +226,13 @@ export function AdminPanel({ language = "en" }) {
         setAnalytics({
           totalPageViews: analyticsData?.totalPageViews ?? 0,
           totalLogins: analyticsData?.totalLogins ?? 0,
-          totalUsers: analyticsData?.totalUsers ?? 0
+          totalUsers: analyticsData?.totalUsers ?? 0,
+        });
+        setUsersActivity(Array.isArray(usersData) ? usersData : []);
+        setPageOrigins({
+          pathSummary: originsData?.pathSummary ?? [],
+          referrerSummary: originsData?.referrerSummary ?? [],
+          recentViews: originsData?.recentViews ?? [],
         });
       } catch (loadError) {
         setError(loadError.message);
@@ -460,19 +470,94 @@ export function AdminPanel({ language = "en" }) {
           />
         </div>
 
-        {/* Latest updates */}
-        <div className="adm-latest">
-          <h4>{language === "vi" ? "Cập nhật gần đây" : "Latest updates"}</h4>
-          <div className="adm-latest-list">
-            {latestTechnical.length === 0 ? (
-              <p style={{ color: "var(--text-muted)", fontSize: "0.9rem" }}>{language === "vi" ? "Chưa có cập nhật." : "No updates yet."}</p>
-            ) : null}
-            {latestTechnical.map((item) => (
-              <div key={item.key} className="adm-latest-item">
-                <span className="adm-latest-item__badge">{item.type}</span>
-                <span className="adm-latest-item__title">{item.title}</span>
-              </div>
-            ))}
+        {/* Two-column section: Users Activity + Page Origins */}
+        <div className="adm-two-col">
+          {/* User login activity table */}
+          <div className="adm-table-card card">
+            <div className="adm-table-card__header">
+              <h4>{language === "vi" ? "👤 Hoạt động người dùng" : "👤 User Activity"}</h4>
+              <span className="adm-chart-note">{usersActivity.length} {language === "vi" ? "người dùng" : "users"}</span>
+            </div>
+            <div className="adm-table-wrap">
+              <table className="adm-table">
+                <thead>
+                  <tr>
+                    <th>{language === "vi" ? "Tên" : "Name"}</th>
+                    <th>{language === "vi" ? "Email" : "Email"}</th>
+                    <th>{language === "vi" ? "Vai trò" : "Role"}</th>
+                    <th>{language === "vi" ? "Đăng nhập" : "Logins"}</th>
+                    <th>{language === "vi" ? "Lần cuối" : "Last login"}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {usersActivity.length === 0 ? (
+                    <tr><td colSpan={5} style={{ textAlign: "center", color: "var(--text-soft)", padding: "1.5rem" }}>
+                      {language === "vi" ? "Chưa có dữ liệu" : "No data yet"}
+                    </td></tr>
+                  ) : usersActivity.map((u) => (
+                    <tr key={u.id}>
+                      <td className="adm-table__name">{u.name}</td>
+                      <td className="adm-table__muted">{u.email}</td>
+                      <td>
+                        <span className={`adm-role-badge ${u.role === "Admin" ? "adm-role-badge--admin" : ""}`}>{u.role}</span>
+                      </td>
+                      <td className="adm-table__count">{u.loginCount}</td>
+                      <td className="adm-table__muted adm-table__time">
+                        {u.lastLoginAtUtc ? new Date(u.lastLoginAtUtc).toLocaleString("vi-VN", { dateStyle: "short", timeStyle: "short" }) : "—"}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* Page origins */}
+          <div className="adm-origins-card card">
+            <div className="adm-table-card__header">
+              <h4>{language === "vi" ? "🌐 Nguồn truy cập" : "🌐 Traffic sources"}</h4>
+              <span className="adm-chart-note">{pageOrigins.recentViews.length} {language === "vi" ? "lượt gần nhất" : "recent views"}</span>
+            </div>
+
+            {/* Path breakdown */}
+            <p className="adm-origins-label">{language === "vi" ? "Trang được xem nhiều" : "Top pages"}</p>
+            <div className="adm-bar-list">
+              {pageOrigins.pathSummary.length === 0 ? (
+                <p style={{ color: "var(--text-soft)", fontSize: "0.85rem" }}>{language === "vi" ? "Chưa có dữ liệu" : "No data yet"}</p>
+              ) : pageOrigins.pathSummary.map((p, i) => {
+                const max = pageOrigins.pathSummary[0]?.count ?? 1;
+                const pct = Math.round((p.count / max) * 100);
+                return (
+                  <div key={i} className="adm-bar-row">
+                    <span className="adm-bar-row__label" title={p.path}>{p.path}</span>
+                    <div className="adm-bar-row__track">
+                      <div className="adm-bar-row__fill" style={{ width: `${pct}%` }} />
+                    </div>
+                    <span className="adm-bar-row__count">{p.count}</span>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Referrer breakdown */}
+            <p className="adm-origins-label" style={{ marginTop: "1rem" }}>{language === "vi" ? "Nguồn đến" : "Traffic sources"}</p>
+            <div className="adm-bar-list">
+              {pageOrigins.referrerSummary.length === 0 ? (
+                <p style={{ color: "var(--text-soft)", fontSize: "0.85rem" }}>{language === "vi" ? "Chưa có dữ liệu" : "No data yet"}</p>
+              ) : pageOrigins.referrerSummary.map((r, i) => {
+                const max = pageOrigins.referrerSummary[0]?.count ?? 1;
+                const pct = Math.round((r.count / max) * 100);
+                return (
+                  <div key={i} className="adm-bar-row">
+                    <span className="adm-bar-row__label" title={r.source}>{r.source}</span>
+                    <div className="adm-bar-row__track">
+                      <div className="adm-bar-row__fill adm-bar-row__fill--teal" style={{ width: `${pct}%` }} />
+                    </div>
+                    <span className="adm-bar-row__count">{r.count}</span>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </div>
       </div>
