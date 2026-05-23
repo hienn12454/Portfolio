@@ -13,7 +13,8 @@ const contentByLanguage = {
       about: "About",
       skills: "Skills",
       projects: "Projects",
-      contact: "Contact"
+      contact: "Contact",
+      cv: "CV"
     },
     eyebrow: "Software Engineer",
     heroTitle: "Hello, I am an IT developer focused on reliable and maintainable digital products.",
@@ -83,7 +84,8 @@ const contentByLanguage = {
       about: "Giới thiệu",
       skills: "Kỹ năng",
       projects: "Dự án",
-      contact: "Liên hệ"
+      contact: "Liên hệ",
+      cv: "CV"
     },
     eyebrow: "Kỹ sư phần mềm",
     heroTitle: "Xin chào, tôi là một lập trình viên IT tập trung vào sản phẩm bền vững và đáng tin cậy.",
@@ -1006,6 +1008,9 @@ export function HomePage() {
               >
                 {content.nav.contact}
               </a>
+              <Link to="/cv" className="nav-cv-link">
+                {content.nav.cv}
+              </Link>
             </nav>
             <div className="auth-actions">
               <button
@@ -1051,9 +1056,17 @@ export function HomePage() {
                       <Link to="/profile" role="menuitem" onClick={() => setIsUserMenuOpen(false)}>
                         Hồ sơ
                       </Link>
+                      <Link to="/cv" role="menuitem" className="user-menu__cv-link" onClick={() => setIsUserMenuOpen(false)}>
+                        CV của tôi
+                      </Link>
                       {isAdminUser ? (
                         <Link to="/admin" role="menuitem" onClick={() => setIsUserMenuOpen(false)}>
                           Dashboard
+                        </Link>
+                      ) : null}
+                      {isAdminUser ? (
+                        <Link to="/cv/edit" role="menuitem" onClick={() => setIsUserMenuOpen(false)}>
+                          Chỉnh sửa CV
                         </Link>
                       ) : null}
                       <button
@@ -1443,7 +1456,7 @@ export function HomePage() {
                 <div className="social-links">
                   <a href={contact?.githubUrl || "#"}>GitHub</a>
                   <a href={contact?.linkedInUrl || "#"}>LinkedIn</a>
-                  <a href="#">Resume</a>
+                  <Link to="/cv">CV</Link>
                 </div>
                 <article className="contact-form">
                   <h3>{content.contactFormTitle}</h3>
