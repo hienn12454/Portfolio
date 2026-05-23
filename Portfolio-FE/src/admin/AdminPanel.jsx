@@ -135,6 +135,7 @@ export function AdminPanel({ language = "en" }) {
           projectTitle: "Dự án",
           articleTitle: "Bài viết kỹ thuật",
           contactTitle: "Liên hệ",
+          cvTitle: "CV / Resume",
           createSkill: "Thêm kỹ năng",
           updateSkill: "Cập nhật kỹ năng",
           deleteSkill: "Xóa kỹ năng",
@@ -163,6 +164,7 @@ export function AdminPanel({ language = "en" }) {
           projectTitle: "Projects",
           articleTitle: "Technical Writing",
           contactTitle: "Contact",
+          cvTitle: "CV / Resume",
           createSkill: "Add skill",
           updateSkill: "Update skill",
           deleteSkill: "Delete skill",
@@ -184,7 +186,8 @@ export function AdminPanel({ language = "en" }) {
     { id: "skills", label: labels.skillTitle },
     { id: "projects", label: labels.projectTitle },
     { id: "articles", label: labels.articleTitle },
-    { id: "contact", label: labels.contactTitle }
+    { id: "contact", label: labels.contactTitle },
+    { id: "cv", label: labels.cvTitle }
   ];
 
   const latestTechnical = useMemo(() => {
@@ -654,6 +657,45 @@ export function AdminPanel({ language = "en" }) {
     );
   }
 
+  function renderCvSection() {
+    return (
+      <article className="contact-form">
+        <h3>{labels.cvTitle}</h3>
+        <p style={{ marginBottom: "1.2rem", color: "var(--text-muted)" }}>
+          {language === "vi"
+            ? "Thiết kế và quản lý CV chuyên nghiệp hiển thị tại /cv. Dùng trình chỉnh sửa đầy đủ để cập nhật kinh nghiệm, kỹ năng, chứng chỉ và thông tin cá nhân."
+            : "Design and manage your professional CV displayed at /cv. Use the full editor to update experience, skills, certifications and personal info."}
+        </p>
+        <div className="admin-cv-actions">
+          <a href="/cv/edit" className="button button--primary admin-cv-edit-btn">
+            {language === "vi" ? "✏️ Mở trình chỉnh sửa CV" : "✏️ Open CV Editor"}
+          </a>
+          <a href="/cv" target="_blank" rel="noopener noreferrer" className="button button--ghost">
+            {language === "vi" ? "👁 Xem CV công khai" : "👁 View public CV"}
+          </a>
+        </div>
+        <div className="admin-cv-info-grid">
+          <div className="card">
+            <p className="project-role">{language === "vi" ? "Thông tin cá nhân" : "Personal Info"}</p>
+            <p>{language === "vi" ? "Họ tên, chức danh, email, SĐT, địa chỉ, avatar" : "Name, job title, email, phone, address, avatar"}</p>
+          </div>
+          <div className="card">
+            <p className="project-role">{language === "vi" ? "Kinh nghiệm & Học vấn" : "Experience & Education"}</p>
+            <p>{language === "vi" ? "Timeline công việc, bằng cấp, mô tả" : "Work timeline, degrees, descriptions"}</p>
+          </div>
+          <div className="card">
+            <p className="project-role">{language === "vi" ? "Kỹ năng & Ngôn ngữ" : "Skills & Languages"}</p>
+            <p>{language === "vi" ? "Nhóm kỹ năng với mức độ, ngôn ngữ, chứng chỉ" : "Skill groups with levels, languages, certifications"}</p>
+          </div>
+          <div className="card">
+            <p className="project-role">{language === "vi" ? "Cài đặt" : "Settings"}</p>
+            <p>{language === "vi" ? "Màu accent, chế độ public/private" : "Accent color, public/private mode"}</p>
+          </div>
+        </div>
+      </article>
+    );
+  }
+
   function renderActiveSection() {
     switch (activeSection) {
       case "overview":
@@ -668,6 +710,8 @@ export function AdminPanel({ language = "en" }) {
         return renderArticlesSection();
       case "contact":
         return renderContactSection();
+      case "cv":
+        return renderCvSection();
       default:
         return renderOverview();
     }
