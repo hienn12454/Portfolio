@@ -2,7 +2,7 @@
    CV PAGE — Modern 3D Glassmorphism Design
    ===================================================== */
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap');
 
 /* ── Variables ── */
 :root {
@@ -24,7 +24,7 @@
   background: linear-gradient(135deg, var(--cv-bg-from) 0%, var(--cv-bg-via) 50%, var(--cv-bg-to) 100%);
   background-attachment: fixed;
   color: #e2e8f0;
-  font-family: 'Inter', system-ui, sans-serif;
+  font-family: "Times New Roman", Georgia, Times, serif;
   display: flex;
   flex-direction: column;
   position: relative;
@@ -87,12 +87,37 @@
 .cv-topbar__content {
   max-width: 1080px;
   margin: 0 auto;
-  padding: 0.9rem 1.5rem;
+  padding: 0.75rem 1.5rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 1rem;
 }
 
+.cv-topbar__left {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.cv-topbar__brand {
+  font-family: "Space Grotesk", Georgia, serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #fff;
+  text-decoration: none;
+  letter-spacing: -0.01em;
+}
+
+.cv-topbar__back {
+  font-size: 0.82rem;
+  color: rgba(255,255,255,0.52);
+  text-decoration: none;
+  transition: color 0.18s;
+}
+.cv-topbar__back:hover { color: rgba(255,255,255,0.88); }
+
+/* Keep old class for backwards compat */
 .cv-topbar__logo {
   font-size: 0.88rem;
   font-weight: 700;
@@ -104,6 +129,20 @@
 .cv-topbar__logo:hover { color: #fff; }
 
 .cv-topbar__actions { display: flex; gap: 0.75rem; align-items: center; }
+
+/* Outline button variant */
+.cv-btn--outline {
+  background: rgba(255,255,255,0.08);
+  color: rgba(255,255,255,0.85);
+  border: 1px solid rgba(255,255,255,0.18);
+  box-shadow: none;
+  font-family: "Space Grotesk", Georgia, serif;
+}
+.cv-btn--outline:hover {
+  background: rgba(255,255,255,0.14);
+  color: #fff;
+  transform: translateY(-1px);
+}
 
 /* ── 3D Buttons ── */
 .cv-btn {
@@ -117,7 +156,7 @@
   border: none;
   cursor: pointer;
   text-decoration: none;
-  font-family: 'Inter', sans-serif;
+  font-family: "Space Grotesk", Georgia, serif;
   letter-spacing: 0.01em;
   transition: all 0.18s cubic-bezier(0.34,1.56,0.64,1);
   position: relative;

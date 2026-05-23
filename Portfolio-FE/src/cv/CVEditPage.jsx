@@ -366,6 +366,10 @@ export function CVEditPage() {
     <div className="cve-root">
       {/* Header */}
       <div className="cve-header">
+        <div className="cve-header__toprow">
+          <Link to="/" className="cve-back-link">← Trang chủ</Link>
+          <Link to="/admin" className="cve-back-link">Admin Dashboard</Link>
+        </div>
         <div className="cve-header__content">
           <div>
             <h1 className="cve-header__title">Chỉnh sửa CV</h1>
@@ -598,6 +602,18 @@ export function CVEditPage() {
           </div>
         </div>
       </div>
+
+      {/* Footer */}
+      <footer className="cve-footer">
+        <div className="cve-footer__inner">
+          <span>© {new Date().getFullYear()} hiennt.website — CV Editor</span>
+          <div style={{ display: "flex", gap: "1.5rem" }}>
+            <Link to="/cv" className="cve-footer__link">Xem CV công khai</Link>
+            <Link to="/admin" className="cve-footer__link">Admin Dashboard</Link>
+            <Link to="/" className="cve-footer__link">← Trang chủ</Link>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }

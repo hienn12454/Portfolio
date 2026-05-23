@@ -1,8 +1,8 @@
-@import url("https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&display=swap");
 
 :root {
-  font-family: "Manrope", "Segoe UI", system-ui, sans-serif;
-  line-height: 1.5;
+  font-family: "Times New Roman", Georgia, Times, serif;
+  line-height: 1.65;
   color: var(--text, #0f172a);
   background-color: var(--bg, #f6f8f5);
 }
@@ -1203,7 +1203,7 @@ html[data-theme="light"] .nav-cv-link:hover {
 /* ===== Enhanced theme + motion layer ===== */
 
 :root {
-  font-family: var(--font-sans, "Manrope", "Segoe UI", system-ui, sans-serif);
+  font-family: var(--font-sans, "Times New Roman", Georgia, Times, serif);
   line-height: 1.5;
   color: var(--text, #0f172a);
   background-color: var(--bg, #f6f8f5);
@@ -2571,7 +2571,7 @@ html[data-theme="light"] .hero::after {
 }
 
 .skill-chip__name {
-  font-family: var(--font-sans, "Manrope", system-ui, sans-serif);
+  font-family: var(--font-sans, "Times New Roman", Georgia, Times, serif);
   font-size: 0.8rem;
   font-weight: 700;
   letter-spacing: 0.01em;
@@ -3207,8 +3207,8 @@ html[data-theme="light"] .vault-canvas--deck {
 
 /* ===== TopCV refresh overrides ===== */
 :root {
-  --font-sans: "Manrope", "Segoe UI", system-ui, sans-serif;
-  --font-display: "Space Grotesk", "Manrope", "Segoe UI", sans-serif;
+  --font-sans: "Times New Roman", Georgia, Times, serif;
+  --font-display: "Space Grotesk", Georgia, "Times New Roman", serif;
   font-family: var(--font-sans);
   color: var(--text);
   background-color: var(--bg);
@@ -4094,4 +4094,243 @@ html[data-theme="light"] .nav a:hover::after {
   .skill-item {
     transition: none !important;
   }
+}
+
+/* ===================================================================
+   UI POLISH — Realistic inputs, typography, navigation
+   =================================================================== */
+
+/* --- Global font enforcement --- */
+body, input, textarea, select, button {
+  font-family: "Times New Roman", Georgia, Times, serif;
+}
+
+/* Headings use Space Grotesk for modern contrast */
+h1, h2, h3, h4, h5, h6,
+.brand, .nav-cv-link, .button, .filter-chip,
+.topbar__actions .button, .eyebrow {
+  font-family: "Space Grotesk", Georgia, "Times New Roman", serif;
+}
+
+/* --- Realistic Input Fields --- */
+input[type="text"],
+input[type="email"],
+input[type="url"],
+input[type="tel"],
+input[type="number"],
+input[type="password"],
+input[type="date"],
+textarea,
+select {
+  font-family: "Times New Roman", Georgia, Times, serif;
+  font-size: 0.97rem;
+  line-height: 1.55;
+  color: var(--text);
+  background: var(--surface, #fff);
+  border: 1.5px solid color-mix(in oklab, var(--surface-border, #d1d5db) 80%, transparent);
+  border-radius: 8px;
+  padding: 0.62rem 0.85rem;
+  width: 100%;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+html[data-theme="dark"] input[type="text"],
+html[data-theme="dark"] input[type="email"],
+html[data-theme="dark"] input[type="url"],
+html[data-theme="dark"] input[type="tel"],
+html[data-theme="dark"] input[type="number"],
+html[data-theme="dark"] input[type="password"],
+html[data-theme="dark"] input[type="date"],
+html[data-theme="dark"] textarea,
+html[data-theme="dark"] select {
+  background: rgba(255, 255, 255, 0.055);
+  border-color: rgba(255, 255, 255, 0.12);
+  color: #e2e8f0;
+}
+
+html[data-theme="light"] input[type="text"],
+html[data-theme="light"] input[type="email"],
+html[data-theme="light"] input[type="url"],
+html[data-theme="light"] input[type="tel"],
+html[data-theme="light"] input[type="number"],
+html[data-theme="light"] input[type="password"],
+html[data-theme="light"] input[type="date"],
+html[data-theme="light"] textarea,
+html[data-theme="light"] select {
+  background: rgba(255, 255, 255, 0.85);
+  border-color: rgba(15, 23, 42, 0.14);
+  color: #0f172a;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  border-color: var(--accent, #16a34a);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--accent, #16a34a) 18%, transparent);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--text-soft, #94a3b8);
+  opacity: 1;
+}
+
+textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+/* Label styling — human, not robotic */
+label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  letter-spacing: 0.01em;
+  text-transform: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.38rem;
+}
+
+/* --- Page Shell — shared header/footer bar --- */
+.page-shell-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: color-mix(in oklab, var(--bg, #0b1213) 78%, transparent);
+  backdrop-filter: blur(20px) saturate(1.5);
+  -webkit-backdrop-filter: blur(20px) saturate(1.5);
+  border-bottom: 1px solid color-mix(in oklab, var(--surface-border) 60%, transparent);
+}
+
+.page-shell-header__inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0.75rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.page-shell-header__brand {
+  font-family: "Space Grotesk", Georgia, serif;
+  font-weight: 700;
+  font-size: 1rem;
+  letter-spacing: -0.01em;
+  color: var(--text);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.page-shell-header__brand::before {
+  content: "◆";
+  color: var(--accent, #16a34a);
+  font-size: 0.7rem;
+}
+
+.page-shell-header__back {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  transition: color 0.15s ease;
+}
+
+.page-shell-header__back:hover {
+  color: var(--text);
+}
+
+.page-shell-footer {
+  margin-top: auto;
+  border-top: 1px solid color-mix(in oklab, var(--surface-border) 50%, transparent);
+  padding: 1.2rem 1.5rem;
+}
+
+.page-shell-footer__inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.83rem;
+  color: var(--text-soft);
+}
+
+.page-shell-footer__link {
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.page-shell-footer__link:hover {
+  color: var(--accent);
+}
+
+/* Admin page with proper shell */
+.admin-page-shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+}
+
+/* --- Topbar corner radius fix (both themes) --- */
+.topbar {
+  border-radius: 0;
+}
+
+/* --- Footer corner radius on small screens --- */
+@media (max-width: 860px) {
+  .footer {
+    border-radius: 14px 14px 0 0;
+    margin-bottom: 0;
+  }
+}
+
+/* --- contact-form label override --- */
+.contact-form label {
+  text-transform: none;
+  letter-spacing: 0.01em;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+/* --- CV page topbar brand style update --- */
+.cv-topbar__logo {
+  font-family: "Space Grotesk", Georgia, serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+/* --- Auth page back link --- */
+.auth-back {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  margin-top: 1rem;
+}
+
+.auth-back a {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* --- Nav button font --- */
+.nav a, .nav-cv-link {
+  font-family: "Space Grotesk", Georgia, serif;
+}
+
+/* --- Eyebrow/badge text --- */
+.eyebrow, .project-role {
+  font-family: "Space Grotesk", Georgia, serif;
+  font-size: 0.78rem;
+  letter-spacing: 0.10em;
 }

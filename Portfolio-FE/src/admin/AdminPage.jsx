@@ -40,16 +40,43 @@ export function AdminPage() {
 
   if (isChecking) {
     return (
-      <div className="dash-loading">
-        <div className="dash-loading__spinner" />
-        <p>Đang kiểm tra quyền truy cập...</p>
+      <div className="admin-page-shell">
+        <header className="page-shell-header">
+          <div className="page-shell-header__inner">
+            <Link to="/" className="page-shell-header__brand">hiennt.website</Link>
+            <Link to="/" className="page-shell-header__back">← Về trang chủ</Link>
+          </div>
+        </header>
+        <div className="dash-loading">
+          <div className="dash-loading__spinner" />
+          <p>Đang kiểm tra quyền truy cập...</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="dash-root">
-      {isAdmin ? <AdminPanel language="vi" /> : null}
+    <div className="admin-page-shell">
+      <header className="page-shell-header">
+        <div className="page-shell-header__inner">
+          <Link to="/" className="page-shell-header__brand">hiennt.website</Link>
+          <nav style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+            <Link to="/cv" className="page-shell-header__back">Xem CV</Link>
+            <Link to="/" className="page-shell-header__back">← Trang chủ</Link>
+          </nav>
+        </div>
+      </header>
+
+      <main style={{ flex: 1 }}>
+        {isAdmin ? <AdminPanel language="vi" /> : null}
+      </main>
+
+      <footer className="page-shell-footer">
+        <div className="page-shell-footer__inner">
+          <span>© {new Date().getFullYear()} hiennt.website — Admin Dashboard</span>
+          <Link to="/" className="page-shell-footer__link">← Về trang chủ</Link>
+        </div>
+      </footer>
     </div>
   );
 }

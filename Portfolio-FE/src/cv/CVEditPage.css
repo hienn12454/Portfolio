@@ -2,7 +2,7 @@
    CV EDITOR — Modern 3D Dark Glass Design
    ===================================================== */
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap');
 
 /* ── Variables ── */
 :root {
@@ -29,14 +29,14 @@
     radial-gradient(ellipse at 90% 80%, rgba(168,85,247,0.1) 0%, transparent 45%);
   background-attachment: fixed;
   color: var(--cve-text);
-  font-family: 'Inter', system-ui, sans-serif;
+  font-family: "Times New Roman", Georgia, Times, serif;
   display: flex;
   flex-direction: column;
 }
 
 /* ── Sticky Header ── */
 .cve-header {
-  background: rgba(10,10,20,0.85);
+  background: rgba(10,10,20,0.88);
   backdrop-filter: blur(20px) saturate(1.4);
   -webkit-backdrop-filter: blur(20px) saturate(1.4);
   border-bottom: 1px solid var(--cve-border);
@@ -45,10 +45,30 @@
   z-index: 80;
 }
 
+.cve-header__toprow {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 0.45rem 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.cve-back-link {
+  font-size: 0.80rem;
+  color: rgba(255,255,255,0.45);
+  text-decoration: none;
+  font-family: "Space Grotesk", Georgia, serif;
+  letter-spacing: 0.02em;
+  transition: color 0.15s;
+}
+.cve-back-link:hover { color: rgba(255,255,255,0.80); }
+
 .cve-header__content {
   max-width: 1240px;
   margin: 0 auto;
-  padding: 0.9rem 1.5rem;
+  padding: 0.8rem 1.5rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -272,7 +292,7 @@
   color: var(--cve-text);
   background: rgba(255,255,255,0.05);
   transition: border-color 0.18s, box-shadow 0.18s, background 0.18s;
-  font-family: 'Inter', sans-serif;
+  font-family: "Space Grotesk", Georgia, serif;
   outline: none;
 }
 .cve-input::placeholder,
@@ -428,7 +448,7 @@
   width: 100%;
   text-align: center;
   margin-top: 0.25rem;
-  font-family: 'Inter', sans-serif;
+  font-family: "Space Grotesk", Georgia, serif;
 }
 .cve-add-btn:hover {
   border-color: var(--cve-accent);
@@ -446,7 +466,7 @@
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
-  font-family: 'Inter', sans-serif;
+  font-family: "Space Grotesk", Georgia, serif;
 }
 .cve-add-section-btn:hover {
   background: rgba(99,102,241,0.15);
@@ -466,7 +486,7 @@
   border: none;
   cursor: pointer;
   text-decoration: none;
-  font-family: 'Inter', sans-serif;
+  font-family: "Space Grotesk", Georgia, serif;
   letter-spacing: 0.01em;
   transition: all 0.18s cubic-bezier(0.34,1.56,0.64,1);
   white-space: nowrap;
@@ -543,3 +563,31 @@
   .cve-skill-item { grid-template-columns: 1fr auto auto; }
   .cve-range { width: 65px; }
 }
+
+/* ── Footer ── */
+.cve-footer {
+  border-top: 1px solid var(--cve-border, rgba(255,255,255,0.08));
+  background: rgba(10,10,20,0.65);
+  padding: 1rem 1.5rem;
+  margin-top: 2rem;
+}
+
+.cve-footer__inner {
+  max-width: 1240px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  font-size: 0.82rem;
+  color: rgba(255,255,255,0.35);
+}
+
+.cve-footer__link {
+  color: rgba(255,255,255,0.45);
+  text-decoration: none;
+  font-family: "Space Grotesk", Georgia, serif;
+  transition: color 0.15s;
+}
+.cve-footer__link:hover { color: rgba(255,255,255,0.80); }

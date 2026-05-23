@@ -143,10 +143,13 @@ export function CVPage() {
       {/* ── Topbar ── */}
       <nav className="cv-topbar">
         <div className="cv-topbar__content">
-          <Link to="/" className="cv-topbar__logo">← hiennt.website</Link>
+          <div className="cv-topbar__left">
+            <Link to="/" className="cv-topbar__brand">◆ hiennt.website</Link>
+            <Link to="/" className="cv-topbar__back">← Trang chủ</Link>
+          </div>
           <div className="cv-topbar__actions">
             <button
-              className="cv-btn cv-btn--primary"
+              className="cv-btn cv-btn--outline"
               onClick={() => window.print()}
               title="In CV"
             >
@@ -170,7 +173,7 @@ export function CVPage() {
                 {(cv.fullName || "H").charAt(0).toUpperCase()}
               </div>
             )}
-            <h1 className="cv-name-display">{cv.fullName || "Nguyễn Trung Hiên"}</h1>
+            <h1 className="cv-name-display">{cv.fullName || ""}</h1>
             {cv.jobTitle && <div className="cv-title-display">{cv.jobTitle}</div>}
           </div>
 
