@@ -3844,40 +3844,36 @@ html[data-theme="dark"] .site {
     radial-gradient(circle at 38% 36%, #0e1c19 0%, #060e0b 52%, #020806 100%);
 }
 
-/* Diagonal slit pattern overlay */
+/* Animated slash cuts — dark theme layer 1 */
 html[data-theme="dark"] .site::before {
   display: block;
-  inset: -30%;
+  inset: -60%;
   opacity: 1;
   background-image:
     repeating-linear-gradient(
-      -32deg,
-      transparent 0px,
-      transparent 58px,
-      rgba(255, 255, 255, 0.032) 58px,
-      rgba(255, 255, 255, 0.032) 60px
-    ),
-    repeating-linear-gradient(
-      58deg,
-      transparent 0px,
-      transparent 80px,
-      rgba(255, 255, 255, 0.018) 80px,
-      rgba(255, 255, 255, 0.018) 82px
+      -43deg,
+      transparent 0px, transparent 76px,
+      rgba(0, 0, 0, 0.28) 76px, rgba(0, 0, 0, 0.28) 80px,
+      transparent 80px, transparent 156px,
+      rgba(0, 0, 0, 0.14) 156px, rgba(0, 0, 0, 0.14) 159px
     );
-  animation: slit-drift 28s ease-in-out infinite;
+  animation: slashCutDrift1 15s ease-in-out infinite alternate;
 }
 
-/* Aurora color blobs — dark */
+/* Animated slash cuts — dark theme layer 2 */
 html[data-theme="dark"] .site::after {
   display: block;
-  inset: -25%;
+  inset: -60%;
   opacity: 1;
-  background:
-    radial-gradient(ellipse 50% 38% at 14% 16%, rgba(34, 197, 94, 0.22), transparent 60%),
-    radial-gradient(ellipse 42% 32% at 84% 12%, rgba(20, 184, 166, 0.18), transparent 55%),
-    radial-gradient(ellipse 36% 28% at 10% 88%, rgba(245, 158, 11, 0.13), transparent 50%),
-    radial-gradient(ellipse 44% 34% at 80% 86%, rgba(59, 130, 246, 0.11), transparent 52%);
-  animation: glass-aurora 18s ease-in-out infinite;
+  background-image:
+    repeating-linear-gradient(
+      -53deg,
+      transparent 0px, transparent 100px,
+      rgba(0, 0, 0, 0.18) 100px, rgba(0, 0, 0, 0.18) 104px,
+      transparent 104px, transparent 195px,
+      rgba(139, 92, 246, 0.10) 195px, rgba(139, 92, 246, 0.10) 198px
+    );
+  animation: slashCutDrift2 22s ease-in-out infinite alternate-reverse;
 }
 
 /* Floating orbs — dark */
@@ -3962,41 +3958,38 @@ html[data-theme="light"] .site {
     linear-gradient(155deg, #edfdf4 0%, #d1fae5 30%, #ccfbf1 60%, #eff6ff 90%, #f0fdf4 100%);
 }
 
-/* Diagonal slit pattern — light (visible at 0.07) */
+/* Animated slash cuts — light theme layer 1 (black bands) */
 html[data-theme="light"] .site::before {
   display: block;
-  inset: -30%;
+  inset: -60%;
   opacity: 1;
   background-image:
     repeating-linear-gradient(
-      -32deg,
-      transparent 0px,
-      transparent 58px,
-      rgba(16, 185, 129, 0.065) 58px,
-      rgba(16, 185, 129, 0.065) 60px
-    ),
-    repeating-linear-gradient(
-      58deg,
-      transparent 0px,
-      transparent 80px,
-      rgba(20, 184, 166, 0.040) 80px,
-      rgba(20, 184, 166, 0.040) 82px
+      -43deg,
+      transparent 0px, transparent 76px,
+      rgba(0, 0, 0, 0.22) 76px, rgba(0, 0, 0, 0.22) 80px,
+      transparent 80px, transparent 156px,
+      rgba(0, 0, 0, 0.11) 156px, rgba(0, 0, 0, 0.11) 159px
     );
-  animation: slit-drift 26s ease-in-out infinite;
+  animation: slashCutDrift1 15s ease-in-out infinite alternate;
   mask-image: none;
   -webkit-mask-image: none;
 }
 
+/* Animated slash cuts — light theme layer 2 (green bands) */
 html[data-theme="light"] .site::after {
   display: block;
-  inset: -25%;
+  inset: -60%;
   opacity: 1;
-  background:
-    radial-gradient(ellipse 52% 40% at 14% 16%, rgba(22, 163, 74, 0.35), transparent 58%),
-    radial-gradient(ellipse 44% 34% at 84% 10%, rgba(13, 148, 136, 0.30), transparent 53%),
-    radial-gradient(ellipse 38% 30% at 8% 90%, rgba(234, 179, 8, 0.22), transparent 48%),
-    radial-gradient(ellipse 46% 36% at 82% 88%, rgba(59, 130, 246, 0.22), transparent 50%);
-  animation: glass-aurora 16s ease-in-out infinite;
+  background-image:
+    repeating-linear-gradient(
+      -53deg,
+      transparent 0px, transparent 100px,
+      rgba(4, 120, 87, 0.32) 100px, rgba(4, 120, 87, 0.32) 105px,
+      transparent 105px, transparent 198px,
+      rgba(4, 120, 87, 0.18) 198px, rgba(4, 120, 87, 0.18) 202px
+    );
+  animation: slashCutDrift2 22s ease-in-out infinite alternate-reverse;
 }
 
 html[data-theme="light"] .galaxy-layer {
@@ -4722,41 +4715,6 @@ html[data-theme="light"] .card:hover {
   }
 }
 
-/* Shard cut overlays — placed on the site background */
-.site::before {
-  /* Inherits existing slit pattern + add shard cuts via multiple bg */
-  background-image:
-    /* Existing slit pattern (inherited from theme) */
-    repeating-linear-gradient(
-      -32deg,
-      transparent 0px, transparent 58px,
-      rgba(255,255,255,0.028) 58px, rgba(255,255,255,0.028) 60px
-    ),
-    repeating-linear-gradient(
-      58deg,
-      transparent 0px, transparent 80px,
-      rgba(255,255,255,0.018) 80px, rgba(255,255,255,0.018) 82px
-    ),
-    /* Random diagonal slash cuts */
-    linear-gradient(
-      127deg,
-      transparent 0%, transparent 34%,
-      rgba(34,197,94,0.025) 34%, rgba(34,197,94,0.025) 34.6%,
-      transparent 34.6%
-    ),
-    linear-gradient(
-      -48deg,
-      transparent 0%, transparent 58%,
-      rgba(20,184,166,0.020) 58%, rgba(20,184,166,0.020) 58.5%,
-      transparent 58.5%
-    ),
-    linear-gradient(
-      75deg,
-      transparent 0%, transparent 71%,
-      rgba(34,197,94,0.018) 71%, rgba(34,197,94,0.018) 71.4%,
-      transparent 71.4%
-    );
-}
 
 /* ---- 3D card perspective hover tilt ---- */
 .card {
