@@ -597,7 +597,17 @@ export function HomePage() {
   const { page, contact, articles, skills: apiSkills, projects: apiProjects } = usePublicPortfolioData();
   const apiClient = useMemo(() => createApiClient(getToken), [getToken]);
   const displayEmail = contact?.email || "your-email@example.com";
-  const [language, setLanguage] = useState("en");
+  // Read language synchronously so the first render uses the right locale.
+  // Without this, the effect reads "en", starts typing, then discovers "vi"
+  // in localStorage (async useEffect) → resets mid-animation.
+  const [language, setLanguage] = useState(() => {
+    try {
+      const saved = localStorage.getItem("portfolio-language");
+      return saved === "vi" ? "vi" : "en";
+    } catch {
+      return "en";
+    }
+  });
   const [projectCategory, setProjectCategory] = useState("all");
   const [projectView, setProjectView] = useState("detailed");
   const [theme, setTheme] = useState("dark");
@@ -796,14 +806,11 @@ export function HomePage() {
   }, [notesPeeked, workspaceTab]);
 
   useEffect(() => {
-    const savedLanguage = localStorage.getItem("portfolio-language");
+    // language is already loaded synchronously in useState initializer above
     const savedCategory = localStorage.getItem("portfolio-project-category");
     const savedView = localStorage.getItem("portfolio-project-view");
     const savedTheme = localStorage.getItem("portfolio-theme");
 
-    if (savedLanguage === "en" || savedLanguage === "vi") {
-      setLanguage(savedLanguage);
-    }
     if (savedCategory) {
       setProjectCategory(savedCategory);
     }

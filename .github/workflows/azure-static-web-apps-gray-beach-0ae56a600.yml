@@ -10,8 +10,37 @@ on:
       - main
 
 jobs:
+  test_frontend_job:
+    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
+    runs-on: ubuntu-latest
+    name: Test Frontend Job
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: Portfolio-FE/package-lock.json
+
+      - name: Install frontend dependencies
+        working-directory: Portfolio-FE
+        run: npm ci
+
+      - name: Build frontend (verify no compile errors)
+        working-directory: Portfolio-FE
+        env:
+          VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL }}
+          VITE_CLERK_PUBLISHABLE_KEY: ${{ secrets.VITE_CLERK_PUBLISHABLE_KEY }}
+          VITE_CLERK_JWT_TEMPLATE: ${{ secrets.VITE_CLERK_JWT_TEMPLATE }}
+          VITE_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL: ${{ secrets.VITE_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL }}
+          VITE_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL: ${{ secrets.VITE_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL }}
+        run: npm run build
+
   build_and_deploy_job:
     if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
+    needs: test_frontend_job
     runs-on: ubuntu-latest
     environment: production
     name: Build and Deploy Job
@@ -74,8 +103,33 @@ jobs:
             -H "Content-Type: application/json" \
             --data "{\"text\":\"Frontend deployed from ${GITHUB_REPOSITORY}@${GITHUB_SHA}\",\"tags\":[\"deployment\",\"frontend\",\"github-actions\",\"portfolio\"]}"
 
+  test_backend_job:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    name: Test Backend Job
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Restore backend dependencies
+        working-directory: Portfolio-BE
+        run: dotnet restore
+
+      - name: Build backend
+        working-directory: Portfolio-BE
+        run: dotnet build --no-restore -c Release
+
+      - name: Run backend tests
+        working-directory: Portfolio-BE
+        run: dotnet test "tests/Portfolio.Api.Tests/Portfolio.Api.Tests.csproj" --no-build -c Release --verbosity normal
+
   deploy_backend_job:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: test_backend_job
     runs-on: ubuntu-latest
     environment: production
     name: Deploy Backend API Job

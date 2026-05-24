@@ -3,6 +3,20 @@ import { useAuth } from "@clerk/react";
 import { createApiClient } from "../core/http/apiClient";
 
 const EMPTY_GUID = "00000000-0000-0000-0000-000000000000";
+
+// Convert raw API paths to readable labels for the analytics panel
+function getPathLabel(path) {
+  const map = {
+    "/": "🏠 Homepage",
+    "/cv": "📄 CV Page",
+    "/cv/edit": "✏️ CV Editor",
+    "/admin": "⚙️ Admin Dashboard",
+    "/auth": "🔐 Login Page",
+    "/profile": "👤 Profile",
+    "/projects": "📁 Projects",
+  };
+  return map[path] ?? path;
+}
 const EMPTY_CONTACT = { id: EMPTY_GUID, email: "", phone: "", location: "", githubUrl: "", linkedInUrl: "" };
 const EMPTY_PAGE = {
   id: EMPTY_GUID,
@@ -128,20 +142,25 @@ function AdminLineChart({ apiClient, language }) {
     label: Math.round(maxVal * f),
   }));
 
-  // X-axis ticks: max ~8 ticks regardless of range
+  // X-axis ticks — pixel-aware: never place two labels closer than minPx
   const xLabels = (() => {
     if (n === 0) return [];
-    const maxTicks = range === "7d" ? 7 : 8;
-    const step = Math.max(1, Math.ceil(n / maxTicks));
+    const minPx = 52; // minimum pixel gap between adjacent labels (≈ "30/12" width + margin)
+    const maxFit = Math.max(2, Math.floor(cw / minPx)); // how many labels actually fit
+    // 7d: show every single day; longer ranges: cap at 7 ticks to stay readable
+    const targetTicks = range === "7d" ? n : Math.min(maxFit, 7);
+    const step = Math.max(1, Math.ceil(n / targetTicks));
     const indices = [];
     for (let i = 0; i < n; i += step) indices.push(i);
-    if (indices[indices.length - 1] !== n - 1) indices.push(n - 1);
-    return indices.map((i) => {
+    // Append last data point only when it won't crowd the previous label
+    const lastIdx = n - 1;
+    if (indices[indices.length - 1] !== lastIdx) {
+      const gap = xs(lastIdx) - xs(indices[indices.length - 1]);
+      if (gap >= minPx * 0.75) indices.push(lastIdx);
+    }
+    return indices.map((i, idx) => {
       const d = new Date(chartData[i].date + "T00:00:00");
-      const label = range === "3m"
-        ? `${d.getDate()}/${d.getMonth() + 1}`
-        : `${d.getDate()}/${d.getMonth() + 1}`;
-      return { x: xs(i), label };
+      return { x: xs(i), label: `${d.getDate()}/${d.getMonth() + 1}`, key: idx };
     });
   })();
 
@@ -249,9 +268,12 @@ function AdminLineChart({ apiClient, language }) {
             </g>
           ))}
 
-          {/* ── X labels ── */}
+          {/* ── X labels + tick marks ── */}
           {xLabels.map((t) => (
-            <text key={t.label + t.x} x={t.x} y={H - 8} textAnchor="middle" fontSize="11" style={tickStyle}>{t.label}</text>
+            <g key={t.key}>
+              <line x1={t.x} y1={PAD.top + ch} x2={t.x} y2={PAD.top + ch + 4} stroke="var(--surface-border)" strokeWidth="1" />
+              <text x={t.x} y={H - 6} textAnchor="middle" fontSize="11" style={tickStyle}>{t.label}</text>
+            </g>
           ))}
 
           {/* ── Area fills ── */}
@@ -521,7 +543,7 @@ export function AdminPanel({ language = "en" }) {
     setSaveState("");
     setError("");
     try {
-      if (draftArticle.id) {
+      if (draftArticle.id && draftArticle.id !== EMPTY_GUID) {
         const updated = await apiClient.putProtected(`/api/articles/${draftArticle.id}`, draftArticle);
         setArticles((current) => current.map((item) => (item.id === updated.id ? updated : item)));
       } else {
@@ -551,7 +573,7 @@ export function AdminPanel({ language = "en" }) {
     setSaveState("");
     setError("");
     try {
-      if (draftSkill.id) {
+      if (draftSkill.id && draftSkill.id !== EMPTY_GUID) {
         const updated = await apiClient.putProtected(`/api/skills/${draftSkill.id}`, draftSkill);
         setSkills((current) => current.map((item) => (item.id === updated.id ? updated : item)));
       } else {
@@ -581,7 +603,7 @@ export function AdminPanel({ language = "en" }) {
     setSaveState("");
     setError("");
     try {
-      if (draftProject.id) {
+      if (draftProject.id && draftProject.id !== EMPTY_GUID) {
         const updated = await apiClient.putProtected(`/api/projects/${draftProject.id}`, draftProject);
         setProjects((current) => current.map((item) => (item.id === updated.id ? updated : item)));
       } else {
@@ -696,7 +718,7 @@ export function AdminPanel({ language = "en" }) {
                 const pct = Math.round((p.count / max) * 100);
                 return (
                   <div key={i} className="adm-bar-row">
-                    <span className="adm-bar-row__label" title={p.path}>{p.path}</span>
+                    <span className="adm-bar-row__label" title={p.path}>{getPathLabel(p.path)}</span>
                     <div className="adm-bar-row__track">
                       <div className="adm-bar-row__fill" style={{ width: `${pct}%` }} />
                     </div>
@@ -735,6 +757,11 @@ export function AdminPanel({ language = "en" }) {
     return (
       <article className="contact-form">
         <h3>{labels.aboutTitle}</h3>
+        <p style={{ marginBottom: "1rem", padding: "0.75rem 1rem", background: "color-mix(in oklab, var(--accent) 8%, var(--bg))", borderLeft: "3px solid var(--accent)", borderRadius: "0 6px 6px 0", fontSize: "0.84rem", color: "var(--text-muted)" }}>
+          💡 {language === "vi"
+            ? "Hero title và Hero description là đoạn intro \"Hello, I am an IT developer...\" hiển thị trên trang chủ với hiệu ứng gõ chữ. Tốc độ gõ (ms/ký tự) kiểm soát độ nhanh chậm."
+            : "Hero title & description are the typed intro shown on the homepage. Typing speed (ms/char) controls how fast the text appears."}
+        </p>
         <form>
           <label>
             Hero title
