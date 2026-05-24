@@ -88,7 +88,7 @@ body {
   padding: 0.35rem;
   display: grid;
   gap: 0.2rem;
-  z-index: 9999;
+  z-index: 200;
   transform-origin: top right;
   animation: userMenuReveal 180ms ease-out;
 }
@@ -2240,164 +2240,17 @@ html[data-theme="light"] .hero::after {
   transition: background-color 0.16s ease, border-color 0.16s ease, color 0.16s ease, box-shadow 0.18s ease;
 }
 
-/* ===================================================================
-   ANIMATED SITE BACKGROUND — CANONICAL SYSTEM
-   Single source of truth. Do NOT add .site background rules elsewhere.
-   =================================================================== */
-
+/* ── Site layout ── */
 .site {
   position: relative;
-  overflow: clip;
-  isolation: isolate;
 }
 
-.site::before,
-.site::after {
-  content: "";
-  position: fixed;
-  inset: -70%;
-  z-index: -1;
-  pointer-events: none;
-  will-change: transform;
-}
-
-/* ── 3D depth animations — rotate + translate + scale ── */
-@keyframes slashDriftA {
-  0%   { transform: translateX(-18%) translateY(-10%) rotate(-2.5deg) scale(1.04); }
-  18%  { transform: translateX(5%)   translateY(6%)  rotate(1.2deg)  scale(1.01); }
-  40%  { transform: translateX(-9%)  translateY(13%) rotate(-1.0deg) scale(1.05); }
-  65%  { transform: translateX(16%)  translateY(3%)  rotate(2.0deg)  scale(1.02); }
-  85%  { transform: translateX(-4%)  translateY(-7%) rotate(-0.5deg) scale(1.03); }
-  100% { transform: translateX(22%)  translateY(-5%) rotate(-1.8deg) scale(1.01); }
-}
-
-@keyframes slashDriftB {
-  0%   { transform: translateX(20%)  translateY(9%)  rotate(2.8deg)  scale(1.02); }
-  22%  { transform: translateX(-14%) translateY(-6%) rotate(-1.5deg) scale(1.05); }
-  48%  { transform: translateX(8%)   translateY(-14%)rotate(0.8deg)  scale(1.01); }
-  72%  { transform: translateX(-10%) translateY(7%)  rotate(-2.2deg) scale(1.04); }
-  90%  { transform: translateX(6%)   translateY(-3%) rotate(1.6deg)  scale(1.02); }
-  100% { transform: translateX(-22%) translateY(5%)  rotate(0.4deg)  scale(1.03); }
-}
-
-/* ── DARK THEME ── */
-html[data-theme="dark"] .site {
-  background:
-    radial-gradient(ellipse 70% 55% at 2% 0%,    rgba(34, 197, 94, 0.24),   transparent 52%),
-    radial-gradient(ellipse 55% 48% at 98% 5%,   rgba(20, 184, 166, 0.18),  transparent 48%),
-    radial-gradient(ellipse 62% 52% at 48% 110%, rgba(245, 158, 11, 0.14),  transparent 55%),
-    radial-gradient(ellipse 40% 35% at 88% 95%,  rgba(59, 130, 246, 0.10),  transparent 48%),
-    radial-gradient(circle at 36% 34%, #0f2018 0%, #070e0b 48%, #030807 100%);
-}
-
-/* Layer 1 dark: dense cuts at -42° + softer cross-cuts at -24° */
-html[data-theme="dark"] .site::before {
-  background-image:
-    repeating-linear-gradient(
-      -42deg,
-      transparent 0px,           transparent 84px,
-      rgba(0, 0, 0, 0.32) 84px,  rgba(0, 0, 0, 0.32) 90px,
-      transparent 90px,           transparent 172px,
-      rgba(0, 0, 0, 0.18) 172px,  rgba(0, 0, 0, 0.18) 176px
-    ),
-    repeating-linear-gradient(
-      -22deg,
-      transparent 0px,           transparent 130px,
-      rgba(0, 0, 0, 0.10) 130px,  rgba(0, 0, 0, 0.10) 134px
-    );
-  animation: slashDriftA 17s ease-in-out infinite alternate;
-}
-
-/* Layer 2 dark: cuts at -64° + faint purple at -10° — crosses layer 1 */
-html[data-theme="dark"] .site::after {
-  background-image:
-    repeating-linear-gradient(
-      -64deg,
-      transparent 0px,              transparent 110px,
-      rgba(0, 0, 0, 0.22) 110px,    rgba(0, 0, 0, 0.22) 116px,
-      transparent 116px,             transparent 220px,
-      rgba(0, 0, 0, 0.12) 220px,    rgba(0, 0, 0, 0.12) 224px
-    ),
-    repeating-linear-gradient(
-      -10deg,
-      transparent 0px,               transparent 150px,
-      rgba(139, 92, 246, 0.09) 150px, rgba(139, 92, 246, 0.09) 154px
-    );
-  animation: slashDriftB 27s ease-in-out infinite alternate-reverse;
-}
-
-/* ── LIGHT THEME ── */
-html[data-theme="light"] .site {
-  background:
-    /* Ultra-soft colour blooms — keep well below 0.14 so the white base dominates */
-    radial-gradient(ellipse 90%  60% at 12%   0%,  rgba(16, 185, 129, 0.10), transparent 55%),
-    radial-gradient(ellipse 70%  50% at 92%  10%,  rgba(6, 182, 212,  0.07), transparent 50%),
-    radial-gradient(ellipse 60%  48% at 5%   78%,  rgba(20, 184, 166, 0.08), transparent 48%),
-    radial-gradient(ellipse 50%  40% at 86%  88%,  rgba(99, 102, 241, 0.05), transparent 46%),
-    radial-gradient(ellipse 38%  32% at 50%  52%,  rgba(16, 185, 129, 0.05), transparent 55%),
-    /* Clean white-to-frost base — no colour saturation */
-    linear-gradient(168deg, #ffffff 0%, #f8fdfb 28%, #f4fdf9 55%, #f5fafd 80%, #f9fbff 100%);
-}
-
-/* Layer 1 light: whisper-thin warm-slate cuts at -42° + barely-there at -22° */
-html[data-theme="light"] .site::before {
-  background-image:
-    repeating-linear-gradient(
-      -42deg,
-      transparent 0px,                       transparent 84px,
-      rgba(71, 85, 105, 0.09) 84px,          rgba(71, 85, 105, 0.09) 89px,
-      transparent 89px,                       transparent 172px,
-      rgba(71, 85, 105, 0.04) 172px,          rgba(71, 85, 105, 0.04) 175px
-    ),
-    repeating-linear-gradient(
-      -22deg,
-      transparent 0px,                       transparent 130px,
-      rgba(71, 85, 105, 0.03) 130px,          rgba(71, 85, 105, 0.03) 133px
-    );
-  animation: slashDriftA 17s ease-in-out infinite alternate;
-}
-
-/* Layer 2 light: mint-tinted cuts at -64° + cyan shimmer at -10° — crosses layer 1 */
-html[data-theme="light"] .site::after {
-  background-image:
-    repeating-linear-gradient(
-      -64deg,
-      transparent 0px,                        transparent 110px,
-      rgba(16, 185, 129, 0.11) 110px,         rgba(16, 185, 129, 0.11) 115px,
-      transparent 115px,                       transparent 220px,
-      rgba(16, 185, 129, 0.05) 220px,         rgba(16, 185, 129, 0.05) 223px
-    ),
-    repeating-linear-gradient(
-      -10deg,
-      transparent 0px,                        transparent 150px,
-      rgba(6, 182, 212, 0.06) 150px,          rgba(6, 182, 212, 0.06) 153px
-    );
-  animation: slashDriftB 27s ease-in-out infinite alternate-reverse;
-}
-
-/* Hide old DOM-based bg layers */
+/* Hide legacy DOM-based bg layers */
 .galaxy-layer,
 .shard-layer,
 .cursor-glow,
 .glitch-grid {
   display: none !important;
-}
-
-.site > * {
-  position: relative;
-  z-index: 1;
-}
-
-/* Topbar must sit above all site content — override .site > * (same specificity, so must come after) */
-.topbar {
-  z-index: 100;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .site::before,
-  .site::after {
-    animation: none;
-  }
 }
 
 
