@@ -222,7 +222,7 @@ html[data-theme="light"] .nav-cv-link:hover {
 }
 
 .hero {
-  padding: clamp(3.4rem, 7vw, 6rem) 0 clamp(2.4rem, 5vw, 4rem);
+  padding: clamp(2.4rem, 5vw, 4rem) 0 clamp(1.6rem, 3vw, 2.8rem);
 }
 
 .eyebrow {
@@ -242,7 +242,7 @@ html[data-theme="light"] .nav-cv-link:hover {
 }
 
 .hero__typing {
-  min-height: 3.8em;
+  min-height: 1.3em;
 }
 
 .hero__cursor {
@@ -2534,7 +2534,7 @@ html[data-theme="light"] .vault-canvas--deck {
 
 .vault-slide-deck {
   position: relative;
-  min-height: min(72vh, 920px);
+  min-height: 360px;
 }
 
 @keyframes tab-enter {
