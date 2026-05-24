@@ -363,7 +363,7 @@ export function CVEditPage() {
   function addAward() { setAwards((a) => [...a, { id: newId(), title: "" }]); }
 
   return (
-    <div className="cve-root">
+    <div className="cve-root site">
       {/* Header */}
       <div className="cve-header">
         <div className="cve-header__toprow">

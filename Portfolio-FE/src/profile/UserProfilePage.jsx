@@ -47,14 +47,12 @@ export function UserProfilePage() {
   const [message, setMessage] = useState("");
   const [profile, setProfile] = useState(EMPTY_PROFILE);
   const [isAdminUser, setIsAdminUser] = useState(false);
-  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [uploadingCover, setUploadingCover] = useState(false);
   const [cvAnalyzing, setCvAnalyzing] = useState(false);
   const [adminTargetUserId, setAdminTargetUserId] = useState("");
   const [adminCvAnalyzing, setAdminCvAnalyzing] = useState(false);
   const [lastCvInsights, setLastCvInsights] = useState(null);
-  const userMenuRef = useRef(null);
   const avatarInputRef = useRef(null);
   const coverInputRef = useRef(null);
   const cvInputRef = useRef(null);
@@ -104,31 +102,6 @@ export function UserProfilePage() {
 
     loadProfile();
   }, [apiClient, isSignedIn]);
-
-  useEffect(() => {
-    if (!isUserMenuOpen) {
-      return undefined;
-    }
-
-    function handleOutsideClick(event) {
-      if (userMenuRef.current && !userMenuRef.current.contains(event.target)) {
-        setIsUserMenuOpen(false);
-      }
-    }
-
-    function handleEscape(event) {
-      if (event.key === "Escape") {
-        setIsUserMenuOpen(false);
-      }
-    }
-
-    document.addEventListener("mousedown", handleOutsideClick);
-    document.addEventListener("keydown", handleEscape);
-    return () => {
-      document.removeEventListener("mousedown", handleOutsideClick);
-      document.removeEventListener("keydown", handleEscape);
-    };
-  }, [isUserMenuOpen]);
 
   async function handleSubmit(event) {
     event.preventDefault();
@@ -304,53 +277,23 @@ export function UserProfilePage() {
 
   return (
     <main className="site">
-      <header className="topbar">
-        <div className="container topbar__content">
-          <Link to="/" className="brand" aria-label="Go to homepage">
-            Portfolio
-          </Link>
-          <div className="topbar__actions">
-            <nav className="nav">
-              <Link to="/">Home</Link>
-              <Link to="/profile">Profile</Link>
-            </nav>
-            {isSignedIn ? (
-              <div className="user-menu" ref={userMenuRef}>
-                <button
-                  type="button"
-                  className="button button--ghost button--small user-menu__trigger"
-                  onClick={() => setIsUserMenuOpen((current) => !current)}
-                  aria-haspopup="menu"
-                  aria-expanded={isUserMenuOpen}
-                >
-                  Profile
-                </button>
-                {isUserMenuOpen ? (
-                  <div className="user-menu__dropdown" role="menu">
-                    {isAdminUser ? (
-                      <Link to="/admin" role="menuitem" onClick={() => setIsUserMenuOpen(false)}>
-                        Dashboard
-                      </Link>
-                    ) : null}
-                    <Link to="/profile" role="menuitem" onClick={() => setIsUserMenuOpen(false)}>
-                      Hồ sơ
-                    </Link>
-                    <button
-                      type="button"
-                      className="user-menu__signout"
-                      role="menuitem"
-                      onClick={async () => {
-                        setIsUserMenuOpen(false);
-                        await signOut({ redirectUrl: "/" });
-                      }}
-                    >
-                      Đăng xuất
-                    </button>
-                  </div>
-                ) : null}
-              </div>
-            ) : null}
-          </div>
+      <header className="page-shell-header">
+        <div className="page-shell-header__inner">
+          <Link to="/" className="page-shell-header__brand">hiennt.website</Link>
+          <nav style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+            {isAdminUser && (
+              <Link to="/admin" className="page-shell-header__back">Admin</Link>
+            )}
+            {isSignedIn && (
+              <button
+                type="button"
+                className="button button--ghost button--small"
+                onClick={async () => { await signOut({ redirectUrl: "/" }); }}
+              >
+                Đăng xuất
+              </button>
+            )}
+          </nav>
         </div>
       </header>
 
@@ -538,6 +481,12 @@ export function UserProfilePage() {
           </article>
         ) : null}
       </section>
+
+      <footer className="page-shell-footer">
+        <div className="page-shell-footer__inner">
+          <span>© {new Date().getFullYear()} hiennt.website — Hồ sơ cá nhân</span>
+        </div>
+      </footer>
     </main>
   );
 }

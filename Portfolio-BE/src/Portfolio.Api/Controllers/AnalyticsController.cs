@@ -116,6 +116,59 @@ public sealed class AnalyticsController(IApplicationDbContext dbContext) : Contr
     }
 
     [Authorize(Policy = "AdminOnly")]
+    [HttpGet("chart-data")]
+    public async Task<IActionResult> GetChartData(
+        [FromQuery] DateOnly startDate,
+        [FromQuery] DateOnly endDate,
+        CancellationToken cancellationToken = default)
+    {
+        var rangeSpan = endDate.DayNumber - startDate.DayNumber;
+        if (rangeSpan < 0 || rangeSpan > 366)
+            return BadRequest("Date range must be between 1 and 366 days.");
+
+        var startUtc = startDate.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc);
+        var endUtc = endDate.ToDateTime(TimeOnly.MaxValue, DateTimeKind.Utc);
+
+        var pageViewsByDay = await dbContext.PageViewLogs
+            .AsNoTracking()
+            .Where(p => p.ViewedAtUtc >= startUtc && p.ViewedAtUtc <= endUtc)
+            .GroupBy(p => p.ViewedAtUtc.Date)
+            .Select(g => new { Date = g.Key, Count = g.Count() })
+            .ToListAsync(cancellationToken);
+
+        var loginsByDay = await dbContext.UserLoginLogs
+            .AsNoTracking()
+            .Where(l => l.LoggedInAtUtc >= startUtc && l.LoggedInAtUtc <= endUtc)
+            .GroupBy(l => l.LoggedInAtUtc.Date)
+            .Select(g => new { Date = g.Key, Count = g.Count() })
+            .ToListAsync(cancellationToken);
+
+        var newUsersByDay = await dbContext.Users
+            .AsNoTracking()
+            .Where(u => u.CreatedAtUtc >= startUtc && u.CreatedAtUtc <= endUtc)
+            .GroupBy(u => u.CreatedAtUtc.Date)
+            .Select(g => new { Date = g.Key, Count = g.Count() })
+            .ToListAsync(cancellationToken);
+
+        var pvDict = pageViewsByDay.ToDictionary(x => DateOnly.FromDateTime(x.Date), x => x.Count);
+        var lgDict = loginsByDay.ToDictionary(x => DateOnly.FromDateTime(x.Date), x => x.Count);
+        var nuDict = newUsersByDay.ToDictionary(x => DateOnly.FromDateTime(x.Date), x => x.Count);
+
+        var result = Enumerable.Range(0, rangeSpan + 1)
+            .Select(i => startDate.AddDays(i))
+            .Select(d => new
+            {
+                Date = d.ToString("yyyy-MM-dd"),
+                PageViews = pvDict.TryGetValue(d, out var pv) ? pv : 0,
+                Logins = lgDict.TryGetValue(d, out var lg) ? lg : 0,
+                NewUsers = nuDict.TryGetValue(d, out var nu) ? nu : 0,
+            })
+            .ToList();
+
+        return Ok(result);
+    }
+
+    [Authorize(Policy = "AdminOnly")]
     [HttpGet("page-origins")]
     public async Task<IActionResult> GetPageOrigins(
         [FromQuery] int limit = 100,

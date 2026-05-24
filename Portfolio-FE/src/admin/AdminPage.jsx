@@ -40,7 +40,7 @@ export function AdminPage() {
 
   if (isChecking) {
     return (
-      <div className="admin-page-shell">
+      <div className="admin-page-shell site">
         <header className="page-shell-header">
           <div className="page-shell-header__inner">
             <Link to="/" className="page-shell-header__brand">hiennt.website</Link>
@@ -56,7 +56,7 @@ export function AdminPage() {
   }
 
   return (
-    <div className="admin-page-shell">
+    <div className="admin-page-shell site">
       <header className="page-shell-header">
         <div className="page-shell-header__inner">
           <Link to="/" className="page-shell-header__brand">hiennt.website</Link>
