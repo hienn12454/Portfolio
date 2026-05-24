@@ -88,7 +88,7 @@ body {
   padding: 0.35rem;
   display: grid;
   gap: 0.2rem;
-  z-index: 180;
+  z-index: 9999;
   transform-origin: top right;
   animation: userMenuReveal 180ms ease-out;
 }
@@ -1262,7 +1262,7 @@ body {
 .topbar {
   position: sticky;
   top: 0;
-  z-index: 20;
+  z-index: 100;
   margin: 0;
   width: 100%;
   border: none;
@@ -2329,46 +2329,48 @@ html[data-theme="dark"] .site::after {
 /* ── LIGHT THEME ── */
 html[data-theme="light"] .site {
   background:
-    radial-gradient(ellipse 115% 80% at 50% -20%, rgba(4, 120, 87, 0.50),  transparent 52%),
-    radial-gradient(ellipse 95%  58% at 0%   44%, rgba(5, 150, 105, 0.40), transparent 50%),
-    radial-gradient(ellipse 80%  62% at 100% 74%, rgba(6, 182, 212, 0.32), transparent 46%),
-    radial-gradient(ellipse 60%  42% at 30%  102%,rgba(4, 120, 87, 0.30),  transparent 44%),
-    radial-gradient(ellipse 45%  38% at 72%  54%, rgba(20, 184, 166, 0.20),transparent 52%),
-    linear-gradient(162deg, #9ddfc0 0%, #8dd8b8 22%, #85d4cc 52%, #9ecde6 82%, #abd8e8 100%);
+    /* Ultra-soft colour blooms — keep well below 0.14 so the white base dominates */
+    radial-gradient(ellipse 90%  60% at 12%   0%,  rgba(16, 185, 129, 0.10), transparent 55%),
+    radial-gradient(ellipse 70%  50% at 92%  10%,  rgba(6, 182, 212,  0.07), transparent 50%),
+    radial-gradient(ellipse 60%  48% at 5%   78%,  rgba(20, 184, 166, 0.08), transparent 48%),
+    radial-gradient(ellipse 50%  40% at 86%  88%,  rgba(99, 102, 241, 0.05), transparent 46%),
+    radial-gradient(ellipse 38%  32% at 50%  52%,  rgba(16, 185, 129, 0.05), transparent 55%),
+    /* Clean white-to-frost base — no colour saturation */
+    linear-gradient(168deg, #ffffff 0%, #f8fdfb 28%, #f4fdf9 55%, #f5fafd 80%, #f9fbff 100%);
 }
 
-/* Layer 1 light: black cuts at -42° + softer at -24° */
+/* Layer 1 light: whisper-thin warm-slate cuts at -42° + barely-there at -22° */
 html[data-theme="light"] .site::before {
   background-image:
     repeating-linear-gradient(
       -42deg,
-      transparent 0px,           transparent 84px,
-      rgba(0, 0, 0, 0.24) 84px,  rgba(0, 0, 0, 0.24) 90px,
-      transparent 90px,           transparent 172px,
-      rgba(0, 0, 0, 0.12) 172px,  rgba(0, 0, 0, 0.12) 176px
+      transparent 0px,                       transparent 84px,
+      rgba(71, 85, 105, 0.09) 84px,          rgba(71, 85, 105, 0.09) 89px,
+      transparent 89px,                       transparent 172px,
+      rgba(71, 85, 105, 0.04) 172px,          rgba(71, 85, 105, 0.04) 175px
     ),
     repeating-linear-gradient(
       -22deg,
-      transparent 0px,           transparent 130px,
-      rgba(0, 0, 0, 0.07) 130px,  rgba(0, 0, 0, 0.07) 134px
+      transparent 0px,                       transparent 130px,
+      rgba(71, 85, 105, 0.03) 130px,          rgba(71, 85, 105, 0.03) 133px
     );
   animation: slashDriftA 17s ease-in-out infinite alternate;
 }
 
-/* Layer 2 light: green cuts at -64° + lighter green at -10° — crosses black */
+/* Layer 2 light: mint-tinted cuts at -64° + cyan shimmer at -10° — crosses layer 1 */
 html[data-theme="light"] .site::after {
   background-image:
     repeating-linear-gradient(
       -64deg,
-      transparent 0px,              transparent 110px,
-      rgba(4, 120, 87, 0.36) 110px, rgba(4, 120, 87, 0.36) 116px,
-      transparent 116px,             transparent 220px,
-      rgba(4, 120, 87, 0.20) 220px, rgba(4, 120, 87, 0.20) 224px
+      transparent 0px,                        transparent 110px,
+      rgba(16, 185, 129, 0.11) 110px,         rgba(16, 185, 129, 0.11) 115px,
+      transparent 115px,                       transparent 220px,
+      rgba(16, 185, 129, 0.05) 220px,         rgba(16, 185, 129, 0.05) 223px
     ),
     repeating-linear-gradient(
       -10deg,
-      transparent 0px,              transparent 150px,
-      rgba(4, 120, 87, 0.13) 150px, rgba(4, 120, 87, 0.13) 154px
+      transparent 0px,                        transparent 150px,
+      rgba(6, 182, 212, 0.06) 150px,          rgba(6, 182, 212, 0.06) 153px
     );
   animation: slashDriftB 27s ease-in-out infinite alternate-reverse;
 }
@@ -2384,6 +2386,11 @@ html[data-theme="light"] .site::after {
 .site > * {
   position: relative;
   z-index: 1;
+}
+
+/* Topbar must sit above all site content — override .site > * (same specificity, so must come after) */
+.topbar {
+  z-index: 100;
 }
 
 @media (prefers-reduced-motion: reduce) {
