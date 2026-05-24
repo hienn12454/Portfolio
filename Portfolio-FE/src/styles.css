@@ -2104,9 +2104,6 @@ html[data-theme="light"] .hero::after {
 }
 
 /* ===== Final footer + back-to-top cleanup ===== */
-.footer {
-  overflow: visible;
-}
 
 .footer__inner > :first-child {
   flex: 1 1 420px;
@@ -2191,6 +2188,9 @@ html[data-theme="light"] .hero::after {
 /* ===== Obsidian-style vault workspace (home) ===== */
 .vault-wrap {
   padding: clamp(1.2rem, 3vw, 2.4rem) 0 clamp(2rem, 4vw, 3.2rem);
+  /* Belt-and-suspenders: contain layout so absolutely-positioned
+     inactive slides cannot bleed out and extend page scroll height */
+  overflow: clip;
 }
 
 .vault-head {
@@ -2535,6 +2535,8 @@ html[data-theme="light"] .vault-canvas--deck {
 .vault-slide-deck {
   position: relative;
   min-height: 0;
+  /* clip invisible absolute children so they don't extend page scroll height */
+  overflow: clip;
 }
 
 /* ── Page-flip keyframes ── */
