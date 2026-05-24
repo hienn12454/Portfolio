@@ -2534,7 +2534,7 @@ html[data-theme="light"] .vault-canvas--deck {
 
 .vault-slide-deck {
   position: relative;
-  min-height: 360px;
+  min-height: 0;
 }
 
 /* ── Page-flip keyframes ── */
@@ -4990,4 +4990,64 @@ html[data-theme="light"] .adm-chart-loading { background: rgba(255,255,255,0.55)
 .card__links .button--ghost:last-child:hover {
   background: rgba(239,68,68,0.10);
   border-color: rgba(239,68,68,0.36);
+}
+
+/* ══════════════════════════════════════════════════════════
+   HOMEPAGE SIDE AMBIENCE — floating code symbols
+   Visible only on ultra-wide viewports (≥ 1400px)
+   ══════════════════════════════════════════════════════════ */
+.home-ambience {
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  display: none;
+  overflow: hidden;
+}
+
+@media (min-width: 1400px) {
+  .home-ambience { display: block; }
+}
+
+.home-ambience__left,
+.home-ambience__right {
+  position: absolute;
+  top: 18%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2.4rem;
+}
+
+.home-ambience__left  { left: max(0.75rem, calc((100vw - 1140px) / 2 - 96px)); }
+.home-ambience__right { right: max(0.75rem, calc((100vw - 1140px) / 2 - 96px)); }
+
+.amb-sym {
+  font-family: "JetBrains Mono", "Fira Code", "Cascadia Code", "Courier New", monospace;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text-soft);
+  opacity: 0.22;
+  letter-spacing: -0.01em;
+  user-select: none;
+  animation: amb-float 4.4s ease-in-out infinite;
+  transition: opacity 0.3s;
+  white-space: nowrap;
+}
+
+html[data-theme="light"] .amb-sym { opacity: 0.18; }
+
+.amb-sym:nth-child(1) { animation-delay: 0.0s; animation-duration: 4.2s; }
+.amb-sym:nth-child(2) { animation-delay: 0.7s; animation-duration: 3.9s; }
+.amb-sym:nth-child(3) { animation-delay: 1.3s; animation-duration: 4.6s; }
+.amb-sym:nth-child(4) { animation-delay: 1.9s; animation-duration: 3.7s; }
+.amb-sym:nth-child(5) { animation-delay: 2.5s; animation-duration: 5.0s; }
+
+@keyframes amb-float {
+  0%,  100% { transform: translateY(0);    }
+  50%        { transform: translateY(-13px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .amb-sym { animation: none; }
 }

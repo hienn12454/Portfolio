@@ -963,6 +963,24 @@ export function HomePage() {
       <div className="shard-layer" aria-hidden="true" />
       <div className="cursor-glow" aria-hidden="true" />
       <div className="glitch-grid" aria-hidden="true" />
+
+      {/* ── Wide-viewport ambient side decorations ── */}
+      <div className="home-ambience" aria-hidden="true">
+        <div className="home-ambience__left">
+          <span className="amb-sym">{"</>"}</span>
+          <span className="amb-sym">{"{ }"}</span>
+          <span className="amb-sym">{"=>"}</span>
+          <span className="amb-sym">{"git"}</span>
+          <span className="amb-sym">{"fn()"}</span>
+        </div>
+        <div className="home-ambience__right">
+          <span className="amb-sym">{".NET"}</span>
+          <span className="amb-sym">{"⚡"}</span>
+          <span className="amb-sym">{"API"}</span>
+          <span className="amb-sym">{"SQL"}</span>
+          <span className="amb-sym">{"☁"}</span>
+        </div>
+      </div>
       <header className="topbar">
         <div className="container topbar__content">
           <Link
