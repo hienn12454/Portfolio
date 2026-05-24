@@ -50,9 +50,9 @@ function LangDots({ level, color }) {
   );
 }
 
-function SectionCard({ title, children }) {
+function SectionCard({ title, children, variant = "blue" }) {
   return (
-    <div className="cv-main-card">
+    <div className={`cv-main-card cv-main-card--${variant}`}>
       <div className="cv-section">
         <h2 className="cv-section__title">{title}</h2>
         {children}
@@ -124,7 +124,8 @@ export function CVPage() {
     );
   }
 
-  const color = cv.accentColor || "#6366f1";
+  // accent is only used for the top stripe; skill bars still use the DB colour
+  const color = cv.accentColor || "#3a6faa";
   const rgb = hexToRgb(color);
 
   const works = parseSafe(cv.workExperiencesJson);
@@ -135,13 +136,8 @@ export function CVPage() {
   const awards = parseSafe(cv.awardsJson);
   const hobbies = parseSafe(cv.hobbiesJson);
 
-  const cssVars = {
-    "--cv-accent": color,
-    "--cv-accent-rgb": rgb,
-  };
-
   return (
-    <div className="cv-root" style={cssVars}>
+    <div className="cv-root" style={{ "--cv-accent": color, "--cv-accent-rgb": rgb }}>
       {/* ── Topbar ── */}
       <nav className="cv-topbar">
         <div className="cv-topbar__content">
@@ -330,16 +326,16 @@ export function CVPage() {
             </div>
           </div>
 
-          {/* Summary */}
+          {/* Summary — slate blue */}
           {cv.summary && (
-            <SectionCard title="Giới thiệu bản thân">
+            <SectionCard title="Giới thiệu bản thân" variant="blue">
               <p className="cv-summary">{cv.summary}</p>
             </SectionCard>
           )}
 
-          {/* Work Experience */}
+          {/* Work Experience — teal */}
           {works.length > 0 && (
-            <SectionCard title="Kinh nghiệm làm việc">
+            <SectionCard title="Kinh nghiệm làm việc" variant="teal">
               <div className="cv-timeline">
                 {works.map((exp, i) => (
                   <TimelineEntry
@@ -360,9 +356,9 @@ export function CVPage() {
             </SectionCard>
           )}
 
-          {/* Education */}
+          {/* Education — violet */}
           {edus.length > 0 && (
-            <SectionCard title="Học vấn">
+            <SectionCard title="Học vấn" variant="violet">
               <div className="cv-timeline">
                 {edus.map((edu, i) => (
                   <TimelineEntry
@@ -386,9 +382,9 @@ export function CVPage() {
             </SectionCard>
           )}
 
-          {/* Awards */}
+          {/* Awards — forest green */}
           {awards.length > 0 && (
-            <SectionCard title="Giải thưởng & Thành tích">
+            <SectionCard title="Giải thưởng & Thành tích" variant="green">
               <div className="cv-timeline">
                 {awards.map((award, i) => (
                   <TimelineEntry
