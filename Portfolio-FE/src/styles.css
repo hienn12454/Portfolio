@@ -2537,17 +2537,40 @@ html[data-theme="light"] .vault-canvas--deck {
   min-height: 360px;
 }
 
-@keyframes tab-enter {
-  from {
+/* ── Page-flip keyframes ── */
+@keyframes pageFlipForward {
+  0% {
+    transform: perspective(1100px) rotateY(-24deg) translateX(7%) scale(0.97);
     opacity: 0;
-    transform: translateY(18px) scale(0.975);
-    filter: blur(4px);
   }
-  to {
+  50% {
     opacity: 1;
-    transform: translateY(0) scale(1);
-    filter: blur(0px);
+    transform: perspective(1100px) rotateY(-5deg) translateX(1.5%) scale(0.995);
   }
+  100% {
+    transform: perspective(1100px) rotateY(0deg) translateX(0) scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes pageFlipBackward {
+  0% {
+    transform: perspective(1100px) rotateY(24deg) translateX(-7%) scale(0.97);
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+    transform: perspective(1100px) rotateY(5deg) translateX(-1.5%) scale(0.995);
+  }
+  100% {
+    transform: perspective(1100px) rotateY(0deg) translateX(0) scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes flipShadowFade {
+  0%   { opacity: 0.55; }
+  100% { opacity: 0; }
 }
 
 @keyframes tab-glow-in {
@@ -2571,7 +2594,39 @@ html[data-theme="light"] .vault-canvas--deck {
   opacity: 1;
   pointer-events: auto;
   z-index: 2;
-  animation: tab-enter 0.42s cubic-bezier(0.22, 1, 0.36, 1) both;
+  /* default entrance (first load / no direction set) */
+  animation: pageFlipForward 0.44s cubic-bezier(0.25, 1, 0.5, 1) both;
+  transform-origin: left center;
+}
+
+/* ── Directional overrides ── */
+.vault-slide-deck[data-flip-dir="forward"] .vault-slide.is-active {
+  transform-origin: left center;
+  animation: pageFlipForward 0.44s cubic-bezier(0.25, 1, 0.5, 1) both;
+}
+
+.vault-slide-deck[data-flip-dir="backward"] .vault-slide.is-active {
+  transform-origin: right center;
+  animation: pageFlipBackward 0.44s cubic-bezier(0.25, 1, 0.5, 1) both;
+}
+
+/* ── Page-turn shadow overlay ── */
+.vault-slide.is-active::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 10;
+  border-radius: inherit;
+  animation: flipShadowFade 0.44s cubic-bezier(0.25, 1, 0.5, 1) both;
+}
+
+.vault-slide-deck[data-flip-dir="forward"] .vault-slide.is-active::after {
+  background: linear-gradient(to right, rgba(0, 0, 0, 0.18) 0%, transparent 60%);
+}
+
+.vault-slide-deck[data-flip-dir="backward"] .vault-slide.is-active::after {
+  background: linear-gradient(to left, rgba(0, 0, 0, 0.18) 0%, transparent 60%);
 }
 
 .vault-slide .vault-panel {

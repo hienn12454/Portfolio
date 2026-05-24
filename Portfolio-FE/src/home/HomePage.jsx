@@ -607,6 +607,7 @@ export function HomePage() {
   const [isAdminUser, setIsAdminUser] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [workspaceTab, setWorkspaceTab] = useState("intro");
+  const [flipDirection, setFlipDirection] = useState("forward");
   const [expandedSkill, setExpandedSkill] = useState(null);
   const [scrollProgress, setScrollProgress] = useState(0);
   const [notesPeeked, setNotesPeeked] = useState(false);
@@ -676,8 +677,11 @@ export function HomePage() {
 
   const selectVaultTab = useCallback((tab) => {
     setNotesPeeked(false);
+    const prevIdx = VAULT_TAB_ORDER.indexOf(workspaceTab);
+    const nextIdx = VAULT_TAB_ORDER.indexOf(tab);
+    setFlipDirection(nextIdx >= prevIdx ? "forward" : "backward");
     setWorkspaceTab(tab);
-  }, []);
+  }, [workspaceTab]);
 
   useEffect(() => {
     setExpandedSkill(null);
@@ -1178,7 +1182,7 @@ export function HomePage() {
         </div>
 
         <div className="vault-canvas container vault-canvas--deck">
-          <div className="vault-slide-deck">
+          <div className="vault-slide-deck" data-flip-dir={flipDirection}>
             <div
               className={workspaceTab === "intro" ? "vault-slide is-active" : "vault-slide"}
               aria-hidden={workspaceTab !== "intro"}
