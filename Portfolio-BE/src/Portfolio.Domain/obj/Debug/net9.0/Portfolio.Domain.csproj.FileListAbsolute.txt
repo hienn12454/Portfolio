@@ -21,3 +21,15 @@ C:\Users\TUF\Desktop\Github\Portfolio\Portfolio-BE\src\Portfolio.Domain\obj\Debu
 C:\Users\TUF\Desktop\Github\Portfolio\Portfolio-BE\src\Portfolio.Domain\obj\Debug\net9.0\refint\Portfolio.Domain.dll
 C:\Users\TUF\Desktop\Github\Portfolio\Portfolio-BE\src\Portfolio.Domain\obj\Debug\net9.0\Portfolio.Domain.pdb
 C:\Users\TUF\Desktop\Github\Portfolio\Portfolio-BE\src\Portfolio.Domain\obj\Debug\net9.0\ref\Portfolio.Domain.dll
+C:\Users\Trung Hien\Desktop\GithubPC\Portfolio\Portfolio-BE\src\Portfolio.Domain\bin\Debug\net9.0\Portfolio.Domain.deps.json
+C:\Users\Trung Hien\Desktop\GithubPC\Portfolio\Portfolio-BE\src\Portfolio.Domain\bin\Debug\net9.0\Portfolio.Domain.dll
+C:\Users\Trung Hien\Desktop\GithubPC\Portfolio\Portfolio-BE\src\Portfolio.Domain\bin\Debug\net9.0\Portfolio.Domain.pdb
+C:\Users\Trung Hien\Desktop\GithubPC\Portfolio\Portfolio-BE\src\Portfolio.Domain\obj\Debug\net9.0\Portfolio.Domain.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Trung Hien\Desktop\GithubPC\Portfolio\Portfolio-BE\src\Portfolio.Domain\obj\Debug\net9.0\Portfolio.Domain.AssemblyInfoInputs.cache
+C:\Users\Trung Hien\Desktop\GithubPC\Portfolio\Portfolio-BE\src\Portfolio.Domain\obj\Debug\net9.0\Portfolio.Domain.AssemblyInfo.cs
+C:\Users\Trung Hien\Desktop\GithubPC\Portfolio\Portfolio-BE\src\Portfolio.Domain\obj\Debug\net9.0\Portfolio.Domain.csproj.CoreCompileInputs.cache
+C:\Users\Trung Hien\Desktop\GithubPC\Portfolio\Portfolio-BE\src\Portfolio.Domain\obj\Debug\net9.0\Portfolio.Domain.sourcelink.json
+C:\Users\Trung Hien\Desktop\GithubPC\Portfolio\Portfolio-BE\src\Portfolio.Domain\obj\Debug\net9.0\Portfolio.Domain.dll
+C:\Users\Trung Hien\Desktop\GithubPC\Portfolio\Portfolio-BE\src\Portfolio.Domain\obj\Debug\net9.0\refint\Portfolio.Domain.dll
+C:\Users\Trung Hien\Desktop\GithubPC\Portfolio\Portfolio-BE\src\Portfolio.Domain\obj\Debug\net9.0\Portfolio.Domain.pdb
+C:\Users\Trung Hien\Desktop\GithubPC\Portfolio\Portfolio-BE\src\Portfolio.Domain\obj\Debug\net9.0\ref\Portfolio.Domain.dll

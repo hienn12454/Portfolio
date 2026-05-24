@@ -555,23 +555,23 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\TUF\\.nuget\\packages\\": {},
+    "C:\\Users\\Trung Hien\\.nuget\\packages\\": {},
     "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\TUF\\Desktop\\Github\\Portfolio\\Portfolio-BE\\src\\Portfolio.Application\\Portfolio.Application.csproj",
+      "projectUniqueName": "C:\\Users\\Trung Hien\\Desktop\\GithubPC\\Portfolio\\Portfolio-BE\\src\\Portfolio.Application\\Portfolio.Application.csproj",
       "projectName": "Portfolio.Application",
-      "projectPath": "C:\\Users\\TUF\\Desktop\\Github\\Portfolio\\Portfolio-BE\\src\\Portfolio.Application\\Portfolio.Application.csproj",
-      "packagesPath": "C:\\Users\\TUF\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\TUF\\Desktop\\Github\\Portfolio\\Portfolio-BE\\src\\Portfolio.Application\\obj\\",
+      "projectPath": "C:\\Users\\Trung Hien\\Desktop\\GithubPC\\Portfolio\\Portfolio-BE\\src\\Portfolio.Application\\Portfolio.Application.csproj",
+      "packagesPath": "C:\\Users\\Trung Hien\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\Trung Hien\\Desktop\\GithubPC\\Portfolio\\Portfolio-BE\\src\\Portfolio.Application\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
       ],
       "configFilePaths": [
-        "C:\\Users\\TUF\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\Trung Hien\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
@@ -586,8 +586,8 @@
         "net9.0": {
           "targetAlias": "net9.0",
           "projectReferences": {
-            "C:\\Users\\TUF\\Desktop\\Github\\Portfolio\\Portfolio-BE\\src\\Portfolio.Domain\\Portfolio.Domain.csproj": {
-              "projectPath": "C:\\Users\\TUF\\Desktop\\Github\\Portfolio\\Portfolio-BE\\src\\Portfolio.Domain\\Portfolio.Domain.csproj"
+            "C:\\Users\\Trung Hien\\Desktop\\GithubPC\\Portfolio\\Portfolio-BE\\src\\Portfolio.Domain\\Portfolio.Domain.csproj": {
+              "projectPath": "C:\\Users\\Trung Hien\\Desktop\\GithubPC\\Portfolio\\Portfolio-BE\\src\\Portfolio.Domain\\Portfolio.Domain.csproj"
             }
           }
         }
@@ -633,7 +633,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.313/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.314/PortableRuntimeIdentifierGraph.json"
       }
     }
   }

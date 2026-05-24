@@ -28,9 +28,6 @@ body {
   background: var(--bg);
 }
 
-.site {
-  min-height: 100%;
-}
 
 .container {
   width: min(1100px, 92vw);
@@ -978,15 +975,6 @@ html[data-theme="light"] .nav-cv-link:hover {
   padding: 2rem 0;
 }
 
-.auth-page.site {
-  background: var(--bg);
-}
-
-.auth-page.site::before,
-.auth-page.site::after {
-  animation: none;
-  opacity: 0.08;
-}
 
 .auth-overlay {
   width: min(420px, 92vw);
@@ -1256,148 +1244,8 @@ body {
   transition: background-color 320ms ease, color 320ms ease;
 }
 
-.site {
-  position: relative;
-  overflow: clip;
-  isolation: isolate;
-  background: radial-gradient(ellipse 120% 70% at 12% -5%, rgba(139, 92, 246, 0.20), transparent 52%),
-    radial-gradient(ellipse 80% 55% at 94% 10%, rgba(109, 40, 217, 0.15), transparent 48%),
-    radial-gradient(ellipse 60% 45% at 50% 110%, rgba(139, 92, 246, 0.10), transparent 55%),
-    radial-gradient(circle at 38% 32%, #16122a 0%, #0d0c14 55%, #090810 100%);
-}
 
-.site::before,
-.site::after {
-  content: "";
-  position: fixed;
-  inset: -60%;
-  z-index: -1;
-  pointer-events: none;
-  will-change: transform;
-}
 
-/* Slash cut layer 1 — dark theme (subtle dark bands + faint purple) */
-.site::before {
-  background-image:
-    repeating-linear-gradient(
-      -43deg,
-      transparent 0px,
-      transparent 76px,
-      rgba(0, 0, 0, 0.28) 76px,
-      rgba(0, 0, 0, 0.28) 80px,
-      transparent 80px,
-      transparent 156px,
-      rgba(0, 0, 0, 0.14) 156px,
-      rgba(0, 0, 0, 0.14) 159px
-    );
-  animation: slashCutDrift1 15s ease-in-out infinite alternate;
-}
-
-/* Slash cut layer 2 — dark theme, different angle + speed */
-.site::after {
-  background-image:
-    repeating-linear-gradient(
-      -53deg,
-      transparent 0px,
-      transparent 100px,
-      rgba(0, 0, 0, 0.18) 100px,
-      rgba(0, 0, 0, 0.18) 104px,
-      transparent 104px,
-      transparent 195px,
-      rgba(139, 92, 246, 0.10) 195px,
-      rgba(139, 92, 246, 0.10) 198px
-    );
-  animation: slashCutDrift2 22s ease-in-out infinite alternate-reverse;
-}
-
-@keyframes slashCutDrift1 {
-  0%   { transform: translateX(-14%) translateY(-8%); }
-  25%  { transform: translateX(6%)   translateY(4%); }
-  55%  { transform: translateX(-4%)  translateY(10%); }
-  80%  { transform: translateX(10%)  translateY(2%); }
-  100% { transform: translateX(16%)  translateY(-5%); }
-}
-
-@keyframes slashCutDrift2 {
-  0%   { transform: translateX(12%)  translateY(6%); }
-  30%  { transform: translateX(-10%) translateY(-4%); }
-  60%  { transform: translateX(5%)   translateY(-10%); }
-  85%  { transform: translateX(-7%)  translateY(5%); }
-  100% { transform: translateX(-16%) translateY(3%); }
-}
-
-.site > * {
-  position: relative;
-  z-index: 1;
-}
-
-.site .glitch-grid {
-  pointer-events: none;
-}
-
-.site .glitch-grid,
-.site .glitch-grid::before,
-.site .glitch-grid::after {
-  content: "";
-  position: fixed;
-  inset: -30%;
-  z-index: -1;
-}
-
-.site .glitch-grid {
-  opacity: 0.06;
-  mix-blend-mode: soft-light;
-  background-image: repeating-linear-gradient(
-    62deg,
-    color-mix(in oklab, var(--accent) 46%, transparent) 0,
-    color-mix(in oklab, var(--accent) 46%, transparent) 2px,
-    transparent 2px,
-    transparent 92px
-  );
-  animation: movingGridC 21s linear infinite;
-}
-
-.site .glitch-grid::before {
-  opacity: 0.34;
-  background-image: repeating-linear-gradient(
-    -58deg,
-    color-mix(in oklab, var(--text-soft) 35%, transparent) 0,
-    color-mix(in oklab, var(--text-soft) 35%, transparent) 1px,
-    transparent 1px,
-    transparent 108px
-  );
-  animation: movingGridD 11s linear infinite alternate;
-}
-
-.site .glitch-grid::after {
-  opacity: 0.22;
-  background-image: repeating-linear-gradient(
-    14deg,
-    color-mix(in oklab, var(--accent) 35%, transparent) 0,
-    color-mix(in oklab, var(--accent) 35%, transparent) 1px,
-    transparent 1px,
-    transparent 120px
-  );
-  animation: movingGridE 9s linear infinite;
-}
-
-@keyframes movingGridA {
-  0% {
-    transform: translate3d(0, 0, 0) rotate(0.001deg);
-  }
-  20% {
-    transform: translate3d(18px, -26px, 0) rotate(0.45deg);
-  }
-  47% {
-    transform: translate3d(62px, -8px, 0) rotate(-0.32deg);
-  }
-  73% {
-    transform: translate3d(30px, -64px, 0) rotate(0.28deg);
-  }
-  100% {
-    transform: translate3d(84px, -36px, 0) rotate(-0.25deg);
-  }
-}
 
 @keyframes blinkCursor {
   0%,
@@ -1410,65 +1258,6 @@ body {
   }
 }
 
-@keyframes movingGridB {
-  0% {
-    transform: translate3d(0, 0, 0) rotate(0.001deg);
-  }
-  30% {
-    transform: translate3d(-24px, 38px, 0) rotate(-0.45deg);
-  }
-  58% {
-    transform: translate3d(-68px, 24px, 0) rotate(0.15deg);
-  }
-  82% {
-    transform: translate3d(-36px, 74px, 0) rotate(-0.2deg);
-  }
-  100% {
-    transform: translate3d(-92px, 48px, 0) rotate(0.3deg);
-  }
-}
-
-@keyframes movingGridC {
-  0% {
-    transform: translate3d(0, 0, 0) rotate(0deg);
-  }
-  33% {
-    transform: translate3d(44px, -20px, 0) rotate(-0.3deg);
-  }
-  67% {
-    transform: translate3d(-32px, 40px, 0) rotate(0.2deg);
-  }
-  100% {
-    transform: translate3d(60px, 12px, 0) rotate(-0.15deg);
-  }
-}
-
-@keyframes movingGridD {
-  0% {
-    transform: translate3d(0, 0, 0) rotate(0deg);
-  }
-  100% {
-    transform: translate3d(-56px, -42px, 0) rotate(0.45deg);
-  }
-}
-
-@keyframes movingGridE {
-  0% {
-    transform: translate3d(0, 0, 0) rotate(0deg);
-  }
-  25% {
-    transform: translate3d(30px, -12px, 0) rotate(-0.32deg);
-  }
-  50% {
-    transform: translate3d(-8px, 28px, 0) rotate(0.26deg);
-  }
-  75% {
-    transform: translate3d(48px, 4px, 0) rotate(-0.22deg);
-  }
-  100% {
-    transform: translate3d(-22px, 30px, 0) rotate(0.18deg);
-  }
-}
 
 .topbar {
   position: sticky;
@@ -1789,12 +1578,6 @@ html[data-theme="light"] .eyebrow {
   color: var(--accent);
 }
 
-html[data-theme="light"] .galaxy-layer,
-html[data-theme="light"] .shard-layer,
-html[data-theme="light"] .cursor-glow,
-html[data-theme="light"] .glitch-grid {
-  display: none;
-}
 
 html[data-theme="light"] .vault-canvas {
   background: rgba(255, 255, 255, 0.96);
@@ -1808,10 +1591,6 @@ html[data-theme="light"] .hero::after {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .site::before,
-  .site::after {
-    animation: none;
-  }
 
   .button,
   .filter-chip,
@@ -1822,11 +1601,6 @@ html[data-theme="light"] .hero::after {
     animation: none;
   }
 
-  .site .glitch-grid,
-  .site .glitch-grid::before,
-  .site .glitch-grid::after {
-    animation: none;
-  }
 }
 
 @media (max-width: 860px) {
@@ -2457,6 +2231,132 @@ html[data-theme="light"] .hero::after {
   transition: background-color 0.16s ease, border-color 0.16s ease, color 0.16s ease, box-shadow 0.18s ease;
 }
 
+/* ===================================================================
+   ANIMATED SITE BACKGROUND — CANONICAL SYSTEM
+   Single source of truth. Do NOT add .site background rules elsewhere.
+   =================================================================== */
+
+.site {
+  position: relative;
+  overflow: clip;
+  isolation: isolate;
+}
+
+.site::before,
+.site::after {
+  content: "";
+  position: fixed;
+  inset: -60%;
+  z-index: -1;
+  pointer-events: none;
+  will-change: transform;
+}
+
+@keyframes slashCutDrift1 {
+  0%   { transform: translateX(-14%) translateY(-8%); }
+  25%  { transform: translateX(6%)   translateY(4%); }
+  55%  { transform: translateX(-4%)  translateY(10%); }
+  80%  { transform: translateX(10%)  translateY(2%); }
+  100% { transform: translateX(16%)  translateY(-5%); }
+}
+
+@keyframes slashCutDrift2 {
+  0%   { transform: translateX(12%)  translateY(6%); }
+  30%  { transform: translateX(-10%) translateY(-4%); }
+  60%  { transform: translateX(5%)   translateY(-10%); }
+  85%  { transform: translateX(-7%)  translateY(5%); }
+  100% { transform: translateX(-16%) translateY(3%); }
+}
+
+/* ── DARK THEME ── */
+html[data-theme="dark"] .site {
+  background:
+    radial-gradient(ellipse 65% 55% at 4% 4%,    rgba(34, 197, 94, 0.22),   transparent 55%),
+    radial-gradient(ellipse 50% 45% at 97% 7%,   rgba(20, 184, 166, 0.16),  transparent 50%),
+    radial-gradient(ellipse 58% 48% at 50% 108%, rgba(245, 158, 11, 0.12),  transparent 55%),
+    radial-gradient(circle at 38% 36%, #0e1c19 0%, #060e0b 52%, #020806 100%);
+}
+
+html[data-theme="dark"] .site::before {
+  background-image:
+    repeating-linear-gradient(
+      -43deg,
+      transparent 0px,          transparent 76px,
+      rgba(0, 0, 0, 0.30) 76px, rgba(0, 0, 0, 0.30) 80px,
+      transparent 80px,          transparent 156px,
+      rgba(0, 0, 0, 0.16) 156px, rgba(0, 0, 0, 0.16) 159px
+    );
+  animation: slashCutDrift1 15s ease-in-out infinite alternate;
+}
+
+html[data-theme="dark"] .site::after {
+  background-image:
+    repeating-linear-gradient(
+      -53deg,
+      transparent 0px,              transparent 100px,
+      rgba(0, 0, 0, 0.20) 100px,    rgba(0, 0, 0, 0.20) 104px,
+      transparent 104px,             transparent 195px,
+      rgba(139, 92, 246, 0.12) 195px, rgba(139, 92, 246, 0.12) 198px
+    );
+  animation: slashCutDrift2 22s ease-in-out infinite alternate-reverse;
+}
+
+/* ── LIGHT THEME ── */
+html[data-theme="light"] .site {
+  background:
+    radial-gradient(ellipse 110% 80% at 50% -18%, rgba(4, 120, 87, 0.45),  transparent 55%),
+    radial-gradient(ellipse 90%  55% at 0%   42%, rgba(5, 150, 105, 0.35), transparent 50%),
+    radial-gradient(ellipse 75%  58% at 100% 72%, rgba(6, 182, 212, 0.30), transparent 48%),
+    radial-gradient(ellipse 55%  38% at 28%  100%,rgba(4, 120, 87, 0.28),  transparent 45%),
+    linear-gradient(168deg, #a8dfc6 0%, #96d9bc 25%, #8fd8d0 55%, #aad5ee 100%);
+}
+
+html[data-theme="light"] .site::before {
+  background-image:
+    repeating-linear-gradient(
+      -43deg,
+      transparent 0px,           transparent 76px,
+      rgba(0, 0, 0, 0.22) 76px,  rgba(0, 0, 0, 0.22) 80px,
+      transparent 80px,           transparent 156px,
+      rgba(0, 0, 0, 0.11) 156px,  rgba(0, 0, 0, 0.11) 159px
+    );
+  animation: slashCutDrift1 15s ease-in-out infinite alternate;
+}
+
+html[data-theme="light"] .site::after {
+  background-image:
+    repeating-linear-gradient(
+      -53deg,
+      transparent 0px,               transparent 100px,
+      rgba(4, 120, 87, 0.34) 100px,  rgba(4, 120, 87, 0.34) 105px,
+      transparent 105px,              transparent 198px,
+      rgba(4, 120, 87, 0.20) 198px,  rgba(4, 120, 87, 0.20) 202px
+    );
+  animation: slashCutDrift2 22s ease-in-out infinite alternate-reverse;
+}
+
+/* Hide old DOM-based bg layers (galaxy/shard/glitch) — CSS ::before/after handles bg now */
+.galaxy-layer,
+.shard-layer,
+.cursor-glow,
+.glitch-grid {
+  display: none !important;
+}
+
+.site > * {
+  position: relative;
+  z-index: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .site::before,
+  .site::after {
+    animation: none;
+  }
+}
+
+
+
 .vault-tab:hover {
   color: var(--text);
   border-color: color-mix(in oklab, var(--accent) 35%, var(--surface-border));
@@ -2684,13 +2584,8 @@ html[data-theme="light"] .hero::after {
     animation: none !important;
   }
 
-  .galaxy-layer,
-  .shard-layer {
-    animation: none !important;
-  }
 }
 
-/* ===== Galaxy + broken glass + polish layer ===== */
 .scroll-progress {
   position: fixed;
   top: 0;
@@ -2709,168 +2604,6 @@ html[data-theme="light"] .hero::after {
   pointer-events: none;
 }
 
-.galaxy-layer {
-  position: fixed;
-  inset: -10%;
-  z-index: 0;
-  pointer-events: none;
-  background: radial-gradient(circle at 18% 28%, rgba(255, 255, 255, 0.14), transparent 22%),
-    radial-gradient(circle at 82% 18%, rgba(125, 211, 252, 0.18), transparent 24%),
-    radial-gradient(circle at 48% 92%, rgba(196, 181, 253, 0.2), transparent 30%),
-    radial-gradient(ellipse 60% 40% at 55% 48%, rgba(244, 114, 182, 0.08), transparent 40%);
-  mix-blend-mode: screen;
-  animation: galaxyDrift 28s ease-in-out infinite alternate;
-}
-
-.shard-layer {
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  opacity: 0.58;
-  background: conic-gradient(
-      from 210deg at 30% 40%,
-      transparent 0deg,
-      color-mix(in oklab, white 12%, transparent) 0.15deg,
-      transparent 0.35deg,
-      transparent 58deg,
-      color-mix(in oklab, var(--accent) 25%, transparent) 58.12deg,
-      transparent 58.4deg,
-      transparent 142deg,
-      color-mix(in oklab, white 10%, transparent) 142.1deg,
-      transparent 142.35deg,
-      transparent 268deg,
-      color-mix(in oklab, var(--accent-2, #22d3ee) 22%, transparent) 268.08deg,
-      transparent 268.32deg,
-      transparent 360deg
-    ),
-    linear-gradient(
-      115deg,
-      transparent 44%,
-      color-mix(in oklab, white 16%, transparent) 44.15%,
-      transparent 44.4%,
-      transparent 58%,
-      color-mix(in oklab, white 11%, transparent) 58.08%,
-      transparent 58.28%
-    ),
-    linear-gradient(
-      -72deg,
-      transparent 62%,
-      color-mix(in oklab, white 10%, transparent) 62.06%,
-      transparent 62.22%,
-      transparent 22%,
-      color-mix(in oklab, var(--accent) 22%, transparent) 22.05%,
-      transparent 22.2%
-    );
-  mix-blend-mode: overlay;
-  mask-image: radial-gradient(ellipse 88% 72% at 50% 45%, black 0%, transparent 74%);
-  animation: shardShimmer 18s ease-in-out infinite;
-}
-
-.cursor-glow {
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  background: radial-gradient(
-    circle 42vmax at var(--mx, 50%) var(--my, 50%),
-    color-mix(in oklab, var(--accent) 22%, transparent),
-    transparent 55%
-  );
-  mix-blend-mode: screen;
-  opacity: 0.55;
-}
-
-@keyframes galaxyDrift {
-  0% {
-    transform: translate3d(-2%, 0, 0) scale(1);
-  }
-  100% {
-    transform: translate3d(2%, -1.5%, 0) scale(1.04);
-  }
-}
-
-@keyframes shardShimmer {
-  0%,
-  100% {
-    opacity: 0.48;
-  }
-  50% {
-    opacity: 0.66;
-  }
-}
-
-html[data-theme="light"] .galaxy-layer {
-  opacity: 0.48;
-  mix-blend-mode: multiply;
-  animation: none;
-  transform: none;
-}
-
-html[data-theme="light"] .shard-layer {
-  opacity: 0.36;
-  mix-blend-mode: soft-light;
-  animation: none;
-}
-
-html[data-theme="light"] .cursor-glow {
-  opacity: 0.1;
-}
-
-/* Light theme — black slash cuts */
-html[data-theme="light"] .site::before {
-  display: block;
-  background-image:
-    repeating-linear-gradient(
-      -43deg,
-      transparent 0px,
-      transparent 76px,
-      rgba(0, 0, 0, 0.22) 76px,
-      rgba(0, 0, 0, 0.22) 80px,
-      transparent 80px,
-      transparent 156px,
-      rgba(0, 0, 0, 0.11) 156px,
-      rgba(0, 0, 0, 0.11) 159px
-    );
-  animation: slashCutDrift1 15s ease-in-out infinite alternate;
-  opacity: 1;
-}
-
-/* Light theme — green slash cuts */
-html[data-theme="light"] .site::after {
-  display: block;
-  background-image:
-    repeating-linear-gradient(
-      -53deg,
-      transparent 0px,
-      transparent 100px,
-      rgba(4, 120, 87, 0.32) 100px,
-      rgba(4, 120, 87, 0.32) 105px,
-      transparent 105px,
-      transparent 198px,
-      rgba(4, 120, 87, 0.18) 198px,
-      rgba(4, 120, 87, 0.18) 202px
-    );
-  animation: slashCutDrift2 22s ease-in-out infinite alternate-reverse;
-  opacity: 1;
-}
-
-html[data-theme="light"] .site .glitch-grid,
-html[data-theme="light"] .site .glitch-grid::before,
-html[data-theme="light"] .site .glitch-grid::after {
-  animation: none;
-  transform: none;
-}
-
-html[data-theme="light"] .site {
-  background:
-    radial-gradient(ellipse 110% 80% at 50% -18%, rgba(4, 120, 87, 0.45), transparent 55%),
-    radial-gradient(ellipse 90% 55% at 0% 42%, rgba(5, 150, 105, 0.35), transparent 50%),
-    radial-gradient(ellipse 75% 58% at 100% 72%, rgba(6, 182, 212, 0.30), transparent 48%),
-    radial-gradient(ellipse 55% 38% at 28% 100%, rgba(4, 120, 87, 0.28), transparent 45%),
-    radial-gradient(ellipse 40% 30% at 75% 50%, rgba(20, 184, 166, 0.22), transparent 50%),
-    linear-gradient(168deg, #a8dfc6 0%, #96d9bc 25%, #8fd8d0 55%, #aad5ee 100%);
-}
 
 .vault-canvas--deck {
   position: relative;
@@ -3591,100 +3324,17 @@ html[data-theme="light"] .theme-toggle__thumb {
   box-shadow: 0 14px 30px rgba(6, 95, 70, 0.18);
 }
 
-html[data-theme="dark"] .site {
-  background: radial-gradient(ellipse 120% 80% at 8% -12%, rgba(34, 197, 94, 0.34), transparent 55%),
-    radial-gradient(ellipse 90% 70% at 95% 10%, rgba(20, 184, 166, 0.26), transparent 52%),
-    radial-gradient(ellipse 80% 60% at 48% 112%, rgba(245, 158, 11, 0.18), transparent 60%),
-    radial-gradient(circle at 40% 35%, #132126 0%, #0b1213 55%, #060809 100%);
-}
-
-html[data-theme="light"] .site {
-  background: radial-gradient(ellipse 110% 80% at 50% -18%, rgba(34, 197, 94, 0.2), transparent 55%),
-    radial-gradient(ellipse 90% 55% at 0% 42%, rgba(20, 184, 166, 0.22), transparent 50%),
-    radial-gradient(ellipse 75% 58% at 100% 72%, rgba(253, 186, 116, 0.2), transparent 48%),
-    linear-gradient(168deg, #ffffff 0%, #f3f7f4 40%, #ecfdf3 100%);
-}
 
 /* ===================================================================
    LIGHT THEME VISUAL EFFECTS — animated orbs, dot grid, glass polish
    =================================================================== */
 
-@keyframes lt-dot-drift {
-  0%   { transform: translate(0, 0); }
-  100% { transform: translate(36px, 36px); }
-}
-
-@keyframes lt-aurora-pulse {
-  0%, 100% { opacity: 0.38; }
-  50%       { opacity: 0.62; }
-}
-
-@keyframes lt-orb-a {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  35%      { transform: translate(50px, -35px) scale(1.06); }
-  70%      { transform: translate(-28px, 22px) scale(0.97); }
-}
-
-@keyframes lt-orb-b {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  40%      { transform: translate(-45px, 30px) scale(1.04); }
-  75%      { transform: translate(32px, -42px) scale(0.96); }
-}
-
-@keyframes lt-shimmer {
-  0%   { background-position: -200% center; }
-  100% { background-position: 200% center; }
-}
-
-/* Dot grid overlay */
-html[data-theme="light"] .site::before {
-  display: block;
-  inset: -5%;
-  opacity: 1;
-  background-image: radial-gradient(circle, rgba(16, 185, 129, 0.18) 1.5px, transparent 1.5px);
-  background-size: 36px 36px;
-  animation: lt-dot-drift 10s linear infinite;
-  mask-image: radial-gradient(ellipse 90% 75% at 50% 35%, black 20%, transparent 78%);
-  -webkit-mask-image: radial-gradient(ellipse 90% 75% at 50% 35%, black 20%, transparent 78%);
-}
 
 /* Aurora glow blobs */
-html[data-theme="light"] .site::after {
-  display: block;
-  inset: -25%;
-  opacity: 1;
-  background:
-    radial-gradient(ellipse 55% 42% at 14% 18%, rgba(34, 197, 94, 0.18), transparent 60%),
-    radial-gradient(ellipse 48% 36% at 85% 12%, rgba(20, 184, 166, 0.16), transparent 55%),
-    radial-gradient(ellipse 42% 32% at 68% 88%, rgba(245, 158, 11, 0.12), transparent 50%),
-    radial-gradient(ellipse 52% 40% at 28% 80%, rgba(59, 130, 246, 0.13), transparent 55%);
-  animation: lt-aurora-pulse 14s ease-in-out infinite;
-}
 
 /* Large floating orb layer A */
-html[data-theme="light"] .galaxy-layer {
-  display: block;
-  opacity: 1;
-  mix-blend-mode: multiply;
-  animation: lt-orb-a 22s ease-in-out infinite;
-  background:
-    radial-gradient(circle 520px at 10% 20%, rgba(34, 197, 94, 0.13), transparent),
-    radial-gradient(circle 380px at 88% 16%, rgba(20, 184, 166, 0.11), transparent),
-    radial-gradient(circle 440px at 65% 84%, rgba(249, 115, 22, 0.09), transparent),
-    radial-gradient(circle 310px at 28% 70%, rgba(59, 130, 246, 0.10), transparent);
-}
 
 /* Large floating orb layer B */
-html[data-theme="light"] .shard-layer {
-  display: block;
-  opacity: 1;
-  mix-blend-mode: multiply;
-  animation: lt-orb-b 30s ease-in-out infinite;
-  background:
-    radial-gradient(circle 380px at 75% 32%, rgba(16, 185, 129, 0.10), transparent),
-    radial-gradient(circle 300px at 18% 52%, rgba(245, 158, 11, 0.09), transparent),
-    radial-gradient(circle 350px at 52% 92%, rgba(99, 102, 241, 0.08), transparent);
-}
 
 /* Enhanced hero gradient — more vivid for light theme */
 html[data-theme="light"] .hero::after {
@@ -3781,122 +3431,14 @@ html[data-theme="light"] .vault-canvas {
   -webkit-backdrop-filter: blur(20px) saturate(1.5) !important;
 }
 
-/* Reduced motion: disable all light-theme animations */
 @media (prefers-reduced-motion: reduce) {
-  html[data-theme="light"] .site::before,
-  html[data-theme="light"] .site::after,
-  html[data-theme="light"] .galaxy-layer,
-  html[data-theme="light"] .shard-layer {
-    animation: none;
-  }
-
   html[data-theme="light"] .card,
   html[data-theme="light"] .skill-item {
     transition: none;
   }
 }
 
-/* ===================================================================
-   GLASSMORPHISM & SLITS — Global background design system
-   Frosted diagonal glass slits on rich gradient depth layers
-   =================================================================== */
 
-/* --- Shared animations --- */
-@keyframes glass-orb-a {
-  0%, 100% { transform: translate3d(0, 0, 0) scale(1) rotate(0deg); }
-  20%      { transform: translate3d(70px, -55px, 0) scale(1.10) rotate(0.8deg); }
-  45%      { transform: translate3d(100px, 30px, 0) scale(1.16) rotate(-0.5deg); }
-  70%      { transform: translate3d(-35px, 65px, 0) scale(1.05) rotate(0.6deg); }
-}
-
-@keyframes glass-orb-b {
-  0%, 100% { transform: translate3d(0, 0, 0) scale(1) rotate(0deg); }
-  30%      { transform: translate3d(-75px, 45px, 0) scale(1.09) rotate(-0.7deg); }
-  60%      { transform: translate3d(55px, -68px, 0) scale(1.13) rotate(0.5deg); }
-  80%      { transform: translate3d(-20px, -30px, 0) scale(0.96) rotate(-0.3deg); }
-}
-
-@keyframes glass-aurora {
-  0%, 100% { opacity: 0.55; transform: translate3d(0, 0, 0) scale(1); }
-  35%      { opacity: 0.82; transform: translate3d(28px, -20px, 0) scale(1.07); }
-  65%      { opacity: 0.64; transform: translate3d(-14px, 34px, 0) scale(1.03); }
-}
-
-@keyframes slit-drift {
-  0%, 100% { transform: translate3d(0, 0, 0) rotate(0deg) scale(1); }
-  33%      { transform: translate3d(-18px, -12px, 0) rotate(0.6deg) scale(1.015); }
-  66%      { transform: translate3d(12px, 18px, 0) rotate(-0.4deg) scale(0.99); }
-}
-
-@keyframes depth-pulse {
-  0%, 100% { opacity: 0.72; transform: scale(1); }
-  50%      { opacity: 1; transform: scale(1.04); }
-}
-
-/* ---- DARK THEME ---- */
-
-html[data-theme="dark"] .site {
-  background:
-    radial-gradient(ellipse 65% 55% at 4% 4%, rgba(34, 197, 94, 0.26), transparent 55%),
-    radial-gradient(ellipse 50% 45% at 97% 7%, rgba(20, 184, 166, 0.20), transparent 50%),
-    radial-gradient(ellipse 58% 48% at 50% 108%, rgba(245, 158, 11, 0.16), transparent 55%),
-    radial-gradient(ellipse 44% 36% at 94% 96%, rgba(59, 130, 246, 0.12), transparent 48%),
-    radial-gradient(circle at 38% 36%, #0e1c19 0%, #060e0b 52%, #020806 100%);
-}
-
-/* Animated slash cuts — dark theme layer 1 */
-html[data-theme="dark"] .site::before {
-  display: block;
-  inset: -60%;
-  opacity: 1;
-  background-image:
-    repeating-linear-gradient(
-      -43deg,
-      transparent 0px, transparent 76px,
-      rgba(0, 0, 0, 0.28) 76px, rgba(0, 0, 0, 0.28) 80px,
-      transparent 80px, transparent 156px,
-      rgba(0, 0, 0, 0.14) 156px, rgba(0, 0, 0, 0.14) 159px
-    );
-  animation: slashCutDrift1 15s ease-in-out infinite alternate;
-}
-
-/* Animated slash cuts — dark theme layer 2 */
-html[data-theme="dark"] .site::after {
-  display: block;
-  inset: -60%;
-  opacity: 1;
-  background-image:
-    repeating-linear-gradient(
-      -53deg,
-      transparent 0px, transparent 100px,
-      rgba(0, 0, 0, 0.18) 100px, rgba(0, 0, 0, 0.18) 104px,
-      transparent 104px, transparent 195px,
-      rgba(139, 92, 246, 0.10) 195px, rgba(139, 92, 246, 0.10) 198px
-    );
-  animation: slashCutDrift2 22s ease-in-out infinite alternate-reverse;
-}
-
-/* Floating orbs — dark */
-html[data-theme="dark"] .galaxy-layer {
-  opacity: 0.85;
-  mix-blend-mode: screen;
-  animation: glass-orb-a 26s ease-in-out infinite;
-  background:
-    radial-gradient(circle 580px at 8% 18%, rgba(34, 197, 94, 0.09), transparent),
-    radial-gradient(circle 440px at 92% 18%, rgba(20, 184, 166, 0.08), transparent),
-    radial-gradient(circle 500px at 65% 86%, rgba(245, 158, 11, 0.07), transparent),
-    radial-gradient(circle 340px at 24% 74%, rgba(59, 130, 246, 0.07), transparent);
-}
-
-html[data-theme="dark"] .shard-layer {
-  opacity: 0.65;
-  mix-blend-mode: screen;
-  animation: glass-orb-b 34s ease-in-out infinite;
-  background:
-    radial-gradient(circle 420px at 74% 34%, rgba(16, 185, 129, 0.08), transparent),
-    radial-gradient(circle 310px at 16% 54%, rgba(245, 158, 11, 0.06), transparent),
-    radial-gradient(circle 370px at 50% 94%, rgba(99, 102, 241, 0.06), transparent);
-}
 
 /* Glass cards — dark */
 html[data-theme="dark"] .card {
@@ -3946,74 +3488,6 @@ html[data-theme="dark"] .footer {
   -webkit-backdrop-filter: blur(18px) !important;
 }
 
-/* ---- LIGHT THEME (canonical override) ---- */
-
-html[data-theme="light"] .site {
-  background:
-    radial-gradient(ellipse 70% 60% at 2% 2%, rgba(134, 239, 172, 0.72), transparent 52%),
-    radial-gradient(ellipse 55% 50% at 98% 5%, rgba(94, 234, 212, 0.60), transparent 48%),
-    radial-gradient(ellipse 60% 52% at 52% 110%, rgba(253, 224, 71, 0.42), transparent 52%),
-    radial-gradient(ellipse 48% 40% at 95% 95%, rgba(147, 197, 253, 0.48), transparent 46%),
-    radial-gradient(ellipse 40% 35% at 50% 50%, rgba(167, 243, 208, 0.30), transparent 60%),
-    linear-gradient(155deg, #edfdf4 0%, #d1fae5 30%, #ccfbf1 60%, #eff6ff 90%, #f0fdf4 100%);
-}
-
-/* Animated slash cuts — light theme layer 1 (black bands) */
-html[data-theme="light"] .site::before {
-  display: block;
-  inset: -60%;
-  opacity: 1;
-  background-image:
-    repeating-linear-gradient(
-      -43deg,
-      transparent 0px, transparent 76px,
-      rgba(0, 0, 0, 0.22) 76px, rgba(0, 0, 0, 0.22) 80px,
-      transparent 80px, transparent 156px,
-      rgba(0, 0, 0, 0.11) 156px, rgba(0, 0, 0, 0.11) 159px
-    );
-  animation: slashCutDrift1 15s ease-in-out infinite alternate;
-  mask-image: none;
-  -webkit-mask-image: none;
-}
-
-/* Animated slash cuts — light theme layer 2 (green bands) */
-html[data-theme="light"] .site::after {
-  display: block;
-  inset: -60%;
-  opacity: 1;
-  background-image:
-    repeating-linear-gradient(
-      -53deg,
-      transparent 0px, transparent 100px,
-      rgba(4, 120, 87, 0.32) 100px, rgba(4, 120, 87, 0.32) 105px,
-      transparent 105px, transparent 198px,
-      rgba(4, 120, 87, 0.18) 198px, rgba(4, 120, 87, 0.18) 202px
-    );
-  animation: slashCutDrift2 22s ease-in-out infinite alternate-reverse;
-}
-
-html[data-theme="light"] .galaxy-layer {
-  display: block;
-  opacity: 1;
-  mix-blend-mode: multiply;
-  animation: glass-orb-a 22s ease-in-out infinite;
-  background:
-    radial-gradient(circle 600px at 8% 18%, rgba(22, 163, 74, 0.20), transparent),
-    radial-gradient(circle 440px at 90% 16%, rgba(13, 148, 136, 0.17), transparent),
-    radial-gradient(circle 500px at 62% 86%, rgba(234, 179, 8, 0.14), transparent),
-    radial-gradient(circle 360px at 26% 70%, rgba(59, 130, 246, 0.14), transparent);
-}
-
-html[data-theme="light"] .shard-layer {
-  display: block;
-  opacity: 1;
-  mix-blend-mode: multiply;
-  animation: glass-orb-b 30s ease-in-out infinite;
-  background:
-    radial-gradient(circle 440px at 72% 30%, rgba(5, 150, 105, 0.17), transparent),
-    radial-gradient(circle 340px at 16% 52%, rgba(234, 179, 8, 0.14), transparent),
-    radial-gradient(circle 400px at 50% 94%, rgba(99, 102, 241, 0.12), transparent);
-}
 
 html[data-theme="light"] .card {
   background: rgba(255, 255, 255, 0.84);
@@ -4146,12 +3620,6 @@ html[data-theme="light"] .nav a:hover::after {
 
 /* Reduced motion — global */
 @media (prefers-reduced-motion: reduce) {
-  .site::before,
-  .site::after,
-  .galaxy-layer,
-  .shard-layer {
-    animation: none !important;
-  }
 
   .card,
   .skill-item {
@@ -4680,7 +4148,6 @@ html[data-theme="light"] .card:hover {
    3D DEPTH SYSTEM — Perspective, shard cuts, card tilt, depth layers
    =================================================================== */
 
-/* ---- Diagonal shard / slash cut background overlays ---- */
 @keyframes shard-cut-drift {
   0%, 100% {
     transform: translate3d(0, 0, 0) rotate(0deg) skewX(0deg);
@@ -4891,7 +4358,6 @@ html[data-theme="light"] .card:hover {
 
 /* admin-page-shell background now comes from .site class */
 
-/* ---- Slash cut accent on skill cards ---- */
 .skill-item {
   position: relative;
   overflow: hidden;

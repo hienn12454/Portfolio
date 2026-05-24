@@ -29,3 +29,19 @@ C:\Users\TUF\Desktop\Github\Portfolio\Portfolio-BE\src\Portfolio.Application\obj
 C:\Users\TUF\Desktop\Github\Portfolio\Portfolio-BE\src\Portfolio.Application\obj\Debug\net9.0\refint\Portfolio.Application.dll
 C:\Users\TUF\Desktop\Github\Portfolio\Portfolio-BE\src\Portfolio.Application\obj\Debug\net9.0\Portfolio.Application.pdb
 C:\Users\TUF\Desktop\Github\Portfolio\Portfolio-BE\src\Portfolio.Application\obj\Debug\net9.0\ref\Portfolio.Application.dll
+C:\Users\Trung Hien\Desktop\GithubPC\Portfolio\Portfolio-BE\src\Portfolio.Application\bin\Debug\net9.0\Portfolio.Application.deps.json
+C:\Users\Trung Hien\Desktop\GithubPC\Portfolio\Portfolio-BE\src\Portfolio.Application\bin\Debug\net9.0\Portfolio.Application.dll
+C:\Users\Trung Hien\Desktop\GithubPC\Portfolio\Portfolio-BE\src\Portfolio.Application\bin\Debug\net9.0\Portfolio.Application.pdb
+C:\Users\Trung Hien\Desktop\GithubPC\Portfolio\Portfolio-BE\src\Portfolio.Application\bin\Debug\net9.0\Portfolio.Domain.dll
+C:\Users\Trung Hien\Desktop\GithubPC\Portfolio\Portfolio-BE\src\Portfolio.Application\bin\Debug\net9.0\Portfolio.Domain.pdb
+C:\Users\Trung Hien\Desktop\GithubPC\Portfolio\Portfolio-BE\src\Portfolio.Application\obj\Debug\net9.0\Portfolio.Application.csproj.AssemblyReference.cache
+C:\Users\Trung Hien\Desktop\GithubPC\Portfolio\Portfolio-BE\src\Portfolio.Application\obj\Debug\net9.0\Portfolio.Application.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Trung Hien\Desktop\GithubPC\Portfolio\Portfolio-BE\src\Portfolio.Application\obj\Debug\net9.0\Portfolio.Application.AssemblyInfoInputs.cache
+C:\Users\Trung Hien\Desktop\GithubPC\Portfolio\Portfolio-BE\src\Portfolio.Application\obj\Debug\net9.0\Portfolio.Application.AssemblyInfo.cs
+C:\Users\Trung Hien\Desktop\GithubPC\Portfolio\Portfolio-BE\src\Portfolio.Application\obj\Debug\net9.0\Portfolio.Application.csproj.CoreCompileInputs.cache
+C:\Users\Trung Hien\Desktop\GithubPC\Portfolio\Portfolio-BE\src\Portfolio.Application\obj\Debug\net9.0\Portfolio.Application.sourcelink.json
+C:\Users\Trung Hien\Desktop\GithubPC\Portfolio\Portfolio-BE\src\Portfolio.Application\obj\Debug\net9.0\Portfoli.B086831A.Up2Date
+C:\Users\Trung Hien\Desktop\GithubPC\Portfolio\Portfolio-BE\src\Portfolio.Application\obj\Debug\net9.0\Portfolio.Application.dll
+C:\Users\Trung Hien\Desktop\GithubPC\Portfolio\Portfolio-BE\src\Portfolio.Application\obj\Debug\net9.0\refint\Portfolio.Application.dll
+C:\Users\Trung Hien\Desktop\GithubPC\Portfolio\Portfolio-BE\src\Portfolio.Application\obj\Debug\net9.0\Portfolio.Application.pdb
+C:\Users\Trung Hien\Desktop\GithubPC\Portfolio\Portfolio-BE\src\Portfolio.Application\obj\Debug\net9.0\ref\Portfolio.Application.dll
