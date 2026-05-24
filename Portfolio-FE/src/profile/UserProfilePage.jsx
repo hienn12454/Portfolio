@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth, useClerk } from "@clerk/react";
 import { createApiClient } from "../core/http/apiClient";
+import { useThemeSync } from "../core/useThemeSync";
 
 const EMPTY_PROFILE = {
   displayName: "",
@@ -38,6 +39,7 @@ function normalizeUrl(value) {
 }
 
 export function UserProfilePage() {
+  useThemeSync();
   const { isSignedIn, getToken } = useAuth();
   const { signOut } = useClerk();
   const apiClient = useMemo(() => createApiClient(getToken), [getToken]);

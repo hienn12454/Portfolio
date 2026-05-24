@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@clerk/react";
 import { createApiClient } from "../core/http/apiClient";
+import { useThemeSync } from "../core/useThemeSync";
 import "./CVEditPage.css";
 
 // ── helpers ──────────────────────────────────────────────
@@ -283,6 +284,7 @@ function Panel({ title, children, badge, id }) {
 
 // ── Main Editor Page ──────────────────────────────────────
 export function CVEditPage() {
+  useThemeSync();
   const { getToken } = useAuth();
   const apiClient = useMemo(() => createApiClient(getToken), [getToken]);
   const [saving, setSaving] = useState(false);

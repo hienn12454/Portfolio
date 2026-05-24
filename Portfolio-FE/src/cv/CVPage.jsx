@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { createApiClient } from "../core/http/apiClient";
+import { useThemeSync } from "../core/useThemeSync";
 import "./CVPage.css";
 
 // ── Helpers ──────────────────────────────────────────────
@@ -88,6 +89,7 @@ function TimelineEntry({ title, subtitle, period, location, description, bullets
 
 // ── Main Page ─────────────────────────────────────────────
 export function CVPage() {
+  useThemeSync();
   const apiClient = useMemo(() => createApiClient(async () => null), []);
   const [cv, setCv] = useState(null);
   const [loading, setLoading] = useState(true);

@@ -3,8 +3,10 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@clerk/react";
 import { AdminPanel } from "./AdminPanel";
 import { createApiClient } from "../core/http/apiClient";
+import { useThemeSync } from "../core/useThemeSync";
 
 export function AdminPage() {
+  useThemeSync();
   const navigate = useNavigate();
   const { isSignedIn, isLoaded, getToken } = useAuth();
   const apiClient = useMemo(() => createApiClient(getToken), [getToken]);

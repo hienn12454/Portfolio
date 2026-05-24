@@ -1,27 +1,30 @@
 /* =====================================================
-   CV EDITOR — Modern 3D Dark Glass Design
+   CV EDITOR — Theme-Aware Design
    ===================================================== */
 
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,600&family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap');
 
-/* ── Variables ── */
-:root {
-  --cve-bg: #0a0a14;
-  --cve-surface: rgba(255,255,255,0.04);
-  --cve-surface-hover: rgba(255,255,255,0.07);
-  --cve-border: rgba(255,255,255,0.1);
-  --cve-border-focus: rgba(99,102,241,0.6);
-  --cve-accent: #6366f1;
-  --cve-accent-glow: rgba(99,102,241,0.35);
-  --cve-radius: 0.75rem;
-  --cve-radius-sm: 0.5rem;
-  --cve-text: rgba(255,255,255,0.9);
-  --cve-text-muted: rgba(255,255,255,0.5);
-  --cve-text-faint: rgba(255,255,255,0.3);
-}
-
-/* ── Root — background comes from .site class ── */
+/* ── Theme-aware variables — inherit from global data-theme ── */
 .cve-root {
+  --cve-surface:          var(--surface);
+  --cve-surface-hover:    var(--surface-alt);
+  --cve-border:           var(--surface-border);
+  --cve-border-focus:     color-mix(in oklab, var(--accent) 60%, transparent);
+  --cve-accent:           var(--accent);
+  --cve-accent-glow:      var(--accent-soft);
+  --cve-radius:           0.75rem;
+  --cve-radius-sm:        0.5rem;
+  --cve-text:             var(--text);
+  --cve-text-muted:       var(--text-muted);
+  --cve-text-faint:       var(--text-soft);
+  --cve-header-bg:        color-mix(in oklab, var(--bg-elevated, var(--bg)) 90%, transparent);
+  --cve-footer-bg:        color-mix(in oklab, var(--bg-elevated, var(--bg)) 80%, transparent);
+  --cve-input-bg:         var(--surface);
+  --cve-input-focus-bg:   color-mix(in oklab, var(--accent) 8%, var(--surface));
+  --cve-nav-hover-bg:     color-mix(in oklab, var(--accent) 15%, transparent);
+  --cve-nav-hover-text:   color-mix(in oklab, var(--accent) 85%, var(--text));
+  --cve-card-hover-border: color-mix(in oklab, var(--accent) 20%, var(--surface-border));
+
   min-height: 100vh;
   color: var(--cve-text);
   font-family: "Cormorant Garamond", Georgia, serif;
@@ -31,7 +34,7 @@
 
 /* ── Sticky Header ── */
 .cve-header {
-  background: rgba(10,10,20,0.88);
+  background: var(--cve-header-bg);
   backdrop-filter: blur(20px) saturate(1.4);
   -webkit-backdrop-filter: blur(20px) saturate(1.4);
   border-bottom: 1px solid var(--cve-border);
@@ -47,18 +50,18 @@
   display: flex;
   align-items: center;
   gap: 1.5rem;
-  border-bottom: 1px solid rgba(255,255,255,0.05);
+  border-bottom: 1px solid color-mix(in oklab, var(--surface-border) 50%, transparent);
 }
 
 .cve-back-link {
   font-size: 0.80rem;
-  color: rgba(255,255,255,0.45);
+  color: var(--cve-text-muted);
   text-decoration: none;
   font-family: "DM Sans", system-ui, sans-serif;
   letter-spacing: 0.02em;
   transition: color 0.15s;
 }
-.cve-back-link:hover { color: rgba(255,255,255,0.80); }
+.cve-back-link:hover { color: var(--text); }
 
 .cve-header__content {
   max-width: 1240px;
@@ -75,7 +78,7 @@
   margin: 0;
   font-size: 1.05rem;
   font-weight: 800;
-  color: #fff;
+  color: var(--text);
   letter-spacing: -0.01em;
 }
 
@@ -125,7 +128,7 @@
   display: flex;
   flex-direction: column;
   gap: 0.15rem;
-  background: rgba(255,255,255,0.03);
+  background: var(--cve-surface);
   border: 1px solid var(--cve-border);
   border-radius: var(--cve-radius);
   padding: 0.5rem;
@@ -143,8 +146,8 @@
 }
 
 .cve-nav-item:hover {
-  background: rgba(99,102,241,0.15);
-  color: #c7d2fe;
+  background: var(--cve-nav-hover-bg);
+  color: var(--cve-nav-hover-text);
 }
 
 .cve-scroll-anchor { scroll-margin-top: 100px; }
@@ -160,11 +163,11 @@
 .cve-panel {
   border-radius: var(--cve-radius);
   border: 1px solid var(--cve-border);
-  background: rgba(255,255,255,0.025);
+  background: var(--cve-surface);
   overflow: hidden;
   transition: border-color 0.2s;
 }
-.cve-panel:focus-within { border-color: rgba(99,102,241,0.3); }
+.cve-panel:focus-within { border-color: color-mix(in oklab, var(--accent) 40%, transparent); }
 
 .cve-panel-header {
   width: 100%;
@@ -179,13 +182,15 @@
   border-bottom: 1px solid transparent;
   transition: background 0.15s;
 }
-.cve-panel-header:hover { background: rgba(255,255,255,0.03); }
-.cve-panel--open .cve-panel-header { border-bottom-color: rgba(255,255,255,0.06); }
+.cve-panel-header:hover { background: var(--cve-surface-hover); }
+.cve-panel--open .cve-panel-header {
+  border-bottom-color: color-mix(in oklab, var(--surface-border) 60%, transparent);
+}
 
 .cve-panel-title {
   font-size: 0.88rem;
   font-weight: 700;
-  color: #fff;
+  color: var(--text);
   flex: 1;
 }
 
@@ -210,8 +215,8 @@
 
 /* ── Card (data entry unit) ── */
 .cve-card {
-  background: rgba(255,255,255,0.03);
-  border: 1px solid rgba(255,255,255,0.08);
+  background: var(--cve-surface);
+  border: 1px solid var(--cve-border);
   border-radius: var(--cve-radius-sm);
   padding: 1rem 1rem 0.85rem;
   position: relative;
@@ -220,7 +225,7 @@
   gap: 0.65rem;
   transition: border-color 0.2s;
 }
-.cve-card:hover { border-color: rgba(255,255,255,0.13); }
+.cve-card:hover { border-color: var(--cve-card-hover-border); }
 .cve-card--compact { padding: 0.8rem; }
 
 .cve-card-remove {
@@ -281,24 +286,24 @@
 .cve-select {
   width: 100%;
   padding: 0.6rem 0.85rem;
-  border: 1.5px solid rgba(255,255,255,0.1);
+  border: 1.5px solid var(--cve-border);
   border-radius: var(--cve-radius-sm);
   font-size: 0.83rem;
   color: var(--cve-text);
-  background: rgba(255,255,255,0.05);
+  background: var(--cve-input-bg);
   transition: border-color 0.18s, box-shadow 0.18s, background 0.18s;
   font-family: "DM Sans", system-ui, sans-serif;
   outline: none;
 }
 .cve-input::placeholder,
-.cve-textarea::placeholder { color: rgba(255,255,255,0.22); }
+.cve-textarea::placeholder { color: var(--cve-text-faint); }
 
 .cve-input:focus,
 .cve-textarea:focus,
 .cve-select:focus {
   border-color: var(--cve-accent);
-  background: rgba(99,102,241,0.07);
-  box-shadow: 0 0 0 3px rgba(99,102,241,0.2);
+  background: var(--cve-input-focus-bg);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--accent) 20%, transparent);
 }
 
 .cve-textarea {
@@ -306,15 +311,25 @@
   line-height: 1.6;
 }
 
+/* Arrow chevron for dark theme (light arrow) */
 .cve-select {
   appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l5 5 5-5' stroke='rgba(255,255,255,0.4)' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23aaaaaa' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 0.8rem center;
   padding-right: 2.2rem;
   cursor: pointer;
 }
-.cve-select option { background: #1e1e2e; color: #e2e8f0; }
+
+/* Arrow chevron for light theme (dark arrow) */
+html[data-theme="light"] .cve-select {
+  background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23555555' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+}
+
+.cve-select option {
+  background: var(--bg-elevated, var(--bg));
+  color: var(--text);
+}
 
 /* ── Toggle ── */
 .cve-toggle {
@@ -332,27 +347,27 @@
   position: relative;
   width: 38px;
   height: 21px;
-  background: rgba(255,255,255,0.1);
+  background: var(--cve-surface-hover);
   border-radius: 999px;
   transition: background 0.2s;
   flex-shrink: 0;
-  border: 1px solid rgba(255,255,255,0.12);
+  border: 1px solid var(--cve-border);
 }
 .cve-toggle-slider::after {
   content: "";
   position: absolute;
   width: 15px;
   height: 15px;
-  background: rgba(255,255,255,0.6);
+  background: var(--cve-text-muted);
   border-radius: 50%;
   top: 2px;
   left: 2px;
   transition: transform 0.2s, background 0.2s;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.4);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.3);
 }
 .cve-toggle input:checked ~ .cve-toggle-slider {
   background: var(--cve-accent);
-  border-color: rgba(99,102,241,0.5);
+  border-color: color-mix(in oklab, var(--accent) 50%, transparent);
   box-shadow: 0 0 8px var(--cve-accent-glow);
 }
 .cve-toggle input:checked ~ .cve-toggle-slider::after {
@@ -419,12 +434,12 @@
 .cve-color-swatch {
   width: 38px;
   height: 38px;
-  border: 2px solid rgba(255,255,255,0.15);
+  border: 2px solid var(--cve-border);
   border-radius: 0.5rem;
   cursor: pointer;
   padding: 0;
   background: none;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
   flex-shrink: 0;
 }
 .cve-color-swatch::-webkit-color-swatch-wrapper { padding: 3px; border-radius: 6px; }
@@ -433,7 +448,7 @@
 /* ── Add buttons ── */
 .cve-add-btn {
   background: transparent;
-  border: 1.5px dashed rgba(255,255,255,0.12);
+  border: 1.5px dashed var(--cve-border);
   color: var(--cve-text-muted);
   padding: 0.45rem 0.8rem;
   border-radius: var(--cve-radius-sm);
@@ -447,14 +462,14 @@
 }
 .cve-add-btn:hover {
   border-color: var(--cve-accent);
-  color: #c7d2fe;
-  background: rgba(99,102,241,0.08);
+  color: var(--cve-nav-hover-text);
+  background: color-mix(in oklab, var(--accent) 8%, transparent);
 }
 
 .cve-add-section-btn {
-  background: rgba(99,102,241,0.08);
-  border: 1.5px dashed rgba(99,102,241,0.4);
-  color: #a5b4fc;
+  background: color-mix(in oklab, var(--accent) 8%, transparent);
+  border: 1.5px dashed color-mix(in oklab, var(--accent) 40%, transparent);
+  color: var(--cve-nav-hover-text);
   padding: 0.7rem 1rem;
   border-radius: var(--cve-radius-sm);
   font-size: 0.84rem;
@@ -464,9 +479,9 @@
   font-family: "DM Sans", system-ui, sans-serif;
 }
 .cve-add-section-btn:hover {
-  background: rgba(99,102,241,0.15);
-  border-color: rgba(99,102,241,0.7);
-  box-shadow: 0 0 16px rgba(99,102,241,0.2);
+  background: color-mix(in oklab, var(--accent) 15%, transparent);
+  border-color: color-mix(in oklab, var(--accent) 70%, transparent);
+  box-shadow: 0 0 16px color-mix(in oklab, var(--accent) 20%, transparent);
 }
 
 /* ── 3D Buttons ── */
@@ -510,16 +525,16 @@
 .cve-btn--primary:active:not(:disabled) { transform: translateY(1px); }
 
 .cve-btn--outline {
-  background: rgba(255,255,255,0.06);
-  color: rgba(255,255,255,0.7);
-  border: 1px solid rgba(255,255,255,0.14);
-  box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+  background: var(--cve-surface);
+  color: var(--cve-text-muted);
+  border: 1px solid var(--cve-border);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
 .cve-btn--outline:hover:not(:disabled) {
-  background: rgba(255,255,255,0.1);
-  color: #fff;
+  background: var(--cve-surface-hover);
+  color: var(--text);
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(0,0,0,0.35);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.12);
 }
 
 .cve-btn--large { padding: 0.8rem 2.2rem; font-size: 0.95rem; }
@@ -561,8 +576,8 @@
 
 /* ── Footer ── */
 .cve-footer {
-  border-top: 1px solid var(--cve-border, rgba(255,255,255,0.08));
-  background: rgba(10,10,20,0.65);
+  border-top: 1px solid var(--cve-border);
+  background: var(--cve-footer-bg);
   padding: 1rem 1.5rem;
   margin-top: 2rem;
 }
@@ -576,13 +591,13 @@
   flex-wrap: wrap;
   gap: 0.75rem;
   font-size: 0.82rem;
-  color: rgba(255,255,255,0.35);
+  color: var(--cve-text-faint);
 }
 
 .cve-footer__link {
-  color: rgba(255,255,255,0.45);
+  color: var(--cve-text-muted);
   text-decoration: none;
   font-family: "DM Sans", system-ui, sans-serif;
   transition: color 0.15s;
 }
-.cve-footer__link:hover { color: rgba(255,255,255,0.80); }
+.cve-footer__link:hover { color: var(--text); }
