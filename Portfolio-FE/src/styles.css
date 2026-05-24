@@ -4448,10 +4448,14 @@ h4 { font-size: clamp(1rem, 1.5vw, 1.25rem); font-weight: 600; }
 }
 
 .adm-stat-card__value {
-  font-family: "Playfair Display", Georgia, serif;
-  font-size: 2rem;
+  /* Calibri → DM Sans → system-ui: clean tabular numerals like a dashboard */
+  font-family: "Calibri", "DM Sans", "Inter", system-ui, sans-serif;
+  font-size: 2.2rem;
   font-weight: 700;
   line-height: 1;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
   color: var(--stat-color, var(--accent));
 }
 
@@ -4490,7 +4494,16 @@ h4 { font-size: clamp(1rem, 1.5vw, 1.25rem); font-weight: 600; }
 .adm-chart-wrap {
   display: flex;
   flex-direction: column;
-  gap: 0.55rem;
+  gap: 0.65rem;
+}
+
+/* Header row: filters left, legend right */
+.adm-chart-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
 }
 
 .adm-chart-filters {
@@ -4549,14 +4562,29 @@ h4 { font-size: clamp(1rem, 1.5vw, 1.25rem); font-weight: 600; }
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 0.6rem;
   font-family: "DM Sans", system-ui, sans-serif;
   font-size: 0.78rem;
-  color: var(--text-soft);
-  background: rgba(0,0,0,0.18);
+  color: var(--text-muted);
+  background: color-mix(in oklab, var(--bg-elevated, var(--bg)) 80%, transparent);
+  backdrop-filter: blur(4px);
   border-radius: 0.5rem;
   z-index: 2;
 }
 
+.adm-chart-loading__spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--surface-border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: adm-spin 0.7s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes adm-spin { to { transform: rotate(360deg); } }
+
+/* Chart SVG: fade + scale-up from bottom on each new dataset */
 .adm-chart-svg {
   width: 100%;
   height: auto;
@@ -4565,37 +4593,53 @@ h4 { font-size: clamp(1rem, 1.5vw, 1.25rem); font-weight: 600; }
   cursor: crosshair;
 }
 
+.adm-chart-svg.is-ready {
+  animation: chartReveal 0.38s cubic-bezier(0.22, 1, 0.36, 1) both;
+  transform-origin: bottom center;
+}
+
+@keyframes chartReveal {
+  from { opacity: 0; transform: scaleY(0.90); }
+  to   { opacity: 1; transform: scaleY(1);    }
+}
+
 .adm-chart-tooltip {
   position: absolute;
   top: 12px;
-  min-width: 140px;
-  background: rgba(15,23,42,0.92);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(255,255,255,0.12);
-  border-radius: 0.6rem;
-  padding: 0.55rem 0.75rem;
+  min-width: 152px;
+  background: color-mix(in oklab, var(--bg-elevated, var(--bg)) 96%, transparent);
+  backdrop-filter: blur(14px);
+  border: 1px solid var(--surface-border);
+  border-radius: 0.7rem;
+  padding: 0.6rem 0.85rem;
   pointer-events: none;
   z-index: 10;
-  font-family: "DM Sans", system-ui, sans-serif;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  font-family: "Calibri", "DM Sans", system-ui, sans-serif;
+  box-shadow: 0 8px 28px rgba(0,0,0,0.18), 0 2px 8px rgba(0,0,0,0.08);
 }
 
 .adm-chart-tooltip__date {
-  font-size: 0.70rem;
-  color: rgba(255,255,255,0.45);
-  margin-bottom: 0.35rem;
+  font-size: 0.71rem;
+  color: var(--text-soft);
+  margin-bottom: 0.4rem;
   font-weight: 600;
+  letter-spacing: 0.02em;
 }
 
 .adm-chart-tooltip__row {
   display: flex;
   align-items: center;
-  gap: 0.4rem;
-  font-size: 0.76rem;
-  color: rgba(255,255,255,0.72);
-  line-height: 1.6;
+  gap: 0.45rem;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  line-height: 1.65;
 }
-.adm-chart-tooltip__row strong { color: #fff; margin-left: auto; }
+.adm-chart-tooltip__row strong {
+  color: var(--text);
+  margin-left: auto;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+}
 
 .adm-chart-empty {
   text-align: center;
@@ -4608,16 +4652,22 @@ h4 { font-size: clamp(1rem, 1.5vw, 1.25rem); font-weight: 600; }
 .adm-chart-legend {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 0.85rem;
   flex-wrap: wrap;
   font-family: "DM Sans", system-ui, sans-serif;
-  font-size: 0.78rem;
+  font-size: 0.75rem;
   color: var(--text-muted);
+}
+
+.adm-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.38rem;
 }
 
 .adm-legend-dot {
   display: inline-block;
-  width: 9px; height: 9px;
+  width: 8px; height: 8px;
   border-radius: 50%;
   flex-shrink: 0;
 }

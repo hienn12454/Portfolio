@@ -409,7 +409,7 @@ export function CVPage() {
       <footer className="cv-footer">
         <div className="cv-footer__content">
           <span>© {new Date().getFullYear()} {cv.fullName || "hiennt.website"}</span>
-          <Link to="/" className="cv-footer__link">← Về trang chủ</Link>
+          <span className="cv-footer__note">hiennt.website</span>
         </div>
       </footer>
     </div>

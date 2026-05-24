@@ -69,13 +69,14 @@ function AdminLineChart({ apiClient, language }) {
   const [chartData, setChartData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [tooltip, setTooltip] = useState(null);
+  const [chartKey, setChartKey] = useState(0); // increments on new data → triggers CSS fade-in
   const svgRef = useRef(null);
 
   const getDateRange = () => {
     const end = toDateStr(today);
-    if (range === "7d") return { startDate: toDateStr(offsetDate(today, -6)), endDate: end };
+    if (range === "7d")  return { startDate: toDateStr(offsetDate(today, -6)),  endDate: end };
     if (range === "30d") return { startDate: toDateStr(offsetDate(today, -29)), endDate: end };
-    if (range === "3m") return { startDate: toDateStr(offsetDate(today, -89)), endDate: end };
+    if (range === "3m")  return { startDate: toDateStr(offsetDate(today, -89)), endDate: end };
     if (range === "custom" && customStart && customEnd) return { startDate: customStart, endDate: customEnd };
     return { startDate: toDateStr(offsetDate(today, -6)), endDate: end };
   };
@@ -84,22 +85,28 @@ function AdminLineChart({ apiClient, language }) {
     const { startDate, endDate } = getDateRange();
     if (!startDate || !endDate) return;
     setLoading(true);
+    setTooltip(null);
     apiClient.getProtected(`/api/analytics/chart-data?startDate=${startDate}&endDate=${endDate}`)
-      .then((data) => setChartData(Array.isArray(data) ? data : []))
+      .then((data) => { setChartData(Array.isArray(data) ? data : []); setChartKey((k) => k + 1); })
       .catch(() => setChartData([]))
       .finally(() => setLoading(false));
   }, [range, customStart, customEnd, apiClient]);
 
-  const W = 680, H = 200;
-  const PAD = { top: 20, right: 28, bottom: 36, left: 44 };
+  // ── SVG dimensions — taller canvas for better resolution ──
+  const W = 720, H = 240;
+  const PAD = { top: 24, right: 32, bottom: 40, left: 50 };
   const cw = W - PAD.left - PAD.right;
   const ch = H - PAD.top - PAD.bottom;
 
   const pvData = chartData.map((d) => d.pageViews ?? 0);
-  const lgData = chartData.map((d) => d.logins ?? 0);
-  const nuData = chartData.map((d) => d.newUsers ?? 0);
+  const lgData = chartData.map((d) => d.logins    ?? 0);
+  const nuData = chartData.map((d) => d.newUsers   ?? 0);
   const n = chartData.length;
-  const maxVal = Math.max(...pvData, ...lgData, ...nuData, 1);
+
+  // Nice round max so grid lines land on clean numbers
+  const rawMax = Math.max(...pvData, ...lgData, ...nuData, 1);
+  const magnitude = Math.pow(10, Math.floor(Math.log10(rawMax)));
+  const maxVal = Math.ceil(rawMax / magnitude) * magnitude || 1;
 
   const xs = (i) => n < 2 ? PAD.left + cw / 2 : PAD.left + (i / (n - 1)) * cw;
   const ys = (v) => PAD.top + ch - (v / maxVal) * ch;
@@ -115,24 +122,31 @@ function AdminLineChart({ apiClient, language }) {
     return `${line} L ${pts[pts.length - 1].x},${bot} L ${pts[0].x},${bot} Z`;
   };
 
+  // 5 evenly-spaced grid lines with clean labels
   const gridLines = [0, 0.25, 0.5, 0.75, 1].map((f) => ({
     y: PAD.top + ch * (1 - f),
     label: Math.round(maxVal * f),
   }));
 
+  // X-axis ticks: max ~8 ticks regardless of range
   const xLabels = (() => {
     if (n === 0) return [];
-    const maxTicks = Math.min(n, range === "7d" ? 7 : range === "30d" ? 10 : 8);
-    const step = Math.max(1, Math.floor(n / maxTicks));
+    const maxTicks = range === "7d" ? 7 : 8;
+    const step = Math.max(1, Math.ceil(n / maxTicks));
     const indices = [];
     for (let i = 0; i < n; i += step) indices.push(i);
     if (indices[indices.length - 1] !== n - 1) indices.push(n - 1);
     return indices.map((i) => {
       const d = new Date(chartData[i].date + "T00:00:00");
-      const label = `${d.getDate()}/${d.getMonth() + 1}`;
+      const label = range === "3m"
+        ? `${d.getDate()}/${d.getMonth() + 1}`
+        : `${d.getDate()}/${d.getMonth() + 1}`;
       return { x: xs(i), label };
     });
   })();
+
+  // Only render dots when data is sparse (≤ 30 points) — avoids clutter
+  const showDots = n <= 30;
 
   const handleMouseMove = (e) => {
     if (!svgRef.current || n === 0) return;
@@ -146,139 +160,157 @@ function AdminLineChart({ apiClient, language }) {
   };
 
   const presets = [
-    { id: "7d", label: language === "vi" ? "7 ngày" : "7 days" },
-    { id: "30d", label: language === "vi" ? "30 ngày" : "30 days" },
-    { id: "3m", label: language === "vi" ? "3 tháng" : "3 months" },
-    { id: "custom", label: language === "vi" ? "Tùy chỉnh" : "Custom" },
+    { id: "7d",     label: language === "vi" ? "7 ngày"   : "7 days"   },
+    { id: "30d",    label: language === "vi" ? "30 ngày"  : "30 days"  },
+    { id: "3m",     label: language === "vi" ? "3 tháng"  : "3 months" },
+    { id: "custom", label: language === "vi" ? "Tùy chỉnh": "Custom"   },
   ];
+
+  // Theme-aware SVG text colors via CSS custom properties
+  const tickStyle  = { fill: "var(--text-soft)",  fontFamily: "Calibri, DM Sans, system-ui, sans-serif", fontVariantNumeric: "tabular-nums" };
+  const gridStyle  = { stroke: "var(--surface-border)" };
 
   return (
     <div className="adm-chart-wrap">
-      {/* Filter row */}
-      <div className="adm-chart-filters">
-        {presets.map((p) => (
-          <button key={p.id} type="button"
-            className={`adm-chart-filter-btn${range === p.id ? " is-active" : ""}`}
-            onClick={() => setRange(p.id)}>
-            {p.label}
-          </button>
-        ))}
-        {range === "custom" && (
-          <div className="adm-chart-datepicker">
-            <input type="date" value={customStart}
-              min={toDateStr(offsetDate(today, -365))}
-              max={customEnd || toDateStr(today)}
-              onChange={(e) => {
-                setCustomStart(e.target.value);
-                if (customEnd && e.target.value > customEnd) setCustomEnd(e.target.value);
-              }}
-              className="adm-chart-date-input" />
-            <span>→</span>
-            <input type="date" value={customEnd}
-              min={customStart || toDateStr(offsetDate(today, -365))}
-              max={toDateStr(today)}
-              onChange={(e) => setCustomEnd(e.target.value)}
-              className="adm-chart-date-input" />
+      {/* ── Filter row ── */}
+      <div className="adm-chart-header">
+        <div className="adm-chart-filters">
+          {presets.map((p) => (
+            <button key={p.id} type="button"
+              className={`adm-chart-filter-btn${range === p.id ? " is-active" : ""}`}
+              onClick={() => setRange(p.id)}>
+              {p.label}
+            </button>
+          ))}
+          {range === "custom" && (
+            <div className="adm-chart-datepicker">
+              <input type="date" value={customStart}
+                min={toDateStr(offsetDate(today, -365))} max={customEnd || toDateStr(today)}
+                onChange={(e) => { setCustomStart(e.target.value); if (customEnd && e.target.value > customEnd) setCustomEnd(e.target.value); }}
+                className="adm-chart-date-input" />
+              <span>→</span>
+              <input type="date" value={customEnd}
+                min={customStart || toDateStr(offsetDate(today, -365))} max={toDateStr(today)}
+                onChange={(e) => setCustomEnd(e.target.value)}
+                className="adm-chart-date-input" />
+            </div>
+          )}
+        </div>
+
+        {/* ── Legend ── */}
+        <div className="adm-chart-legend">
+          <span className="adm-legend-item"><span className="adm-legend-dot" style={{ background: "#8b5cf6" }} />{language === "vi" ? "Lượt truy cập" : "Page views"}</span>
+          <span className="adm-legend-item"><span className="adm-legend-dot" style={{ background: "#38bdf8" }} />{language === "vi" ? "Đăng nhập" : "Logins"}</span>
+          <span className="adm-legend-item"><span className="adm-legend-dot" style={{ background: "#fb923c" }} />{language === "vi" ? "User mới" : "New users"}</span>
+        </div>
+      </div>
+
+      {/* ── Chart SVG ── */}
+      <div className="adm-chart-svg-wrap">
+        {loading && (
+          <div className="adm-chart-loading">
+            <div className="adm-chart-loading__spinner" />
+            <span>{language === "vi" ? "Đang tải dữ liệu..." : "Loading..."}</span>
           </div>
         )}
-      </div>
-
-      {/* Legend */}
-      <div className="adm-chart-legend">
-        <span className="adm-legend-dot" style={{ background: "#8b5cf6" }} />
-        <span>{language === "vi" ? "Lượt truy cập" : "Page views"}</span>
-        <span className="adm-legend-dot" style={{ background: "#38bdf8" }} />
-        <span>{language === "vi" ? "Đăng nhập" : "Logins"}</span>
-        <span className="adm-legend-dot" style={{ background: "#fb923c" }} />
-        <span>{language === "vi" ? "User mới" : "New users"}</span>
-      </div>
-
-      {/* Chart */}
-      <div className="adm-chart-svg-wrap" style={{ position: "relative" }}>
-        {loading && <div className="adm-chart-loading">{language === "vi" ? "Đang tải..." : "Loading..."}</div>}
-        <svg ref={svgRef} viewBox={`0 0 ${W} ${H}`} className="adm-chart-svg"
-          onMouseMove={handleMouseMove} onMouseLeave={() => setTooltip(null)}>
+        <svg
+          key={chartKey}
+          ref={svgRef}
+          viewBox={`0 0 ${W} ${H}`}
+          className={`adm-chart-svg${!loading && n > 0 ? " is-ready" : ""}`}
+          onMouseMove={handleMouseMove}
+          onMouseLeave={() => setTooltip(null)}
+        >
           <defs>
             <linearGradient id="grad-pv" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#8b5cf6" stopOpacity="0.28" />
-              <stop offset="100%" stopColor="#8b5cf6" stopOpacity="0.02" />
+              <stop offset="0%"   stopColor="#8b5cf6" stopOpacity="0.30" />
+              <stop offset="100%" stopColor="#8b5cf6" stopOpacity="0.00" />
             </linearGradient>
             <linearGradient id="grad-lg" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#38bdf8" stopOpacity="0.22" />
-              <stop offset="100%" stopColor="#38bdf8" stopOpacity="0.02" />
+              <stop offset="0%"   stopColor="#38bdf8" stopOpacity="0.24" />
+              <stop offset="100%" stopColor="#38bdf8" stopOpacity="0.00" />
             </linearGradient>
             <linearGradient id="grad-nu" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#fb923c" stopOpacity="0.22" />
-              <stop offset="100%" stopColor="#fb923c" stopOpacity="0.02" />
+              <stop offset="0%"   stopColor="#fb923c" stopOpacity="0.22" />
+              <stop offset="100%" stopColor="#fb923c" stopOpacity="0.00" />
             </linearGradient>
           </defs>
 
-          {/* Grid */}
+          {/* ── Y-axis baseline ── */}
+          <line x1={PAD.left} y1={PAD.top} x2={PAD.left} y2={PAD.top + ch}
+            stroke="var(--surface-border)" strokeWidth="1" />
+
+          {/* ── Grid lines + Y labels ── */}
           {gridLines.map((g) => (
             <g key={g.y}>
               <line x1={PAD.left} y1={g.y} x2={W - PAD.right} y2={g.y}
-                stroke="rgba(255,255,255,0.07)" strokeWidth="1" strokeDasharray="4,4" />
-              <text x={PAD.left - 6} y={g.y + 4} textAnchor="end" fontSize="10" fill="rgba(255,255,255,0.32)">{g.label}</text>
+                style={gridStyle} strokeWidth={g.label === 0 ? "1.5" : "1"} strokeDasharray={g.label === 0 ? "0" : "5,5"} />
+              <text x={PAD.left - 8} y={g.y + 4} textAnchor="end" fontSize="11" style={tickStyle}>{g.label}</text>
             </g>
           ))}
 
-          {/* X labels */}
+          {/* ── X labels ── */}
           {xLabels.map((t) => (
-            <text key={t.x} x={t.x} y={H - 6} textAnchor="middle" fontSize="10" fill="rgba(255,255,255,0.38)">{t.label}</text>
+            <text key={t.label + t.x} x={t.x} y={H - 8} textAnchor="middle" fontSize="11" style={tickStyle}>{t.label}</text>
           ))}
 
-          {/* Area fills */}
+          {/* ── Area fills ── */}
           {n > 1 && <>
             <path d={areaPath(pvPts)} fill="url(#grad-pv)" />
             <path d={areaPath(lgPts)} fill="url(#grad-lg)" />
             <path d={areaPath(nuPts)} fill="url(#grad-nu)" />
           </>}
 
-          {/* Lines */}
+          {/* ── Lines ── */}
           {n > 1 && <>
-            <path d={buildSmoothPath(pvPts)} fill="none" stroke="#8b5cf6" strokeWidth="2" strokeLinecap="round" />
-            <path d={buildSmoothPath(lgPts)} fill="none" stroke="#38bdf8" strokeWidth="2" strokeLinecap="round" />
-            <path d={buildSmoothPath(nuPts)} fill="none" stroke="#fb923c" strokeWidth="2" strokeLinecap="round" />
+            <path d={buildSmoothPath(pvPts)} fill="none" stroke="#8b5cf6" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+            <path d={buildSmoothPath(lgPts)} fill="none" stroke="#38bdf8" strokeWidth="2"   strokeLinecap="round" strokeLinejoin="round" />
+            <path d={buildSmoothPath(nuPts)} fill="none" stroke="#fb923c" strokeWidth="2"   strokeLinecap="round" strokeLinejoin="round" />
           </>}
 
-          {/* Dots */}
-          {pvPts.map((p, i) => <circle key={i} cx={p.x} cy={p.y} r="3" fill="#8b5cf6" stroke="rgba(15,23,42,0.8)" strokeWidth="1.5" />)}
-          {lgPts.map((p, i) => <circle key={i} cx={p.x} cy={p.y} r="2.5" fill="#38bdf8" stroke="rgba(15,23,42,0.8)" strokeWidth="1.5" />)}
-          {nuPts.map((p, i) => <circle key={i} cx={p.x} cy={p.y} r="2.5" fill="#fb923c" stroke="rgba(15,23,42,0.8)" strokeWidth="1.5" />)}
+          {/* ── Dots — only when sparse ── */}
+          {showDots && pvPts.map((p, i) => <circle key={i} cx={p.x} cy={p.y} r="3.5" fill="#8b5cf6" stroke="var(--bg-elevated,var(--bg))" strokeWidth="2" />)}
+          {showDots && lgPts.map((p, i) => <circle key={i} cx={p.x} cy={p.y} r="3"   fill="#38bdf8" stroke="var(--bg-elevated,var(--bg))" strokeWidth="2" />)}
+          {showDots && nuPts.map((p, i) => <circle key={i} cx={p.x} cy={p.y} r="3"   fill="#fb923c" stroke="var(--bg-elevated,var(--bg))" strokeWidth="2" />)}
 
-          {/* Hover crosshair */}
+          {/* ── Hover crosshair ── */}
           {tooltip && (
-            <line x1={tooltip.x} y1={PAD.top} x2={tooltip.x} y2={PAD.top + ch}
-              stroke="rgba(255,255,255,0.18)" strokeWidth="1" strokeDasharray="3,3" />
+            <>
+              <line x1={tooltip.x} y1={PAD.top} x2={tooltip.x} y2={PAD.top + ch}
+                stroke="var(--accent)" strokeWidth="1" strokeDasharray="4,3" opacity="0.5" />
+              {/* active dot highlights */}
+              <circle cx={tooltip.x} cy={pvPts[tooltip.idx]?.y ?? 0} r="5" fill="#8b5cf6" stroke="var(--bg-elevated,var(--bg))" strokeWidth="2.5" />
+              <circle cx={tooltip.x} cy={lgPts[tooltip.idx]?.y ?? 0} r="4.5" fill="#38bdf8" stroke="var(--bg-elevated,var(--bg))" strokeWidth="2.5" />
+              <circle cx={tooltip.x} cy={nuPts[tooltip.idx]?.y ?? 0} r="4.5" fill="#fb923c" stroke="var(--bg-elevated,var(--bg))" strokeWidth="2.5" />
+            </>
           )}
         </svg>
 
-        {/* Tooltip */}
+        {/* ── Tooltip ── */}
         {tooltip && (() => {
           const svgEl = svgRef.current;
-          const svgW = svgEl ? svgEl.clientWidth : 680;
+          const svgW = svgEl ? svgEl.clientWidth : 720;
           const tipX = (tooltip.x / W) * svgW;
-          const isRight = tipX < svgW * 0.6;
+          const isRight = tipX < svgW * 0.62;
+          const d = new Date(tooltip.date + "T00:00:00");
+          const dateStr = d.toLocaleDateString("vi-VN", { day: "2-digit", month: "short", year: "numeric" });
           return (
-            <div className="adm-chart-tooltip" style={{
-              left: isRight ? tipX + 12 : "auto",
-              right: isRight ? "auto" : svgW - tipX + 12,
-            }}>
-              <div className="adm-chart-tooltip__date">{tooltip.date}</div>
+            <div className="adm-chart-tooltip" style={{ left: isRight ? tipX + 14 : "auto", right: isRight ? "auto" : svgW - tipX + 14 }}>
+              <div className="adm-chart-tooltip__date">{dateStr}</div>
               <div className="adm-chart-tooltip__row">
                 <span className="adm-legend-dot" style={{ background: "#8b5cf6" }} />
-                <span>{language === "vi" ? "Truy cập" : "Views"}:</span>
-                <strong>{tooltip.pv}</strong>
+                <span>{language === "vi" ? "Truy cập" : "Views"}</span>
+                <strong>{(tooltip.pv ?? 0).toLocaleString()}</strong>
               </div>
               <div className="adm-chart-tooltip__row">
                 <span className="adm-legend-dot" style={{ background: "#38bdf8" }} />
-                <span>{language === "vi" ? "Đăng nhập" : "Logins"}:</span>
-                <strong>{tooltip.lg}</strong>
+                <span>{language === "vi" ? "Đăng nhập" : "Logins"}</span>
+                <strong>{(tooltip.lg ?? 0).toLocaleString()}</strong>
               </div>
               <div className="adm-chart-tooltip__row">
                 <span className="adm-legend-dot" style={{ background: "#fb923c" }} />
-                <span>{language === "vi" ? "User mới" : "New users"}:</span>
-                <strong>{tooltip.nu}</strong>
+                <span>{language === "vi" ? "User mới" : "New users"}</span>
+                <strong>{(tooltip.nu ?? 0).toLocaleString()}</strong>
               </div>
             </div>
           );
@@ -286,7 +318,7 @@ function AdminLineChart({ apiClient, language }) {
       </div>
 
       {n === 0 && !loading && (
-        <p className="adm-chart-empty">{language === "vi" ? "Chưa có dữ liệu trong khoảng thời gian này" : "No data in this date range"}</p>
+        <p className="adm-chart-empty">{language === "vi" ? "Chưa có dữ liệu trong khoảng thời gian này." : "No data in this date range."}</p>
       )}
     </div>
   );
