@@ -445,6 +445,203 @@ html[data-theme="light"] .cve-select {
 .cve-color-swatch::-webkit-color-swatch-wrapper { padding: 3px; border-radius: 6px; }
 .cve-color-swatch::-webkit-color-swatch { border: none; border-radius: 4px; }
 
+/* ── MonthYear Picker ── */
+.cve-mypicker {
+  display: flex;
+  flex-direction: column;
+  gap: 0.38rem;
+}
+
+.cve-mypicker__selects {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.cve-mypicker__sel {
+  flex: 1;
+  min-width: 0;
+  padding: 0.55rem 2rem 0.55rem 0.7rem;
+  font-size: 0.8rem;
+}
+.cve-mypicker__sel--year { flex: 1.2; }
+
+.cve-mypicker__clear {
+  background: transparent;
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  color: rgba(239, 68, 68, 0.7);
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  font-size: 0.58rem;
+  cursor: pointer;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+}
+.cve-mypicker__clear:hover {
+  background: rgba(239, 68, 68, 0.12);
+  color: #f87171;
+  border-color: rgba(239, 68, 68, 0.6);
+}
+
+/* "Hiện tại" checkbox row */
+.cve-mypicker__present-lbl {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.42rem;
+  cursor: pointer;
+  font-size: 0.77rem;
+  color: var(--cve-text-muted);
+  font-family: "DM Sans", system-ui, sans-serif;
+  user-select: none;
+}
+.cve-mypicker__present-lbl input { display: none; }
+
+.cve-mypicker__check {
+  width: 15px;
+  height: 15px;
+  border: 1.5px solid var(--cve-border);
+  border-radius: 4px;
+  background: var(--cve-input-bg);
+  flex-shrink: 0;
+  transition: all 0.15s;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.cve-mypicker__present-lbl input:checked ~ .cve-mypicker__check {
+  background: var(--cve-accent);
+  border-color: var(--cve-accent);
+  box-shadow: 0 0 6px var(--cve-accent-glow);
+}
+.cve-mypicker__present-lbl input:checked ~ .cve-mypicker__check::after {
+  content: "✓";
+  position: absolute;
+  top: -1px;
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: #fff;
+  line-height: 1;
+}
+
+/* Preview badge */
+.cve-mypicker__preview {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.71rem;
+  font-weight: 600;
+  color: var(--cve-accent);
+  background: color-mix(in oklab, var(--accent) 10%, transparent);
+  border: 1px solid color-mix(in oklab, var(--accent) 25%, transparent);
+  border-radius: 0.4rem;
+  padding: 0.2rem 0.55rem;
+  width: fit-content;
+  font-family: "DM Sans", system-ui, sans-serif;
+}
+
+/* ── Address Picker ── */
+.cve-addrpicker {
+  display: flex;
+  flex-direction: column;
+  gap: 0.42rem;
+}
+
+.cve-addrpicker__foot {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  flex-wrap: wrap;
+  margin-top: 0.05rem;
+}
+
+.cve-addrpicker__toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  background: transparent;
+  border: 1px solid var(--cve-border);
+  color: var(--cve-text-muted);
+  font-size: 0.72rem;
+  font-weight: 500;
+  padding: 0.25rem 0.65rem;
+  border-radius: 999px;
+  cursor: pointer;
+  font-family: "DM Sans", system-ui, sans-serif;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+.cve-addrpicker__toggle:hover {
+  background: color-mix(in oklab, var(--accent) 8%, transparent);
+  border-color: color-mix(in oklab, var(--accent) 40%, transparent);
+  color: var(--cve-nav-hover-text);
+}
+.cve-addrpicker__toggle.is-free {
+  background: color-mix(in oklab, var(--accent) 12%, transparent);
+  border-color: color-mix(in oklab, var(--accent) 50%, transparent);
+  color: var(--cve-nav-hover-text);
+}
+
+.cve-addrpicker__preview {
+  font-size: 0.71rem;
+  font-weight: 600;
+  color: var(--cve-accent);
+  font-family: "DM Sans", system-ui, sans-serif;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 260px;
+}
+
+/* ── Location Picker (chip row) ── */
+.cve-locpicker {
+  display: flex;
+  flex-direction: column;
+  gap: 0.42rem;
+}
+
+.cve-locpicker__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+}
+
+.cve-locpicker__chip {
+  background: var(--cve-surface);
+  border: 1.5px solid var(--cve-border);
+  color: var(--cve-text-muted);
+  font-size: 0.74rem;
+  font-weight: 500;
+  padding: 0.28rem 0.7rem;
+  border-radius: 999px;
+  cursor: pointer;
+  font-family: "DM Sans", system-ui, sans-serif;
+  transition: all 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
+  white-space: nowrap;
+  line-height: 1;
+}
+.cve-locpicker__chip:hover:not(.active) {
+  border-color: color-mix(in oklab, var(--accent) 50%, transparent);
+  color: var(--cve-nav-hover-text);
+  background: color-mix(in oklab, var(--accent) 8%, transparent);
+  transform: translateY(-1px);
+}
+.cve-locpicker__chip.active {
+  background: var(--cve-accent);
+  border-color: var(--cve-accent);
+  color: #fff;
+  box-shadow: 0 2px 10px var(--cve-accent-glow);
+  transform: translateY(-1px);
+}
+
+.cve-locpicker__custom {
+  font-size: 0.8rem;
+}
+
 /* ── Add buttons ── */
 .cve-add-btn {
   background: transparent;

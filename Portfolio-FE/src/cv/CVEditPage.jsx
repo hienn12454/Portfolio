@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@clerk/react";
 import { createApiClient } from "../core/http/apiClient";
@@ -12,6 +12,86 @@ function parseSafe(json, fallback = []) {
 }
 
 function newId() { return crypto.randomUUID(); }
+
+// ── Vietnamese provinces/cities data ─────────────────────
+const PROVINCES_VN = [
+  // Thành phố trực thuộc Trung ương
+  { name: "Hà Nội",          city: true },
+  { name: "TP. Hồ Chí Minh", city: true },
+  { name: "Đà Nẵng",         city: true },
+  { name: "Hải Phòng",       city: true },
+  { name: "Cần Thơ",         city: true },
+  // Tỉnh thành (A → Z)
+  { name: "An Giang" },
+  { name: "Bà Rịa - Vũng Tàu" },
+  { name: "Bắc Giang" },
+  { name: "Bắc Kạn" },
+  { name: "Bạc Liêu" },
+  { name: "Bắc Ninh" },
+  { name: "Bến Tre" },
+  { name: "Bình Định" },
+  { name: "Bình Dương" },
+  { name: "Bình Phước" },
+  { name: "Bình Thuận" },
+  { name: "Cà Mau" },
+  { name: "Cao Bằng" },
+  { name: "Đắk Lắk" },
+  { name: "Đắk Nông" },
+  { name: "Điện Biên" },
+  { name: "Đồng Nai" },
+  { name: "Đồng Tháp" },
+  { name: "Gia Lai" },
+  { name: "Hà Giang" },
+  { name: "Hà Nam" },
+  { name: "Hà Tĩnh" },
+  { name: "Hải Dương" },
+  { name: "Hậu Giang" },
+  { name: "Hòa Bình" },
+  { name: "Hưng Yên" },
+  { name: "Khánh Hòa" },
+  { name: "Kiên Giang" },
+  { name: "Kon Tum" },
+  { name: "Lai Châu" },
+  { name: "Lâm Đồng" },
+  { name: "Lạng Sơn" },
+  { name: "Lào Cai" },
+  { name: "Long An" },
+  { name: "Nam Định" },
+  { name: "Nghệ An" },
+  { name: "Ninh Bình" },
+  { name: "Ninh Thuận" },
+  { name: "Phú Thọ" },
+  { name: "Phú Yên" },
+  { name: "Quảng Bình" },
+  { name: "Quảng Nam" },
+  { name: "Quảng Ngãi" },
+  { name: "Quảng Ninh" },
+  { name: "Quảng Trị" },
+  { name: "Sóc Trăng" },
+  { name: "Sơn La" },
+  { name: "Tây Ninh" },
+  { name: "Thái Bình" },
+  { name: "Thái Nguyên" },
+  { name: "Thanh Hóa" },
+  { name: "Thừa Thiên Huế" },
+  { name: "Tiền Giang" },
+  { name: "Trà Vinh" },
+  { name: "Tuyên Quang" },
+  { name: "Vĩnh Long" },
+  { name: "Vĩnh Phúc" },
+  { name: "Yên Bái" },
+];
+
+const VN_MONTHS = [
+  "Tháng 1","Tháng 2","Tháng 3","Tháng 4",
+  "Tháng 5","Tháng 6","Tháng 7","Tháng 8",
+  "Tháng 9","Tháng 10","Tháng 11","Tháng 12",
+];
+
+const _CY = new Date().getFullYear();
+const VN_YEARS = Array.from({ length: _CY - 1989 + 4 }, (_, i) => _CY + 3 - i);
+
+const QUICK_LOCATIONS = ["Hà Nội", "TP. HCM", "Đà Nẵng", "Hải Phòng", "Cần Thơ", "Remote", "Nước ngoài"];
 
 // ── reusable subcomponents ────────────────────────────────
 function FieldRow({ label, children, hint }) {
@@ -48,9 +128,237 @@ function TextArea({ value, onChange, placeholder, rows = 3 }) {
   );
 }
 
+// ── MonthYearPicker ───────────────────────────────────────
+// value: "" | "MM/YYYY" | "Hiện tại"
+// onChange: (string) => void
+// allowPresent: show "Hiện tại" checkbox
+function MonthYearPicker({ value, onChange, allowPresent = false }) {
+  function parseValue(v) {
+    if (!v) return { month: "", year: "", present: false };
+    if (v === "Hiện tại") return { month: "", year: "", present: true };
+    const m = v.match(/^(\d{2})\/(\d{4})$/);
+    if (m) return { month: m[1], year: m[2], present: false };
+    return { month: "", year: "", present: false };
+  }
+
+  const init = parseValue(value);
+  const [month, setMonth] = useState(init.month);
+  const [year,  setYear]  = useState(init.year);
+  const [present, setPresent] = useState(init.present);
+  const prevRef = useRef(value);
+
+  useEffect(() => {
+    if (prevRef.current === value) return;
+    prevRef.current = value;
+    const p = parseValue(value);
+    setMonth(p.month); setYear(p.year); setPresent(p.present);
+  }, [value]);
+
+  function emit(m, y, p) {
+    if (p)       { onChange("Hiện tại"); return; }
+    if (m && y)  { onChange(`${m}/${y}`); return; }
+    if (!m && !y){ onChange(""); }
+    // partial — wait for both before emitting
+  }
+
+  function handleMonth(m) { setMonth(m); emit(m, year, present); }
+  function handleYear(y)  { setYear(y);  emit(month, y, present); }
+
+  function handlePresent(checked) {
+    setPresent(checked);
+    if (checked) { onChange("Hiện tại"); }
+    else { month && year ? onChange(`${month}/${year}`) : onChange(""); }
+  }
+
+  function handleClear() {
+    setMonth(""); setYear(""); setPresent(false);
+    onChange("");
+  }
+
+  const displayVal = present ? "Hiện tại" : (month && year ? `${month}/${year}` : "");
+
+  return (
+    <div className="cve-mypicker">
+      {!present && (
+        <div className="cve-mypicker__selects">
+          <select className="cve-select cve-mypicker__sel" value={month} onChange={(e) => handleMonth(e.target.value)}>
+            <option value="">Tháng</option>
+            {VN_MONTHS.map((lbl, i) => (
+              <option key={i} value={String(i + 1).padStart(2, "0")}>{lbl}</option>
+            ))}
+          </select>
+          <select className="cve-select cve-mypicker__sel cve-mypicker__sel--year" value={year} onChange={(e) => handleYear(e.target.value)}>
+            <option value="">Năm</option>
+            {VN_YEARS.map((y) => <option key={y} value={String(y)}>{y}</option>)}
+          </select>
+          {displayVal && (
+            <button type="button" className="cve-mypicker__clear" onClick={handleClear} title="Xóa ngày">✕</button>
+          )}
+        </div>
+      )}
+      {allowPresent && (
+        <label className="cve-mypicker__present-lbl">
+          <input type="checkbox" checked={present} onChange={(e) => handlePresent(e.target.checked)} />
+          <span className="cve-mypicker__check" />
+          Hiện tại
+        </label>
+      )}
+      {displayVal && (
+        <div className="cve-mypicker__preview">📅 {displayVal}</div>
+      )}
+    </div>
+  );
+}
+
+// ── AddressPicker ─────────────────────────────────────────
+// value: free string (e.g. "Hà Nội, Cầu Giấy" or "Ho Chi Minh City, Vietnam")
+// Falls back to free-text mode for non-VN or manual input
+function AddressPicker({ value, onChange }) {
+  const cities    = PROVINCES_VN.filter((p) => p.city);
+  const provinces = PROVINCES_VN.filter((p) => !p.city);
+
+  function parseAddr(v) {
+    if (!v) return { province: "", detail: "", free: false };
+    for (const p of PROVINCES_VN) {
+      if (v === p.name) return { province: p.name, detail: "", free: false };
+      if (v.startsWith(p.name + ", ")) return { province: p.name, detail: v.slice(p.name.length + 2), free: false };
+    }
+    return { province: "", detail: v, free: true };
+  }
+
+  const init = parseAddr(value);
+  const [province, setProvince] = useState(init.province);
+  const [detail,   setDetail]   = useState(init.detail);
+  const [free,     setFree]     = useState(init.free);
+  const prevRef = useRef(value);
+
+  useEffect(() => {
+    if (prevRef.current === value) return;
+    prevRef.current = value;
+    const p = parseAddr(value);
+    setProvince(p.province); setDetail(p.detail); setFree(p.free);
+  }, [value]);
+
+  function buildVal(prov, det) {
+    if (!prov) return det || "";
+    return det ? `${prov}, ${det}` : prov;
+  }
+
+  function handleProvince(prov) { setProvince(prov); onChange(buildVal(prov, detail)); }
+  function handleDetail(det)    { setDetail(det);    onChange(buildVal(province, det)); }
+
+  function toggleFree() {
+    if (!free) {
+      const combined = buildVal(province, detail);
+      setDetail(combined); setProvince(""); setFree(true); onChange(combined);
+    } else {
+      const parsed = parseAddr(detail);
+      setProvince(parsed.province); setDetail(parsed.detail); setFree(false);
+      onChange(buildVal(parsed.province, parsed.detail));
+    }
+  }
+
+  const displayVal = free ? detail : buildVal(province, detail);
+
+  return (
+    <div className="cve-addrpicker">
+      {free ? (
+        <input
+          className="cve-input"
+          type="text"
+          value={detail}
+          onChange={(e) => { setDetail(e.target.value); onChange(e.target.value); }}
+          placeholder="Ho Chi Minh City, Vietnam — hoặc địa chỉ quốc tế..."
+        />
+      ) : (
+        <>
+          <select className="cve-select" value={province} onChange={(e) => handleProvince(e.target.value)}>
+            <option value="">— Chọn tỉnh / thành phố —</option>
+            <optgroup label="Thành phố trực thuộc TW">
+              {cities.map((p) => <option key={p.name} value={p.name}>{p.name}</option>)}
+            </optgroup>
+            <optgroup label="Tỉnh thành còn lại">
+              {provinces.map((p) => <option key={p.name} value={p.name}>{p.name}</option>)}
+            </optgroup>
+          </select>
+          {province && (
+            <input
+              className="cve-input"
+              type="text"
+              value={detail}
+              onChange={(e) => handleDetail(e.target.value)}
+              placeholder="Quận/Huyện, địa chỉ chi tiết (tùy chọn)"
+            />
+          )}
+        </>
+      )}
+      <div className="cve-addrpicker__foot">
+        <button type="button" className={`cve-addrpicker__toggle ${free ? "is-free" : ""}`} onClick={toggleFree}>
+          {free ? "🗺 Chọn tỉnh/thành" : "✏️ Nhập tự do"}
+        </button>
+        {displayVal && <span className="cve-addrpicker__preview">📍 {displayVal}</span>}
+      </div>
+    </div>
+  );
+}
+
+// ── LocationPicker ────────────────────────────────────────
+// Quick chip buttons for common work locations + custom text fallback
+function LocationPicker({ value, onChange }) {
+  const isChip = QUICK_LOCATIONS.includes(value);
+  const [custom, setCustom] = useState(isChip ? "" : (value || ""));
+  const prevRef = useRef(value);
+
+  useEffect(() => {
+    if (prevRef.current === value) return;
+    prevRef.current = value;
+    if (!QUICK_LOCATIONS.includes(value)) setCustom(value || "");
+    else setCustom("");
+  }, [value]);
+
+  function handleChip(loc) {
+    if (value === loc) { onChange(""); }
+    else { setCustom(""); onChange(loc); }
+  }
+
+  function handleCustom(v) {
+    setCustom(v); onChange(v);
+  }
+
+  return (
+    <div className="cve-locpicker">
+      <div className="cve-locpicker__chips">
+        {QUICK_LOCATIONS.map((loc) => (
+          <button
+            type="button"
+            key={loc}
+            className={`cve-locpicker__chip ${value === loc ? "active" : ""}`}
+            onClick={() => handleChip(loc)}
+          >
+            {loc}
+          </button>
+        ))}
+      </div>
+      {!isChip && (
+        <input
+          className="cve-input cve-locpicker__custom"
+          type="text"
+          value={custom}
+          onChange={(e) => handleCustom(e.target.value)}
+          placeholder="Hoặc nhập tùy chỉnh..."
+        />
+      )}
+    </div>
+  );
+}
+
 // ── Work experience card ──────────────────────────────────
 function WorkCard({ item, onChange, onRemove }) {
   function field(key) { return (v) => onChange({ ...item, [key]: v }); }
+  function handleEndDate(v) {
+    onChange({ ...item, endDate: v === "Hiện tại" ? "" : v, isCurrent: v === "Hiện tại" });
+  }
+  const endVal = item.isCurrent ? "Hiện tại" : (item.endDate || "");
   return (
     <div className="cve-card">
       <button className="cve-card-remove" onClick={onRemove} title="Xóa">✕</button>
@@ -62,22 +370,15 @@ function WorkCard({ item, onChange, onRemove }) {
           <TextInput value={item.company} onChange={field("company")} placeholder="FPT Software" />
         </FieldRow>
         <FieldRow label="Thời gian bắt đầu">
-          <TextInput value={item.startDate} onChange={field("startDate")} placeholder="01/2022" />
+          <MonthYearPicker value={item.startDate || ""} onChange={field("startDate")} />
         </FieldRow>
         <FieldRow label="Thời gian kết thúc">
-          <TextInput value={item.endDate} onChange={field("endDate")} placeholder="12/2023 (để trống nếu hiện tại)" />
-        </FieldRow>
-        <FieldRow label="Địa điểm">
-          <TextInput value={item.location} onChange={field("location")} placeholder="Hà Nội" />
-        </FieldRow>
-        <FieldRow label="Đang làm việc tại đây">
-          <label className="cve-toggle">
-            <input type="checkbox" checked={!!item.isCurrent} onChange={(e) => field("isCurrent")(e.target.checked)} />
-            <span className="cve-toggle-slider" />
-            Hiện tại
-          </label>
+          <MonthYearPicker value={endVal} onChange={handleEndDate} allowPresent />
         </FieldRow>
       </div>
+      <FieldRow label="Địa điểm làm việc">
+        <LocationPicker value={item.location || ""} onChange={field("location")} />
+      </FieldRow>
       <FieldRow label="Mô tả">
         <TextArea value={item.description} onChange={field("description")} placeholder="Mô tả công việc, trách nhiệm..." rows={3} />
       </FieldRow>
@@ -85,7 +386,7 @@ function WorkCard({ item, onChange, onRemove }) {
         <TextArea
           value={(item.bullets || []).join("\n")}
           onChange={(v) => field("bullets")(v.split("\n").filter((l) => l.trim()))}
-          placeholder="- Tăng hiệu năng hệ thống 40%&#10;- Dẫn đầu nhóm 5 developer"
+          placeholder={"- Tăng hiệu năng hệ thống 40%\n- Dẫn đầu nhóm 5 developer"}
           rows={3}
         />
       </FieldRow>
@@ -113,17 +414,17 @@ function EduCard({ item, onChange, onRemove }) {
           <TextInput value={item.gpa} onChange={field("gpa")} placeholder="3.8 / 4.0" />
         </FieldRow>
         <FieldRow label="Thời gian bắt đầu">
-          <TextInput value={item.startDate} onChange={field("startDate")} placeholder="09/2018" />
+          <MonthYearPicker value={item.startDate || ""} onChange={field("startDate")} />
         </FieldRow>
         <FieldRow label="Thời gian kết thúc">
-          <TextInput value={item.endDate} onChange={field("endDate")} placeholder="06/2022" />
+          <MonthYearPicker value={item.endDate || ""} onChange={field("endDate")} allowPresent />
         </FieldRow>
       </div>
       <FieldRow label="Thành tích nổi bật (mỗi dòng 1 mục)">
         <TextArea
           value={(item.achievements || []).join("\n")}
           onChange={(v) => field("achievements")(v.split("\n").filter((l) => l.trim()))}
-          placeholder="- Học bổng toàn phần&#10;- Top 5% sinh viên xuất sắc"
+          placeholder={"- Học bổng toàn phần\n- Top 5% sinh viên xuất sắc"}
           rows={3}
         />
       </FieldRow>
@@ -199,10 +500,10 @@ function CertCard({ item, onChange, onRemove }) {
           <TextInput value={item.issuer} onChange={field("issuer")} placeholder="Amazon Web Services" />
         </FieldRow>
         <FieldRow label="Ngày cấp">
-          <TextInput value={item.date} onChange={field("date")} placeholder="03/2023" />
+          <MonthYearPicker value={item.date || ""} onChange={field("date")} />
         </FieldRow>
         <FieldRow label="Ngày hết hạn">
-          <TextInput value={item.expiryDate} onChange={field("expiryDate")} placeholder="03/2026" />
+          <MonthYearPicker value={item.expiryDate || ""} onChange={field("expiryDate")} allowPresent />
         </FieldRow>
       </div>
       <FieldRow label="Link chứng chỉ">
@@ -257,7 +558,7 @@ function AwardCard({ item, onChange, onRemove }) {
           <TextInput value={item.issuer} onChange={field("issuer")} placeholder="VNG Corporation" />
         </FieldRow>
         <FieldRow label="Thời gian">
-          <TextInput value={item.date} onChange={field("date")} placeholder="10/2023" />
+          <MonthYearPicker value={item.date || ""} onChange={field("date")} />
         </FieldRow>
       </div>
       <FieldRow label="Mô tả">
@@ -397,14 +698,14 @@ export function CVEditPage() {
         <aside className="cve-nav">
           {[
             { id: "personal", label: "👤 Thông tin cá nhân" },
-            { id: "summary", label: "📝 Giới thiệu" },
-            { id: "work", label: "💼 Kinh nghiệm" },
-            { id: "education", label: "🎓 Học vấn" },
-            { id: "skills", label: "⚡ Kỹ năng" },
-            { id: "certs", label: "🏅 Chứng chỉ" },
-            { id: "languages", label: "🌐 Ngôn ngữ" },
-            { id: "awards", label: "🏆 Giải thưởng" },
-            { id: "hobbies", label: "🎯 Sở thích" },
+            { id: "summary",  label: "📝 Giới thiệu" },
+            { id: "work",     label: "💼 Kinh nghiệm" },
+            { id: "education",label: "🎓 Học vấn" },
+            { id: "skills",   label: "⚡ Kỹ năng" },
+            { id: "certs",    label: "🏅 Chứng chỉ" },
+            { id: "languages",label: "🌐 Ngôn ngữ" },
+            { id: "awards",   label: "🏆 Giải thưởng" },
+            { id: "hobbies",  label: "🎯 Sở thích" },
             { id: "settings", label: "⚙️ Cài đặt" },
           ].map(({ id, label }) => (
             <a key={id} className="cve-nav-item" href={`#${id}`}>{label}</a>
@@ -428,9 +729,6 @@ export function CVEditPage() {
               <FieldRow label="Số điện thoại">
                 <TextInput value={info.phone} onChange={(v) => setInfo((i) => ({ ...i, phone: v }))} placeholder="+84 903 xxx xxx" />
               </FieldRow>
-              <FieldRow label="Địa chỉ">
-                <TextInput value={info.address} onChange={(v) => setInfo((i) => ({ ...i, address: v }))} placeholder="Hà Nội, Việt Nam" />
-              </FieldRow>
               <FieldRow label="Ảnh đại diện (URL)">
                 <TextInput value={info.avatarUrl} onChange={(v) => setInfo((i) => ({ ...i, avatarUrl: v }))} placeholder="https://..." type="url" />
               </FieldRow>
@@ -444,6 +742,10 @@ export function CVEditPage() {
                 <TextInput value={info.linkedInUrl} onChange={(v) => setInfo((i) => ({ ...i, linkedInUrl: v }))} placeholder="https://linkedin.com/in/..." type="url" />
               </FieldRow>
             </div>
+            {/* Address picker spans full width */}
+            <FieldRow label="Địa chỉ">
+              <AddressPicker value={info.address} onChange={(v) => setInfo((i) => ({ ...i, address: v }))} />
+            </FieldRow>
           </Panel>
 
           {/* Summary */}
