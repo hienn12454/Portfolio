@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { createApiClient } from "../core/http/apiClient";
 import { useThemeSync } from "../core/useThemeSync";
@@ -544,22 +544,66 @@ function CVTemplateCompact({ cv, color, works, edus, skillGroups, certs, langs, 
 // ── Main Page ─────────────────────────────────────────
 export function CVPage() {
   useThemeSync();
-  const apiClient = useMemo(() => createApiClient(async () => null), []);
-  const [cv, setCv] = useState(null);
+  const apiClient  = useMemo(() => createApiClient(async () => null), []);
+  const [cv, setCv]           = useState(null);
   const [loading, setLoading] = useState(true);
   const [template, setTemplate] = useState(() => {
     try { return localStorage.getItem("cv-template") || "classic"; } catch { return "classic"; }
   });
+  const [templateKey, setTemplateKey] = useState(0);
+  const [scrollPct, setScrollPct]     = useState(0);
+  const [copied, setCopied]           = useState(false);
+  const [localColor, setLocalColor]   = useState(() => {
+    try { return localStorage.getItem("cv-local-color") || null; } catch { return null; }
+  });
+  const [showColorHint, setShowColorHint] = useState(false);
+  const colorPickerRef = useRef(null);
 
+  // ── Persist choices ──
   useEffect(() => {
     try { localStorage.setItem("cv-template", template); } catch { /* ignore */ }
   }, [template]);
+  useEffect(() => {
+    try {
+      if (localColor) localStorage.setItem("cv-local-color", localColor);
+      else localStorage.removeItem("cv-local-color");
+    } catch { /* ignore */ }
+  }, [localColor]);
 
+  // ── Fetch CV ──
   useEffect(() => {
     apiClient.getPublic("/api/cv")
       .then((data) => { setCv(data); setLoading(false); })
       .catch(() => setLoading(false));
   }, [apiClient]);
+
+  // ── Scroll progress ──
+  useEffect(() => {
+    const onScroll = () => {
+      const max = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+      setScrollPct(max > 0 ? Math.min(100, (window.scrollY / max) * 100) : 0);
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  // ── Switch template (keyed animation) ──
+  const switchTemplate = useCallback((id) => {
+    if (id === template) return;
+    setTemplate(id);
+    setTemplateKey((k) => k + 1);
+  }, [template]);
+
+  // ── Share ──
+  const handleShare = useCallback(async () => {
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2200);
+    } catch {
+      window.prompt("Link CV của bạn:", window.location.href);
+    }
+  }, []);
 
   if (loading) {
     return (
@@ -585,36 +629,66 @@ export function CVPage() {
     );
   }
 
-  const color = cv.accentColor || "#3a6faa";
-  const rgb   = hexToRgb(color);
+  const baseColor = cv.accentColor || "#3a6faa";
+  const color     = localColor || baseColor;
+  const rgb       = hexToRgb(color);
 
-  const works      = parseSafe(cv.workExperiencesJson);
-  const edus       = parseSafe(cv.educationsJson);
+  const works       = parseSafe(cv.workExperiencesJson);
+  const edus        = parseSafe(cv.educationsJson);
   const skillGroups = parseSafe(cv.skillGroupsJson);
-  const certs      = parseSafe(cv.certificationsJson);
-  const langs      = parseSafe(cv.languagesJson);
-  const awards     = parseSafe(cv.awardsJson);
-  const hobbies    = parseSafe(cv.hobbiesJson);
+  const certs       = parseSafe(cv.certificationsJson);
+  const langs       = parseSafe(cv.languagesJson);
+  const awards      = parseSafe(cv.awardsJson);
+  const hobbies     = parseSafe(cv.hobbiesJson);
+
+  // ── CV Completeness ──
+  const completenessChecks = [
+    !!cv.fullName?.trim(),
+    !!cv.jobTitle?.trim(),
+    !!(cv.email?.trim() || cv.phone?.trim()),
+    !!cv.summary?.trim(),
+    !!(cv.address || cv.websiteUrl || cv.githubUrl || cv.linkedInUrl),
+    works.length > 0,
+    edus.length > 0,
+    skillGroups.length > 0,
+    langs.length > 0,
+    certs.length > 0,
+  ];
+  const completeness      = Math.round((completenessChecks.filter(Boolean).length / completenessChecks.length) * 100);
+  const completenessColor = completeness >= 80 ? "#22c55e" : completeness >= 50 ? "#f59e0b" : "#ef4444";
+  const ringR             = 11;
+  const ringC             = 2 * Math.PI * ringR;  // ~69.1
+  const ringDash          = (completeness / 100) * ringC;
 
   const sharedProps = { cv, color, rgb, works, edus, skillGroups, certs, langs, awards, hobbies };
 
   return (
     <div className="cv-root" style={{ "--cv-accent": color, "--cv-accent-rgb": rgb }}>
+
+      {/* ── Scroll Progress Bar ── */}
+      <div
+        className="cv-scroll-bar"
+        style={{ transform: `scaleX(${scrollPct / 100})`, background: color }}
+        aria-hidden
+      />
+
       {/* ── Topbar ── */}
       <nav className="cv-topbar">
         <div className="cv-topbar__content">
+
+          {/* Left: brand */}
           <div className="cv-topbar__left">
             <Link to="/" className="cv-topbar__brand">◆ hiennt.website</Link>
           </div>
 
-          {/* Template switcher */}
+          {/* Center: template switcher */}
           <div className="cv-tpl-switcher" aria-label="Chọn mẫu template">
             {TEMPLATES.map((t) => (
               <button
                 key={t.id}
                 type="button"
                 className={`cv-tpl-btn${template === t.id ? " is-active" : ""}`}
-                onClick={() => setTemplate(t.id)}
+                onClick={() => switchTemplate(t.id)}
                 title={t.label}
                 style={template === t.id ? { "--tpl-active-color": color } : undefined}
               >
@@ -624,16 +698,87 @@ export function CVPage() {
             ))}
           </div>
 
+          {/* Right: actions */}
           <div className="cv-topbar__actions">
-            <button className="cv-btn cv-btn--outline" onClick={() => window.print()} title="In CV">
-              🖨 In CV
+
+            {/* CV Completeness ring */}
+            <div
+              className="cv-completeness"
+              title={`CV hoàn thiện ${completeness}% (${completenessChecks.filter(Boolean).length}/${completenessChecks.length} mục)`}
+            >
+              <svg viewBox="0 0 26 26" className="cv-completeness__svg" aria-hidden>
+                <circle cx="13" cy="13" r={ringR} fill="none" stroke="#e2e8f0" strokeWidth="2.5" />
+                <circle
+                  cx="13" cy="13" r={ringR}
+                  fill="none"
+                  stroke={completenessColor}
+                  strokeWidth="2.5"
+                  strokeDasharray={`${ringDash} ${ringC}`}
+                  strokeLinecap="round"
+                  style={{ transformOrigin: "center", transform: "rotate(-90deg)" }}
+                />
+              </svg>
+              <span className="cv-completeness__pct" style={{ color: completenessColor }}>
+                {completeness}%
+              </span>
+            </div>
+
+            {/* Color picker */}
+            <div
+              className="cv-color-picker-wrap"
+              onMouseEnter={() => setShowColorHint(true)}
+              onMouseLeave={() => setShowColorHint(false)}
+            >
+              <button
+                type="button"
+                className="cv-color-btn"
+                onClick={() => localColor ? setLocalColor(null) : colorPickerRef.current?.click()}
+                title={localColor ? `Màu đã thay đổi — click để khôi phục gốc (${baseColor})` : "Đổi màu accent (chỉ cho bạn xem)"}
+              >
+                <span className="cv-color-dot" style={{ background: color }} />
+                {localColor && <span className="cv-color-reset">↺</span>}
+              </button>
+              <input
+                ref={colorPickerRef}
+                type="color"
+                value={color}
+                onChange={(e) => setLocalColor(e.target.value)}
+                className="cv-color-input"
+                aria-hidden
+                tabIndex={-1}
+              />
+              {showColorHint && (
+                <div className="cv-color-tooltip">
+                  {localColor ? `🎨 Màu cá nhân — click ↺ để reset` : "🎨 Cá nhân hoá màu accent"}
+                </div>
+              )}
+            </div>
+
+            {/* Share */}
+            <button
+              type="button"
+              className={`cv-btn${copied ? " cv-btn--success" : " cv-btn--outline"}`}
+              onClick={handleShare}
+              title="Sao chép link CV"
+            >
+              {copied ? "✓ Đã copy" : "🔗 Share"}
+            </button>
+
+            {/* Download / Print */}
+            <button
+              type="button"
+              className="cv-btn cv-btn--primary"
+              onClick={() => window.print()}
+              title="In hoặc lưu PDF"
+            >
+              ⬇ Download
             </button>
           </div>
         </div>
       </nav>
 
-      {/* ── Rendered template ── */}
-      <div className="cv-template-wrap">
+      {/* ── Rendered template (keyed for enter animation) ── */}
+      <div className="cv-template-wrap cv-tpl-enter" key={templateKey}>
         {template === "classic" && <CVTemplateClassic {...sharedProps} />}
         {template === "modern"  && <CVTemplateModern  {...sharedProps} />}
         {template === "compact" && <CVTemplateCompact {...sharedProps} />}

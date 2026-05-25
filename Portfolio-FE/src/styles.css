@@ -2477,7 +2477,8 @@ html[data-theme="light"] .hero::after {
     transition: none;
   }
 
-  .vault-slide {
+  .vault-slide,
+  .cv-tpl-enter {
     transition: none !important;
     animation: none !important;
   }
@@ -2539,40 +2540,27 @@ html[data-theme="light"] .vault-canvas--deck {
   overflow: clip;
 }
 
-/* ── Page-flip keyframes ── */
-@keyframes pageFlipForward {
-  0% {
-    transform: perspective(1100px) rotateY(-24deg) translateX(7%) scale(0.97);
+/* ── Tab slide keyframes (smooth 2D — no perspective jank) ── */
+@keyframes tabSlideForward {
+  from {
     opacity: 0;
+    transform: translateX(22px);
   }
-  50% {
+  to {
     opacity: 1;
-    transform: perspective(1100px) rotateY(-5deg) translateX(1.5%) scale(0.995);
-  }
-  100% {
-    transform: perspective(1100px) rotateY(0deg) translateX(0) scale(1);
-    opacity: 1;
+    transform: translateX(0);
   }
 }
 
-@keyframes pageFlipBackward {
-  0% {
-    transform: perspective(1100px) rotateY(24deg) translateX(-7%) scale(0.97);
+@keyframes tabSlideBackward {
+  from {
     opacity: 0;
+    transform: translateX(-22px);
   }
-  50% {
+  to {
     opacity: 1;
-    transform: perspective(1100px) rotateY(5deg) translateX(-1.5%) scale(0.995);
+    transform: translateX(0);
   }
-  100% {
-    transform: perspective(1100px) rotateY(0deg) translateX(0) scale(1);
-    opacity: 1;
-  }
-}
-
-@keyframes flipShadowFade {
-  0%   { opacity: 0.55; }
-  100% { opacity: 0; }
 }
 
 @keyframes tab-glow-in {
@@ -2589,6 +2577,7 @@ html[data-theme="light"] .vault-canvas--deck {
   top: 0;
   left: 0;
   right: 0;
+  will-change: opacity, transform;
 }
 
 .vault-slide.is-active {
@@ -2596,39 +2585,16 @@ html[data-theme="light"] .vault-canvas--deck {
   opacity: 1;
   pointer-events: auto;
   z-index: 2;
-  /* default entrance (first load / no direction set) */
-  animation: pageFlipForward 0.44s cubic-bezier(0.25, 1, 0.5, 1) both;
-  transform-origin: left center;
+  animation: tabSlideForward 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 /* ── Directional overrides ── */
 .vault-slide-deck[data-flip-dir="forward"] .vault-slide.is-active {
-  transform-origin: left center;
-  animation: pageFlipForward 0.44s cubic-bezier(0.25, 1, 0.5, 1) both;
+  animation: tabSlideForward 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 .vault-slide-deck[data-flip-dir="backward"] .vault-slide.is-active {
-  transform-origin: right center;
-  animation: pageFlipBackward 0.44s cubic-bezier(0.25, 1, 0.5, 1) both;
-}
-
-/* ── Page-turn shadow overlay ── */
-.vault-slide.is-active::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  z-index: 10;
-  border-radius: inherit;
-  animation: flipShadowFade 0.44s cubic-bezier(0.25, 1, 0.5, 1) both;
-}
-
-.vault-slide-deck[data-flip-dir="forward"] .vault-slide.is-active::after {
-  background: linear-gradient(to right, rgba(0, 0, 0, 0.18) 0%, transparent 60%);
-}
-
-.vault-slide-deck[data-flip-dir="backward"] .vault-slide.is-active::after {
-  background: linear-gradient(to left, rgba(0, 0, 0, 0.18) 0%, transparent 60%);
+  animation: tabSlideBackward 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 .vault-slide .vault-panel {
