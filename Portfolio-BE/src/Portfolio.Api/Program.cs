@@ -201,8 +201,8 @@ app.UseSwaggerUI(options =>
 
 await app.ApplyDatabaseMigrationsAsync();
 
-app.UseHttpsRedirection();
 app.UseCors("FrontendPolicy");
+app.UseHttpsRedirection();
 if (app.Environment.IsDevelopment())
 {
     app.Use(async (context, next) =>
