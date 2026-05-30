@@ -8,6 +8,7 @@ import { AuthPage } from "./auth/AuthPage";
 import { CVPage } from "./cv/CVPage";
 import { CVEditPage } from "./cv/CVEditPage";
 import { createApiClient } from "./core/http/apiClient";
+import { ErrorBoundary } from "./core/ErrorBoundary";
 
 // Tracks login analytics globally — runs regardless of which page the user lands on
 function LoginTracker() {
@@ -20,7 +21,9 @@ function LoginTracker() {
     if (sessionStorage.getItem(key) === "1") return;
     apiClient.postProtected("/api/analytics/login", {})
       .then(() => sessionStorage.setItem(key, "1"))
-      .catch(() => { /* ignore analytics errors */ });
+      .catch(err => {
+        console.warn('[Analytics] Login tracking failed:', err?.message);
+      });
   }, [isSignedIn, apiClient]);
 
   return null;
@@ -28,21 +31,23 @@ function LoginTracker() {
 
 export default function App() {
   return (
-    <BrowserRouter>
-      <LoginTracker />
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/cv" element={<CVPage />} />
-        <Route path="/cv/edit" element={<CVEditPage />} />
-        <Route path="/auth" element={<AuthPage />} />
-        <Route path="/admin" element={<AdminPage />} />
-        <Route path="/profile" element={<UserProfilePage />} />
-        <Route path="/admin/sso_callback" element={<AuthenticateWithRedirectCallback signInForceRedirectUrl="/" />} />
-        <Route path="/admin/sso-callback" element={<AuthenticateWithRedirectCallback signInForceRedirectUrl="/" />} />
-        <Route path="/sso-callback" element={<AuthenticateWithRedirectCallback signInForceRedirectUrl="/" />} />
-        <Route path="/admin/*" element={<AdminPage />} />
-        <Route path="*" element={<HomePage />} />
-      </Routes>
-    </BrowserRouter>
+    <ErrorBoundary>
+      <BrowserRouter>
+        <LoginTracker />
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/cv" element={<CVPage />} />
+          <Route path="/cv/edit" element={<CVEditPage />} />
+          <Route path="/auth" element={<AuthPage />} />
+          <Route path="/admin" element={<AdminPage />} />
+          <Route path="/profile" element={<UserProfilePage />} />
+          <Route path="/admin/sso_callback" element={<AuthenticateWithRedirectCallback signInForceRedirectUrl="/" />} />
+          <Route path="/admin/sso-callback" element={<AuthenticateWithRedirectCallback signInForceRedirectUrl="/" />} />
+          <Route path="/sso-callback" element={<AuthenticateWithRedirectCallback signInForceRedirectUrl="/" />} />
+          <Route path="/admin/*" element={<AdminPage />} />
+          <Route path="*" element={<HomePage />} />
+        </Routes>
+      </BrowserRouter>
+    </ErrorBoundary>
   );
 }

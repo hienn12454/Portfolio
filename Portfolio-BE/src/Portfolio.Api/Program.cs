@@ -186,7 +186,8 @@ builder.Services.AddScoped<IAuthorizationHandler, AdminRequirementHandler>();
 
 builder.Services
     .AddApplication()
-    .AddInfrastructure(builder.Configuration);
+    .AddInfrastructure(builder.Configuration)
+    .AddRateLimiting();
 
 var app = builder.Build();
 
@@ -200,6 +201,8 @@ app.UseSwaggerUI(options =>
 });
 
 await app.ApplyDatabaseMigrationsAsync();
+
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 app.UseHttpsRedirection();
 app.UseCors("FrontendPolicy");
