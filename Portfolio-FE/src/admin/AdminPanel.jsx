@@ -4,6 +4,24 @@ import { createApiClient } from "../core/http/apiClient";
 
 const EMPTY_GUID = "00000000-0000-0000-0000-000000000000";
 
+function ToggleSwitch({ checked, onChange, label, id }) {
+  return (
+    <div className="toggle-row">
+      <label className="toggle-switch" htmlFor={id}>
+        <input
+          id={id}
+          type="checkbox"
+          className="toggle-switch__input"
+          checked={checked}
+          onChange={onChange}
+        />
+        <span className="toggle-switch__track" />
+        <span className="toggle-switch__label">{label}</span>
+      </label>
+    </div>
+  );
+}
+
 // Convert raw API paths to readable labels for the analytics panel
 function getPathLabel(path) {
   const map = {
@@ -874,10 +892,12 @@ export function AdminPanel({ language = "en" }) {
             Display order
             <input type="number" value={draftSkill.displayOrder} onChange={(event) => setDraftSkill((current) => ({ ...current, displayOrder: Number(event.target.value || 0) }))} />
           </label>
-          <label>
-            <input type="checkbox" checked={draftSkill.isVisible} onChange={(event) => setDraftSkill((current) => ({ ...current, isVisible: event.target.checked }))} />
-            Visible on homepage
-          </label>
+          <ToggleSwitch
+            id="skill-visible"
+            checked={draftSkill.isVisible}
+            onChange={(event) => setDraftSkill((current) => ({ ...current, isVisible: event.target.checked }))}
+            label="Visible on homepage"
+          />
           <div className="form-actions">
             <button type="button" className="button button--primary" onClick={saveSkill}>
               {draftSkill.id ? labels.updateSkill : labels.createSkill}
@@ -956,10 +976,12 @@ export function AdminPanel({ language = "en" }) {
             Source code URL
             <input value={draftProject.repositoryUrl} onChange={(event) => setDraftProject((current) => ({ ...current, repositoryUrl: event.target.value }))} />
           </label>
-          <label>
-            <input type="checkbox" checked={draftProject.isFeatured} onChange={(event) => setDraftProject((current) => ({ ...current, isFeatured: event.target.checked }))} />
-            Featured
-          </label>
+          <ToggleSwitch
+            id="project-featured"
+            checked={draftProject.isFeatured}
+            onChange={(event) => setDraftProject((current) => ({ ...current, isFeatured: event.target.checked }))}
+            label="Featured project"
+          />
           <div className="form-actions">
             <button type="button" className="button button--primary" onClick={saveProject}>
               {draftProject.id ? labels.updateProject : labels.createProject}
@@ -1010,10 +1032,12 @@ export function AdminPanel({ language = "en" }) {
             Content
             <textarea rows={4} value={draftArticle.content} onChange={(event) => setDraftArticle((current) => ({ ...current, content: event.target.value }))} />
           </label>
-          <label>
-            <input type="checkbox" checked={draftArticle.isPublished} onChange={(event) => setDraftArticle((current) => ({ ...current, isPublished: event.target.checked }))} />
-            Published
-          </label>
+          <ToggleSwitch
+            id="article-published"
+            checked={draftArticle.isPublished}
+            onChange={(event) => setDraftArticle((current) => ({ ...current, isPublished: event.target.checked }))}
+            label="Published"
+          />
           <button type="button" className="button button--primary" onClick={saveArticle}>
             {draftArticle.id ? labels.updateArticle : labels.createArticle}
           </button>
