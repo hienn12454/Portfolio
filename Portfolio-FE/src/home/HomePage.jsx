@@ -14,7 +14,8 @@ const contentByLanguage = {
       skills: "Skills",
       projects: "Projects",
       contact: "Contact",
-      cv: "CV"
+      cv: "CV",
+      premium: "✨ Premium"
     },
     eyebrow: "Software Engineer",
     heroTitle: "Hello, I am an IT developer focused on reliable and maintainable digital products.",
@@ -85,7 +86,8 @@ const contentByLanguage = {
       skills: "Kỹ năng",
       projects: "Dự án",
       contact: "Liên hệ",
-      cv: "CV"
+      cv: "CV",
+      premium: "✨ Premium"
     },
     eyebrow: "Kỹ sư phần mềm",
     heroTitle: "Xin chào, tôi là một lập trình viên IT tập trung vào sản phẩm bền vững và đáng tin cậy.",
@@ -615,6 +617,7 @@ export function HomePage() {
   const [copiedEmail, setCopiedEmail] = useState(false);
   const [showBackToTop, setShowBackToTop] = useState(false);
   const [isAdminUser, setIsAdminUser] = useState(false);
+  const [isPremiumUser, setIsPremiumUser] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [workspaceTab, setWorkspaceTab] = useState("intro");
   const [flipDirection, setFlipDirection] = useState("forward");
@@ -622,7 +625,6 @@ export function HomePage() {
   const [scrollProgress, setScrollProgress] = useState(0);
   const [notesPeeked, setNotesPeeked] = useState(false);
   const siteRef = useRef(null);
-  const cursorMoveRaf = useRef(0);
   const [typedHeroTitle, setTypedHeroTitle] = useState("");
   const userMenuRef = useRef(null);
   const content = contentByLanguage[language];
@@ -753,42 +755,6 @@ export function HomePage() {
   }, []);
 
   useEffect(() => {
-    const el = siteRef.current;
-    if (theme === "light") {
-      if (el) {
-        el.style.setProperty("--mx", "50%");
-        el.style.setProperty("--my", "42%");
-      }
-      return undefined;
-    }
-
-    function onPointerMove(event) {
-      const root = siteRef.current;
-      if (!root) {
-        return;
-      }
-      if (cursorMoveRaf.current) {
-        cancelAnimationFrame(cursorMoveRaf.current);
-      }
-      cursorMoveRaf.current = requestAnimationFrame(() => {
-        cursorMoveRaf.current = 0;
-        const x = (event.clientX / Math.max(window.innerWidth, 1)) * 100;
-        const y = (event.clientY / Math.max(window.innerHeight, 1)) * 100;
-        root.style.setProperty("--mx", `${x}%`);
-        root.style.setProperty("--my", `${y}%`);
-      });
-    }
-
-    window.addEventListener("pointermove", onPointerMove, { passive: true });
-    return () => {
-      window.removeEventListener("pointermove", onPointerMove);
-      if (cursorMoveRaf.current) {
-        cancelAnimationFrame(cursorMoveRaf.current);
-      }
-    };
-  }, [theme]);
-
-  useEffect(() => {
     const deck = siteRef.current?.querySelector(".vault-slide-deck");
     if (!deck) {
       return undefined;
@@ -867,6 +833,7 @@ export function HomePage() {
     async function trackLogin() {
       if (!isSignedIn) {
         setIsAdminUser(false);
+        setIsPremiumUser(false);
         return;
       }
 
@@ -875,6 +842,12 @@ export function HomePage() {
       try {
         const me = await apiClient.getProtected("/api/auth/me");
         setIsAdminUser(me?.user?.role === "Admin");
+        try {
+          const premium = await apiClient.getProtected("/api/premium/me");
+          setIsPremiumUser(Boolean(premium?.isPremium));
+        } catch {
+          setIsPremiumUser(false);
+        }
         if (sessionStorage.getItem(trackerKey) === "1") {
           return;
         }
@@ -939,6 +912,17 @@ export function HomePage() {
     return () => window.clearInterval(intervalId);
   }, [resolvedHeroTitle, typingSpeedMs]);
 
+  const handleContactSubmit = (event) => {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+    const name = (formData.get("name") || "").toString().trim();
+    const email = (formData.get("email") || "").toString().trim();
+    const message = (formData.get("message") || "").toString().trim();
+    const subject = encodeURIComponent(`Portfolio contact from ${name || email || "visitor"}`);
+    const body = encodeURIComponent(`${message}\n\n— ${name}${email ? ` (${email})` : ""}`);
+    window.location.href = `mailto:${displayEmail}?subject=${subject}&body=${body}`;
+  };
+
   const handleCopyEmail = async () => {
     try {
       await navigator.clipboard.writeText(displayEmail);
@@ -966,11 +950,6 @@ export function HomePage() {
         aria-valuemax={100}
         aria-label={content.scrollProgressLabel}
       />
-      <div className="galaxy-layer" aria-hidden="true" />
-      <div className="shard-layer" aria-hidden="true" />
-      <div className="cursor-glow" aria-hidden="true" />
-      <div className="glitch-grid" aria-hidden="true" />
-
       {/* ── Wide-viewport ambient side decorations ── */}
       <div className="home-ambience" aria-hidden="true">
         <div className="home-ambience__left">
@@ -1043,6 +1022,9 @@ export function HomePage() {
               <Link to="/cv" className="nav-cv-link">
                 {content.nav.cv}
               </Link>
+              <Link to="/premium" className="nav-premium-link">
+                {content.nav.premium}
+              </Link>
             </nav>
             <div className="auth-actions">
               <button
@@ -1072,6 +1054,11 @@ export function HomePage() {
                   </button>
                 </>
               ) : null}
+              {isSignedIn && isPremiumUser ? (
+                <Link to="/premium" className="premium-badge" title="Premium">
+                  ✨ Premium
+                </Link>
+              ) : null}
               {isSignedIn ? (
                 <div className="user-menu" ref={userMenuRef}>
                   <button
@@ -1090,6 +1077,9 @@ export function HomePage() {
                       </Link>
                       <Link to="/cv" role="menuitem" className="user-menu__cv-link" onClick={() => setIsUserMenuOpen(false)}>
                         CV của tôi
+                      </Link>
+                      <Link to="/premium" role="menuitem" onClick={() => setIsUserMenuOpen(false)}>
+                        {isPremiumUser ? "Quản lý Premium" : "Nâng cấp Premium"}
                       </Link>
                       {isAdminUser ? (
                         <Link to="/admin" role="menuitem" onClick={() => setIsUserMenuOpen(false)}>
@@ -1400,7 +1390,7 @@ export function HomePage() {
               aria-hidden={workspaceTab !== "lab"}
             >
             <div className="vault-panel vault-panel--lab">
-              <CareerAdvisorSection language={language} apiClient={apiClient} />
+              <CareerAdvisorSection language={language} apiClient={apiClient} isPremium={isPremiumUser} />
               <UserRoadmapPlannerSection language={language} isSignedIn={isSignedIn} apiClient={apiClient} />
             </div>
             </div>
@@ -1492,20 +1482,20 @@ export function HomePage() {
                 </div>
                 <article className="contact-form">
                   <h3>{content.contactFormTitle}</h3>
-                  <form>
+                  <form onSubmit={handleContactSubmit}>
                     <label>
                       {content.contactFormFields.name}
-                      <input type="text" placeholder={content.contactFormFields.name} />
+                      <input type="text" name="name" placeholder={content.contactFormFields.name} required />
                     </label>
                     <label>
                       {content.contactFormFields.email}
-                      <input type="email" placeholder={content.contactFormFields.email} />
+                      <input type="email" name="email" placeholder={content.contactFormFields.email} required />
                     </label>
                     <label>
                       {content.contactFormFields.message}
-                      <textarea rows={4} placeholder={content.contactFormFields.message} />
+                      <textarea name="message" rows={4} placeholder={content.contactFormFields.message} required />
                     </label>
-                    <button type="button" className="button button--primary">
+                    <button type="submit" className="button button--primary">
                       {content.contactFormFields.submit}
                     </button>
                   </form>
