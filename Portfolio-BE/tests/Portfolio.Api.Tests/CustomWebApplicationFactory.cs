@@ -5,10 +5,13 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Portfolio.Application.Abstractions;
 using Portfolio.Infrastructure.Persistence;
 
 namespace Portfolio.Api.Tests;
@@ -30,16 +33,14 @@ public sealed class CustomWebApplicationFactory : WebApplicationFactory<Program>
         builder.ConfigureTestServices(services =>
         {
             // Replace the Npgsql DbContext with an in-memory provider.
-            var toRemove = services
-                .Where(d => d.ServiceType == typeof(DbContextOptions<ApplicationDbContext>)
-                            || d.ServiceType == typeof(DbContextOptions))
-                .ToList();
-            foreach (var descriptor in toRemove)
-            {
-                services.Remove(descriptor);
-            }
+            services.RemoveAll(typeof(IDbContextOptionsConfiguration<ApplicationDbContext>));
+            services.RemoveAll<DbContextOptions<ApplicationDbContext>>();
+            services.RemoveAll<ApplicationDbContext>();
+            services.RemoveAll<IApplicationDbContext>();
 
             services.AddDbContext<ApplicationDbContext>(options => options.UseInMemoryDatabase(_dbName));
+            services.AddScoped<IApplicationDbContext>(provider =>
+                provider.GetRequiredService<ApplicationDbContext>());
 
             // Force the test authentication scheme to be the default.
             services.AddAuthentication(TestAuthHandler.SchemeName)
