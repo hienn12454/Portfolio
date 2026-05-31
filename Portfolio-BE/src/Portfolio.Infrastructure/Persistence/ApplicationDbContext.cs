@@ -20,6 +20,7 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
     public DbSet<PageViewLog> PageViewLogs => Set<PageViewLog>();
     public DbSet<UserLoginLog> UserLoginLogs => Set<UserLoginLog>();
     public DbSet<PremiumSubscription> PremiumSubscriptions => Set<PremiumSubscription>();
+    public DbSet<ContactMessage> ContactMessages => Set<ContactMessage>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

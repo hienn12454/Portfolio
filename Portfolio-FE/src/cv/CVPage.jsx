@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
+import { useAuth } from "@clerk/react";
 import { createApiClient } from "../core/http/apiClient";
 import { useThemeSync } from "../core/useThemeSync";
 import "./CVPage.css";
@@ -545,6 +546,9 @@ function CVTemplateCompact({ cv, color, works, edus, skillGroups, certs, langs, 
 export function CVPage() {
   useThemeSync();
   const apiClient  = useMemo(() => createApiClient(async () => null), []);
+  const { isSignedIn, getToken } = useAuth();
+  const authedApi = useMemo(() => createApiClient(getToken), [getToken]);
+  const [isPremium, setIsPremium] = useState(false);
   const [cv, setCv]           = useState(null);
   const [loading, setLoading] = useState(true);
   const [template, setTemplate] = useState(() => {
@@ -576,6 +580,16 @@ export function CVPage() {
       .then((data) => { setCv(data); setLoading(false); })
       .catch(() => setLoading(false));
   }, [apiClient]);
+
+  // ── Premium status (gates PDF export) ──
+  useEffect(() => {
+    if (!isSignedIn) { setIsPremium(false); return; }
+    let active = true;
+    authedApi.getProtected("/api/premium/me")
+      .then((status) => { if (active) setIsPremium(Boolean(status?.isPremium)); })
+      .catch(() => { if (active) setIsPremium(false); });
+    return () => { active = false; };
+  }, [authedApi, isSignedIn]);
 
   // ── Scroll progress ──
   useEffect(() => {
@@ -764,15 +778,25 @@ export function CVPage() {
               {copied ? "✓ Đã copy" : "🔗 Share"}
             </button>
 
-            {/* Download / Print */}
-            <button
-              type="button"
-              className="cv-btn cv-btn--primary"
-              onClick={() => window.print()}
-              title="In hoặc lưu PDF"
-            >
-              ⬇ Download
-            </button>
+            {/* Download / Print — gated behind Premium */}
+            {isPremium ? (
+              <button
+                type="button"
+                className="cv-btn cv-btn--primary"
+                onClick={() => window.print()}
+                title="In hoặc lưu PDF"
+              >
+                ⬇ Download PDF
+              </button>
+            ) : (
+              <Link
+                to="/premium"
+                className="cv-btn cv-btn--primary"
+                title="Xuất PDF là tính năng Premium"
+              >
+                ✨ Download PDF (Premium)
+              </Link>
+            )}
           </div>
         </div>
       </nav>

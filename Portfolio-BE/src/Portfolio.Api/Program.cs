@@ -268,3 +268,6 @@ app.MapMethods("/", new[] { "OPTIONS" }, () => Results.NoContent());
 app.MapGet("/health", () => Results.Ok(new { Status = "Healthy" }));
 
 app.Run();
+
+// Exposed so integration tests can use WebApplicationFactory<Program>.
+public partial class Program { }
