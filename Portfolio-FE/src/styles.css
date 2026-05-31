@@ -237,6 +237,10 @@ html[data-theme="light"] .nav-cv-link:hover {
   font-weight: 600;
 }
 
+.route-loading {
+  min-height: 60vh;
+}
+
 .lang-switch {
   display: inline-flex;
   border: 1px solid #3f3f46;
