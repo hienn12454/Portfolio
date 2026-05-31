@@ -1,35 +1,47 @@
-C:\Users\TUF\Desktop\Github\Portfolio\src\Portfolio.Domain\bin\Debug\net9.0\Portfolio.Domain.deps.json
-C:\Users\TUF\Desktop\Github\Portfolio\src\Portfolio.Domain\bin\Debug\net9.0\Portfolio.Domain.dll
-C:\Users\TUF\Desktop\Github\Portfolio\src\Portfolio.Domain\bin\Debug\net9.0\Portfolio.Domain.pdb
-C:\Users\TUF\Desktop\Github\Portfolio\src\Portfolio.Domain\obj\Debug\net9.0\Portfolio.Domain.GeneratedMSBuildEditorConfig.editorconfig
-C:\Users\TUF\Desktop\Github\Portfolio\src\Portfolio.Domain\obj\Debug\net9.0\Portfolio.Domain.AssemblyInfoInputs.cache
-C:\Users\TUF\Desktop\Github\Portfolio\src\Portfolio.Domain\obj\Debug\net9.0\Portfolio.Domain.AssemblyInfo.cs
-C:\Users\TUF\Desktop\Github\Portfolio\src\Portfolio.Domain\obj\Debug\net9.0\Portfolio.Domain.csproj.CoreCompileInputs.cache
-C:\Users\TUF\Desktop\Github\Portfolio\src\Portfolio.Domain\obj\Debug\net9.0\Portfolio.Domain.dll
-C:\Users\TUF\Desktop\Github\Portfolio\src\Portfolio.Domain\obj\Debug\net9.0\refint\Portfolio.Domain.dll
-C:\Users\TUF\Desktop\Github\Portfolio\src\Portfolio.Domain\obj\Debug\net9.0\Portfolio.Domain.pdb
-C:\Users\TUF\Desktop\Github\Portfolio\src\Portfolio.Domain\obj\Debug\net9.0\ref\Portfolio.Domain.dll
-C:\Users\TUF\Desktop\Github\Portfolio\Portfolio-BE\src\Portfolio.Domain\bin\Debug\net9.0\Portfolio.Domain.deps.json
-C:\Users\TUF\Desktop\Github\Portfolio\Portfolio-BE\src\Portfolio.Domain\bin\Debug\net9.0\Portfolio.Domain.dll
-C:\Users\TUF\Desktop\Github\Portfolio\Portfolio-BE\src\Portfolio.Domain\bin\Debug\net9.0\Portfolio.Domain.pdb
-C:\Users\TUF\Desktop\Github\Portfolio\Portfolio-BE\src\Portfolio.Domain\obj\Debug\net9.0\Portfolio.Domain.GeneratedMSBuildEditorConfig.editorconfig
-C:\Users\TUF\Desktop\Github\Portfolio\Portfolio-BE\src\Portfolio.Domain\obj\Debug\net9.0\Portfolio.Domain.AssemblyInfoInputs.cache
-C:\Users\TUF\Desktop\Github\Portfolio\Portfolio-BE\src\Portfolio.Domain\obj\Debug\net9.0\Portfolio.Domain.AssemblyInfo.cs
-C:\Users\TUF\Desktop\Github\Portfolio\Portfolio-BE\src\Portfolio.Domain\obj\Debug\net9.0\Portfolio.Domain.csproj.CoreCompileInputs.cache
-C:\Users\TUF\Desktop\Github\Portfolio\Portfolio-BE\src\Portfolio.Domain\obj\Debug\net9.0\Portfolio.Domain.sourcelink.json
-C:\Users\TUF\Desktop\Github\Portfolio\Portfolio-BE\src\Portfolio.Domain\obj\Debug\net9.0\Portfolio.Domain.dll
-C:\Users\TUF\Desktop\Github\Portfolio\Portfolio-BE\src\Portfolio.Domain\obj\Debug\net9.0\refint\Portfolio.Domain.dll
-C:\Users\TUF\Desktop\Github\Portfolio\Portfolio-BE\src\Portfolio.Domain\obj\Debug\net9.0\Portfolio.Domain.pdb
-C:\Users\TUF\Desktop\Github\Portfolio\Portfolio-BE\src\Portfolio.Domain\obj\Debug\net9.0\ref\Portfolio.Domain.dll
-C:\Users\Trung Hien\Desktop\GithubPC\Portfolio\Portfolio-BE\src\Portfolio.Domain\bin\Debug\net9.0\Portfolio.Domain.deps.json
-C:\Users\Trung Hien\Desktop\GithubPC\Portfolio\Portfolio-BE\src\Portfolio.Domain\bin\Debug\net9.0\Portfolio.Domain.dll
-C:\Users\Trung Hien\Desktop\GithubPC\Portfolio\Portfolio-BE\src\Portfolio.Domain\bin\Debug\net9.0\Portfolio.Domain.pdb
-C:\Users\Trung Hien\Desktop\GithubPC\Portfolio\Portfolio-BE\src\Portfolio.Domain\obj\Debug\net9.0\Portfolio.Domain.GeneratedMSBuildEditorConfig.editorconfig
-C:\Users\Trung Hien\Desktop\GithubPC\Portfolio\Portfolio-BE\src\Portfolio.Domain\obj\Debug\net9.0\Portfolio.Domain.AssemblyInfoInputs.cache
-C:\Users\Trung Hien\Desktop\GithubPC\Portfolio\Portfolio-BE\src\Portfolio.Domain\obj\Debug\net9.0\Portfolio.Domain.AssemblyInfo.cs
-C:\Users\Trung Hien\Desktop\GithubPC\Portfolio\Portfolio-BE\src\Portfolio.Domain\obj\Debug\net9.0\Portfolio.Domain.csproj.CoreCompileInputs.cache
-C:\Users\Trung Hien\Desktop\GithubPC\Portfolio\Portfolio-BE\src\Portfolio.Domain\obj\Debug\net9.0\Portfolio.Domain.sourcelink.json
-C:\Users\Trung Hien\Desktop\GithubPC\Portfolio\Portfolio-BE\src\Portfolio.Domain\obj\Debug\net9.0\Portfolio.Domain.dll
-C:\Users\Trung Hien\Desktop\GithubPC\Portfolio\Portfolio-BE\src\Portfolio.Domain\obj\Debug\net9.0\refint\Portfolio.Domain.dll
-C:\Users\Trung Hien\Desktop\GithubPC\Portfolio\Portfolio-BE\src\Portfolio.Domain\obj\Debug\net9.0\Portfolio.Domain.pdb
-C:\Users\Trung Hien\Desktop\GithubPC\Portfolio\Portfolio-BE\src\Portfolio.Domain\obj\Debug\net9.0\ref\Portfolio.Domain.dll
+C:/Users/TUF/Desktop/Github/Portfolio/src/Portfolio.Domain/bin/Debug/net9.0/Portfolio.Domain.deps.json
+C:/Users/TUF/Desktop/Github/Portfolio/src/Portfolio.Domain/bin/Debug/net9.0/Portfolio.Domain.dll
+C:/Users/TUF/Desktop/Github/Portfolio/src/Portfolio.Domain/bin/Debug/net9.0/Portfolio.Domain.pdb
+C:/Users/TUF/Desktop/Github/Portfolio/src/Portfolio.Domain/obj/Debug/net9.0/Portfolio.Domain.GeneratedMSBuildEditorConfig.editorconfig
+C:/Users/TUF/Desktop/Github/Portfolio/src/Portfolio.Domain/obj/Debug/net9.0/Portfolio.Domain.AssemblyInfoInputs.cache
+C:/Users/TUF/Desktop/Github/Portfolio/src/Portfolio.Domain/obj/Debug/net9.0/Portfolio.Domain.AssemblyInfo.cs
+C:/Users/TUF/Desktop/Github/Portfolio/src/Portfolio.Domain/obj/Debug/net9.0/Portfolio.Domain.csproj.CoreCompileInputs.cache
+C:/Users/TUF/Desktop/Github/Portfolio/src/Portfolio.Domain/obj/Debug/net9.0/Portfolio.Domain.dll
+C:/Users/TUF/Desktop/Github/Portfolio/src/Portfolio.Domain/obj/Debug/net9.0/refint/Portfolio.Domain.dll
+C:/Users/TUF/Desktop/Github/Portfolio/src/Portfolio.Domain/obj/Debug/net9.0/Portfolio.Domain.pdb
+C:/Users/TUF/Desktop/Github/Portfolio/src/Portfolio.Domain/obj/Debug/net9.0/ref/Portfolio.Domain.dll
+C:/Users/TUF/Desktop/Github/Portfolio/Portfolio-BE/src/Portfolio.Domain/bin/Debug/net9.0/Portfolio.Domain.deps.json
+C:/Users/TUF/Desktop/Github/Portfolio/Portfolio-BE/src/Portfolio.Domain/bin/Debug/net9.0/Portfolio.Domain.dll
+C:/Users/TUF/Desktop/Github/Portfolio/Portfolio-BE/src/Portfolio.Domain/bin/Debug/net9.0/Portfolio.Domain.pdb
+C:/Users/TUF/Desktop/Github/Portfolio/Portfolio-BE/src/Portfolio.Domain/obj/Debug/net9.0/Portfolio.Domain.GeneratedMSBuildEditorConfig.editorconfig
+C:/Users/TUF/Desktop/Github/Portfolio/Portfolio-BE/src/Portfolio.Domain/obj/Debug/net9.0/Portfolio.Domain.AssemblyInfoInputs.cache
+C:/Users/TUF/Desktop/Github/Portfolio/Portfolio-BE/src/Portfolio.Domain/obj/Debug/net9.0/Portfolio.Domain.AssemblyInfo.cs
+C:/Users/TUF/Desktop/Github/Portfolio/Portfolio-BE/src/Portfolio.Domain/obj/Debug/net9.0/Portfolio.Domain.csproj.CoreCompileInputs.cache
+C:/Users/TUF/Desktop/Github/Portfolio/Portfolio-BE/src/Portfolio.Domain/obj/Debug/net9.0/Portfolio.Domain.sourcelink.json
+C:/Users/TUF/Desktop/Github/Portfolio/Portfolio-BE/src/Portfolio.Domain/obj/Debug/net9.0/Portfolio.Domain.dll
+C:/Users/TUF/Desktop/Github/Portfolio/Portfolio-BE/src/Portfolio.Domain/obj/Debug/net9.0/refint/Portfolio.Domain.dll
+C:/Users/TUF/Desktop/Github/Portfolio/Portfolio-BE/src/Portfolio.Domain/obj/Debug/net9.0/Portfolio.Domain.pdb
+C:/Users/TUF/Desktop/Github/Portfolio/Portfolio-BE/src/Portfolio.Domain/obj/Debug/net9.0/ref/Portfolio.Domain.dll
+C:/Users/Trung Hien/Desktop/GithubPC/Portfolio/Portfolio-BE/src/Portfolio.Domain/bin/Debug/net9.0/Portfolio.Domain.deps.json
+C:/Users/Trung Hien/Desktop/GithubPC/Portfolio/Portfolio-BE/src/Portfolio.Domain/bin/Debug/net9.0/Portfolio.Domain.dll
+C:/Users/Trung Hien/Desktop/GithubPC/Portfolio/Portfolio-BE/src/Portfolio.Domain/bin/Debug/net9.0/Portfolio.Domain.pdb
+C:/Users/Trung Hien/Desktop/GithubPC/Portfolio/Portfolio-BE/src/Portfolio.Domain/obj/Debug/net9.0/Portfolio.Domain.GeneratedMSBuildEditorConfig.editorconfig
+C:/Users/Trung Hien/Desktop/GithubPC/Portfolio/Portfolio-BE/src/Portfolio.Domain/obj/Debug/net9.0/Portfolio.Domain.AssemblyInfoInputs.cache
+C:/Users/Trung Hien/Desktop/GithubPC/Portfolio/Portfolio-BE/src/Portfolio.Domain/obj/Debug/net9.0/Portfolio.Domain.AssemblyInfo.cs
+C:/Users/Trung Hien/Desktop/GithubPC/Portfolio/Portfolio-BE/src/Portfolio.Domain/obj/Debug/net9.0/Portfolio.Domain.csproj.CoreCompileInputs.cache
+C:/Users/Trung Hien/Desktop/GithubPC/Portfolio/Portfolio-BE/src/Portfolio.Domain/obj/Debug/net9.0/Portfolio.Domain.sourcelink.json
+C:/Users/Trung Hien/Desktop/GithubPC/Portfolio/Portfolio-BE/src/Portfolio.Domain/obj/Debug/net9.0/Portfolio.Domain.dll
+C:/Users/Trung Hien/Desktop/GithubPC/Portfolio/Portfolio-BE/src/Portfolio.Domain/obj/Debug/net9.0/refint/Portfolio.Domain.dll
+C:/Users/Trung Hien/Desktop/GithubPC/Portfolio/Portfolio-BE/src/Portfolio.Domain/obj/Debug/net9.0/Portfolio.Domain.pdb
+C:/Users/Trung Hien/Desktop/GithubPC/Portfolio/Portfolio-BE/src/Portfolio.Domain/obj/Debug/net9.0/ref/Portfolio.Domain.dll
+/tmp/workspace/hienn12454/Portfolio/Portfolio-BE/src/Portfolio.Domain/bin/Debug/net9.0/Portfolio.Domain.deps.json
+/tmp/workspace/hienn12454/Portfolio/Portfolio-BE/src/Portfolio.Domain/bin/Debug/net9.0/Portfolio.Domain.dll
+/tmp/workspace/hienn12454/Portfolio/Portfolio-BE/src/Portfolio.Domain/bin/Debug/net9.0/Portfolio.Domain.pdb
+/tmp/workspace/hienn12454/Portfolio/Portfolio-BE/src/Portfolio.Domain/obj/Debug/net9.0/Portfolio.Domain.GeneratedMSBuildEditorConfig.editorconfig
+/tmp/workspace/hienn12454/Portfolio/Portfolio-BE/src/Portfolio.Domain/obj/Debug/net9.0/Portfolio.Domain.AssemblyInfoInputs.cache
+/tmp/workspace/hienn12454/Portfolio/Portfolio-BE/src/Portfolio.Domain/obj/Debug/net9.0/Portfolio.Domain.AssemblyInfo.cs
+/tmp/workspace/hienn12454/Portfolio/Portfolio-BE/src/Portfolio.Domain/obj/Debug/net9.0/Portfolio.Domain.csproj.CoreCompileInputs.cache
+/tmp/workspace/hienn12454/Portfolio/Portfolio-BE/src/Portfolio.Domain/obj/Debug/net9.0/Portfolio.Domain.sourcelink.json
+/tmp/workspace/hienn12454/Portfolio/Portfolio-BE/src/Portfolio.Domain/obj/Debug/net9.0/Portfolio.Domain.dll
+/tmp/workspace/hienn12454/Portfolio/Portfolio-BE/src/Portfolio.Domain/obj/Debug/net9.0/refint/Portfolio.Domain.dll
+/tmp/workspace/hienn12454/Portfolio/Portfolio-BE/src/Portfolio.Domain/obj/Debug/net9.0/Portfolio.Domain.pdb
+/tmp/workspace/hienn12454/Portfolio/Portfolio-BE/src/Portfolio.Domain/obj/Debug/net9.0/ref/Portfolio.Domain.dll

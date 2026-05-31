@@ -1,47 +1,63 @@
-C:\Users\TUF\Desktop\Github\Portfolio\src\Portfolio.Application\obj\Debug\net9.0\Portfolio.Application.csproj.AssemblyReference.cache
-C:\Users\TUF\Desktop\Github\Portfolio\src\Portfolio.Application\obj\Debug\net9.0\Portfolio.Application.GeneratedMSBuildEditorConfig.editorconfig
-C:\Users\TUF\Desktop\Github\Portfolio\src\Portfolio.Application\obj\Debug\net9.0\Portfolio.Application.AssemblyInfoInputs.cache
-C:\Users\TUF\Desktop\Github\Portfolio\src\Portfolio.Application\obj\Debug\net9.0\Portfolio.Application.AssemblyInfo.cs
-C:\Users\TUF\Desktop\Github\Portfolio\src\Portfolio.Application\obj\Debug\net9.0\Portfolio.Application.csproj.CoreCompileInputs.cache
-C:\Users\TUF\Desktop\Github\Portfolio\src\Portfolio.Application\bin\Debug\net9.0\Portfolio.Application.deps.json
-C:\Users\TUF\Desktop\Github\Portfolio\src\Portfolio.Application\bin\Debug\net9.0\Portfolio.Application.dll
-C:\Users\TUF\Desktop\Github\Portfolio\src\Portfolio.Application\bin\Debug\net9.0\Portfolio.Application.pdb
-C:\Users\TUF\Desktop\Github\Portfolio\src\Portfolio.Application\bin\Debug\net9.0\Portfolio.Domain.dll
-C:\Users\TUF\Desktop\Github\Portfolio\src\Portfolio.Application\bin\Debug\net9.0\Portfolio.Domain.pdb
-C:\Users\TUF\Desktop\Github\Portfolio\src\Portfolio.Application\obj\Debug\net9.0\Portfoli.B086831A.Up2Date
-C:\Users\TUF\Desktop\Github\Portfolio\src\Portfolio.Application\obj\Debug\net9.0\Portfolio.Application.dll
-C:\Users\TUF\Desktop\Github\Portfolio\src\Portfolio.Application\obj\Debug\net9.0\refint\Portfolio.Application.dll
-C:\Users\TUF\Desktop\Github\Portfolio\src\Portfolio.Application\obj\Debug\net9.0\Portfolio.Application.pdb
-C:\Users\TUF\Desktop\Github\Portfolio\src\Portfolio.Application\obj\Debug\net9.0\ref\Portfolio.Application.dll
-C:\Users\TUF\Desktop\Github\Portfolio\Portfolio-BE\src\Portfolio.Application\bin\Debug\net9.0\Portfolio.Application.deps.json
-C:\Users\TUF\Desktop\Github\Portfolio\Portfolio-BE\src\Portfolio.Application\bin\Debug\net9.0\Portfolio.Application.dll
-C:\Users\TUF\Desktop\Github\Portfolio\Portfolio-BE\src\Portfolio.Application\bin\Debug\net9.0\Portfolio.Application.pdb
-C:\Users\TUF\Desktop\Github\Portfolio\Portfolio-BE\src\Portfolio.Application\bin\Debug\net9.0\Portfolio.Domain.dll
-C:\Users\TUF\Desktop\Github\Portfolio\Portfolio-BE\src\Portfolio.Application\bin\Debug\net9.0\Portfolio.Domain.pdb
-C:\Users\TUF\Desktop\Github\Portfolio\Portfolio-BE\src\Portfolio.Application\obj\Debug\net9.0\Portfolio.Application.csproj.AssemblyReference.cache
-C:\Users\TUF\Desktop\Github\Portfolio\Portfolio-BE\src\Portfolio.Application\obj\Debug\net9.0\Portfolio.Application.GeneratedMSBuildEditorConfig.editorconfig
-C:\Users\TUF\Desktop\Github\Portfolio\Portfolio-BE\src\Portfolio.Application\obj\Debug\net9.0\Portfolio.Application.AssemblyInfoInputs.cache
-C:\Users\TUF\Desktop\Github\Portfolio\Portfolio-BE\src\Portfolio.Application\obj\Debug\net9.0\Portfolio.Application.AssemblyInfo.cs
-C:\Users\TUF\Desktop\Github\Portfolio\Portfolio-BE\src\Portfolio.Application\obj\Debug\net9.0\Portfolio.Application.csproj.CoreCompileInputs.cache
-C:\Users\TUF\Desktop\Github\Portfolio\Portfolio-BE\src\Portfolio.Application\obj\Debug\net9.0\Portfolio.Application.sourcelink.json
-C:\Users\TUF\Desktop\Github\Portfolio\Portfolio-BE\src\Portfolio.Application\obj\Debug\net9.0\Portfoli.B086831A.Up2Date
-C:\Users\TUF\Desktop\Github\Portfolio\Portfolio-BE\src\Portfolio.Application\obj\Debug\net9.0\Portfolio.Application.dll
-C:\Users\TUF\Desktop\Github\Portfolio\Portfolio-BE\src\Portfolio.Application\obj\Debug\net9.0\refint\Portfolio.Application.dll
-C:\Users\TUF\Desktop\Github\Portfolio\Portfolio-BE\src\Portfolio.Application\obj\Debug\net9.0\Portfolio.Application.pdb
-C:\Users\TUF\Desktop\Github\Portfolio\Portfolio-BE\src\Portfolio.Application\obj\Debug\net9.0\ref\Portfolio.Application.dll
-C:\Users\Trung Hien\Desktop\GithubPC\Portfolio\Portfolio-BE\src\Portfolio.Application\bin\Debug\net9.0\Portfolio.Application.deps.json
-C:\Users\Trung Hien\Desktop\GithubPC\Portfolio\Portfolio-BE\src\Portfolio.Application\bin\Debug\net9.0\Portfolio.Application.dll
-C:\Users\Trung Hien\Desktop\GithubPC\Portfolio\Portfolio-BE\src\Portfolio.Application\bin\Debug\net9.0\Portfolio.Application.pdb
-C:\Users\Trung Hien\Desktop\GithubPC\Portfolio\Portfolio-BE\src\Portfolio.Application\bin\Debug\net9.0\Portfolio.Domain.dll
-C:\Users\Trung Hien\Desktop\GithubPC\Portfolio\Portfolio-BE\src\Portfolio.Application\bin\Debug\net9.0\Portfolio.Domain.pdb
-C:\Users\Trung Hien\Desktop\GithubPC\Portfolio\Portfolio-BE\src\Portfolio.Application\obj\Debug\net9.0\Portfolio.Application.csproj.AssemblyReference.cache
-C:\Users\Trung Hien\Desktop\GithubPC\Portfolio\Portfolio-BE\src\Portfolio.Application\obj\Debug\net9.0\Portfolio.Application.GeneratedMSBuildEditorConfig.editorconfig
-C:\Users\Trung Hien\Desktop\GithubPC\Portfolio\Portfolio-BE\src\Portfolio.Application\obj\Debug\net9.0\Portfolio.Application.AssemblyInfoInputs.cache
-C:\Users\Trung Hien\Desktop\GithubPC\Portfolio\Portfolio-BE\src\Portfolio.Application\obj\Debug\net9.0\Portfolio.Application.AssemblyInfo.cs
-C:\Users\Trung Hien\Desktop\GithubPC\Portfolio\Portfolio-BE\src\Portfolio.Application\obj\Debug\net9.0\Portfolio.Application.csproj.CoreCompileInputs.cache
-C:\Users\Trung Hien\Desktop\GithubPC\Portfolio\Portfolio-BE\src\Portfolio.Application\obj\Debug\net9.0\Portfolio.Application.sourcelink.json
-C:\Users\Trung Hien\Desktop\GithubPC\Portfolio\Portfolio-BE\src\Portfolio.Application\obj\Debug\net9.0\Portfoli.B086831A.Up2Date
-C:\Users\Trung Hien\Desktop\GithubPC\Portfolio\Portfolio-BE\src\Portfolio.Application\obj\Debug\net9.0\Portfolio.Application.dll
-C:\Users\Trung Hien\Desktop\GithubPC\Portfolio\Portfolio-BE\src\Portfolio.Application\obj\Debug\net9.0\refint\Portfolio.Application.dll
-C:\Users\Trung Hien\Desktop\GithubPC\Portfolio\Portfolio-BE\src\Portfolio.Application\obj\Debug\net9.0\Portfolio.Application.pdb
-C:\Users\Trung Hien\Desktop\GithubPC\Portfolio\Portfolio-BE\src\Portfolio.Application\obj\Debug\net9.0\ref\Portfolio.Application.dll
+C:/Users/TUF/Desktop/Github/Portfolio/src/Portfolio.Application/obj/Debug/net9.0/Portfolio.Application.csproj.AssemblyReference.cache
+C:/Users/TUF/Desktop/Github/Portfolio/src/Portfolio.Application/obj/Debug/net9.0/Portfolio.Application.GeneratedMSBuildEditorConfig.editorconfig
+C:/Users/TUF/Desktop/Github/Portfolio/src/Portfolio.Application/obj/Debug/net9.0/Portfolio.Application.AssemblyInfoInputs.cache
+C:/Users/TUF/Desktop/Github/Portfolio/src/Portfolio.Application/obj/Debug/net9.0/Portfolio.Application.AssemblyInfo.cs
+C:/Users/TUF/Desktop/Github/Portfolio/src/Portfolio.Application/obj/Debug/net9.0/Portfolio.Application.csproj.CoreCompileInputs.cache
+C:/Users/TUF/Desktop/Github/Portfolio/src/Portfolio.Application/bin/Debug/net9.0/Portfolio.Application.deps.json
+C:/Users/TUF/Desktop/Github/Portfolio/src/Portfolio.Application/bin/Debug/net9.0/Portfolio.Application.dll
+C:/Users/TUF/Desktop/Github/Portfolio/src/Portfolio.Application/bin/Debug/net9.0/Portfolio.Application.pdb
+C:/Users/TUF/Desktop/Github/Portfolio/src/Portfolio.Application/bin/Debug/net9.0/Portfolio.Domain.dll
+C:/Users/TUF/Desktop/Github/Portfolio/src/Portfolio.Application/bin/Debug/net9.0/Portfolio.Domain.pdb
+C:/Users/TUF/Desktop/Github/Portfolio/src/Portfolio.Application/obj/Debug/net9.0/Portfoli.B086831A.Up2Date
+C:/Users/TUF/Desktop/Github/Portfolio/src/Portfolio.Application/obj/Debug/net9.0/Portfolio.Application.dll
+C:/Users/TUF/Desktop/Github/Portfolio/src/Portfolio.Application/obj/Debug/net9.0/refint/Portfolio.Application.dll
+C:/Users/TUF/Desktop/Github/Portfolio/src/Portfolio.Application/obj/Debug/net9.0/Portfolio.Application.pdb
+C:/Users/TUF/Desktop/Github/Portfolio/src/Portfolio.Application/obj/Debug/net9.0/ref/Portfolio.Application.dll
+C:/Users/TUF/Desktop/Github/Portfolio/Portfolio-BE/src/Portfolio.Application/bin/Debug/net9.0/Portfolio.Application.deps.json
+C:/Users/TUF/Desktop/Github/Portfolio/Portfolio-BE/src/Portfolio.Application/bin/Debug/net9.0/Portfolio.Application.dll
+C:/Users/TUF/Desktop/Github/Portfolio/Portfolio-BE/src/Portfolio.Application/bin/Debug/net9.0/Portfolio.Application.pdb
+C:/Users/TUF/Desktop/Github/Portfolio/Portfolio-BE/src/Portfolio.Application/bin/Debug/net9.0/Portfolio.Domain.dll
+C:/Users/TUF/Desktop/Github/Portfolio/Portfolio-BE/src/Portfolio.Application/bin/Debug/net9.0/Portfolio.Domain.pdb
+C:/Users/TUF/Desktop/Github/Portfolio/Portfolio-BE/src/Portfolio.Application/obj/Debug/net9.0/Portfolio.Application.csproj.AssemblyReference.cache
+C:/Users/TUF/Desktop/Github/Portfolio/Portfolio-BE/src/Portfolio.Application/obj/Debug/net9.0/Portfolio.Application.GeneratedMSBuildEditorConfig.editorconfig
+C:/Users/TUF/Desktop/Github/Portfolio/Portfolio-BE/src/Portfolio.Application/obj/Debug/net9.0/Portfolio.Application.AssemblyInfoInputs.cache
+C:/Users/TUF/Desktop/Github/Portfolio/Portfolio-BE/src/Portfolio.Application/obj/Debug/net9.0/Portfolio.Application.AssemblyInfo.cs
+C:/Users/TUF/Desktop/Github/Portfolio/Portfolio-BE/src/Portfolio.Application/obj/Debug/net9.0/Portfolio.Application.csproj.CoreCompileInputs.cache
+C:/Users/TUF/Desktop/Github/Portfolio/Portfolio-BE/src/Portfolio.Application/obj/Debug/net9.0/Portfolio.Application.sourcelink.json
+C:/Users/TUF/Desktop/Github/Portfolio/Portfolio-BE/src/Portfolio.Application/obj/Debug/net9.0/Portfoli.B086831A.Up2Date
+C:/Users/TUF/Desktop/Github/Portfolio/Portfolio-BE/src/Portfolio.Application/obj/Debug/net9.0/Portfolio.Application.dll
+C:/Users/TUF/Desktop/Github/Portfolio/Portfolio-BE/src/Portfolio.Application/obj/Debug/net9.0/refint/Portfolio.Application.dll
+C:/Users/TUF/Desktop/Github/Portfolio/Portfolio-BE/src/Portfolio.Application/obj/Debug/net9.0/Portfolio.Application.pdb
+C:/Users/TUF/Desktop/Github/Portfolio/Portfolio-BE/src/Portfolio.Application/obj/Debug/net9.0/ref/Portfolio.Application.dll
+C:/Users/Trung Hien/Desktop/GithubPC/Portfolio/Portfolio-BE/src/Portfolio.Application/bin/Debug/net9.0/Portfolio.Application.deps.json
+C:/Users/Trung Hien/Desktop/GithubPC/Portfolio/Portfolio-BE/src/Portfolio.Application/bin/Debug/net9.0/Portfolio.Application.dll
+C:/Users/Trung Hien/Desktop/GithubPC/Portfolio/Portfolio-BE/src/Portfolio.Application/bin/Debug/net9.0/Portfolio.Application.pdb
+C:/Users/Trung Hien/Desktop/GithubPC/Portfolio/Portfolio-BE/src/Portfolio.Application/bin/Debug/net9.0/Portfolio.Domain.dll
+C:/Users/Trung Hien/Desktop/GithubPC/Portfolio/Portfolio-BE/src/Portfolio.Application/bin/Debug/net9.0/Portfolio.Domain.pdb
+C:/Users/Trung Hien/Desktop/GithubPC/Portfolio/Portfolio-BE/src/Portfolio.Application/obj/Debug/net9.0/Portfolio.Application.csproj.AssemblyReference.cache
+C:/Users/Trung Hien/Desktop/GithubPC/Portfolio/Portfolio-BE/src/Portfolio.Application/obj/Debug/net9.0/Portfolio.Application.GeneratedMSBuildEditorConfig.editorconfig
+C:/Users/Trung Hien/Desktop/GithubPC/Portfolio/Portfolio-BE/src/Portfolio.Application/obj/Debug/net9.0/Portfolio.Application.AssemblyInfoInputs.cache
+C:/Users/Trung Hien/Desktop/GithubPC/Portfolio/Portfolio-BE/src/Portfolio.Application/obj/Debug/net9.0/Portfolio.Application.AssemblyInfo.cs
+C:/Users/Trung Hien/Desktop/GithubPC/Portfolio/Portfolio-BE/src/Portfolio.Application/obj/Debug/net9.0/Portfolio.Application.csproj.CoreCompileInputs.cache
+C:/Users/Trung Hien/Desktop/GithubPC/Portfolio/Portfolio-BE/src/Portfolio.Application/obj/Debug/net9.0/Portfolio.Application.sourcelink.json
+C:/Users/Trung Hien/Desktop/GithubPC/Portfolio/Portfolio-BE/src/Portfolio.Application/obj/Debug/net9.0/Portfoli.B086831A.Up2Date
+C:/Users/Trung Hien/Desktop/GithubPC/Portfolio/Portfolio-BE/src/Portfolio.Application/obj/Debug/net9.0/Portfolio.Application.dll
+C:/Users/Trung Hien/Desktop/GithubPC/Portfolio/Portfolio-BE/src/Portfolio.Application/obj/Debug/net9.0/refint/Portfolio.Application.dll
+C:/Users/Trung Hien/Desktop/GithubPC/Portfolio/Portfolio-BE/src/Portfolio.Application/obj/Debug/net9.0/Portfolio.Application.pdb
+C:/Users/Trung Hien/Desktop/GithubPC/Portfolio/Portfolio-BE/src/Portfolio.Application/obj/Debug/net9.0/ref/Portfolio.Application.dll
+/tmp/workspace/hienn12454/Portfolio/Portfolio-BE/src/Portfolio.Application/bin/Debug/net9.0/Portfolio.Application.deps.json
+/tmp/workspace/hienn12454/Portfolio/Portfolio-BE/src/Portfolio.Application/bin/Debug/net9.0/Portfolio.Application.dll
+/tmp/workspace/hienn12454/Portfolio/Portfolio-BE/src/Portfolio.Application/bin/Debug/net9.0/Portfolio.Application.pdb
+/tmp/workspace/hienn12454/Portfolio/Portfolio-BE/src/Portfolio.Application/bin/Debug/net9.0/Portfolio.Domain.dll
+/tmp/workspace/hienn12454/Portfolio/Portfolio-BE/src/Portfolio.Application/bin/Debug/net9.0/Portfolio.Domain.pdb
+/tmp/workspace/hienn12454/Portfolio/Portfolio-BE/src/Portfolio.Application/obj/Debug/net9.0/Portfolio.Application.csproj.AssemblyReference.cache
+/tmp/workspace/hienn12454/Portfolio/Portfolio-BE/src/Portfolio.Application/obj/Debug/net9.0/Portfolio.Application.GeneratedMSBuildEditorConfig.editorconfig
+/tmp/workspace/hienn12454/Portfolio/Portfolio-BE/src/Portfolio.Application/obj/Debug/net9.0/Portfolio.Application.AssemblyInfoInputs.cache
+/tmp/workspace/hienn12454/Portfolio/Portfolio-BE/src/Portfolio.Application/obj/Debug/net9.0/Portfolio.Application.AssemblyInfo.cs
+/tmp/workspace/hienn12454/Portfolio/Portfolio-BE/src/Portfolio.Application/obj/Debug/net9.0/Portfolio.Application.csproj.CoreCompileInputs.cache
+/tmp/workspace/hienn12454/Portfolio/Portfolio-BE/src/Portfolio.Application/obj/Debug/net9.0/Portfolio.Application.sourcelink.json
+/tmp/workspace/hienn12454/Portfolio/Portfolio-BE/src/Portfolio.Application/obj/Debug/net9.0/Portfoli.B086831A.Up2Date
+/tmp/workspace/hienn12454/Portfolio/Portfolio-BE/src/Portfolio.Application/obj/Debug/net9.0/Portfolio.Application.dll
+/tmp/workspace/hienn12454/Portfolio/Portfolio-BE/src/Portfolio.Application/obj/Debug/net9.0/refint/Portfolio.Application.dll
+/tmp/workspace/hienn12454/Portfolio/Portfolio-BE/src/Portfolio.Application/obj/Debug/net9.0/Portfolio.Application.pdb
+/tmp/workspace/hienn12454/Portfolio/Portfolio-BE/src/Portfolio.Application/obj/Debug/net9.0/ref/Portfolio.Application.dll
