@@ -84,6 +84,8 @@ Portfolio/
 | `/cv` | `CVPage` | Public |
 | `/cv/edit` | `CVEditPage` | Admin (Clerk) |
 | `/premium` | `PremiumPage` | Public (manage requires auth) |
+| `/blog` | `BlogPage` | Public |
+| `/blog/:slug` | `BlogPostPage` | Public |
 | `/auth` | `AuthPage` | Public |
 | `/admin` | `AdminPage` | Admin (Clerk) |
 | `/profile` | `UserProfilePage` | Authenticated |
@@ -134,6 +136,9 @@ const apiClient = useMemo(() => createApiClient(async () => null), []);
 | GET | `/api/career/chat/diagnostic` | OpenRouter diagnostic |
 | GET | `/api/auth/config` | Clerk auth URLs |
 | GET | `/api/premium/plans` | Premium plan catalog (monthly/yearly) |
+| POST | `/api/contact-messages` | Submit contact form message |
+| POST | `/api/projects/{id}/like` | Increment project like count |
+| POST | `/api/projects/{id}/view` | Increment project view count |
 
 ### Authenticated
 | Method | Path | Description |
@@ -174,6 +179,9 @@ const apiClient = useMemo(() => createApiClient(async () => null), []);
 | POST | `/api/webhooks/clerk` | Clerk webhooks (Svix) |
 | GET | `/api/premium/admin/subscriptions` | List all premium subscriptions |
 | POST | `/api/premium/admin/users/{userId}/grant` | Admin grant/activate premium |
+| GET | `/api/contact-messages/admin` | List contact messages + unread count |
+| PUT | `/api/contact-messages/admin/{id}/read` | Mark message read/unread |
+| DELETE | `/api/contact-messages/admin/{id}` | Delete contact message |
 
 ---
 
@@ -194,6 +202,12 @@ Role ("User"|"Admin"), IsActive
 ```
 Title, Slug, Category ("fullstack"), Role, Summary, Stack
 CaseStudy, Impact, RepositoryUrl, DemoUrl, IsFeatured
+LikeCount, ViewCount   ← engagement counters (anonymous)
+```
+
+### ContactMessage ← NEW (migration: AddContactMessagesAndProjectEngagement)
+```
+Name, Email, Subject (nullable), Message, IsRead
 ```
 
 ### Article
@@ -281,7 +295,7 @@ returned by `/api/premium/me`: `aiUnlimited`, `advancedCv`, `profileBadge`.
 ```csharp
 Articles, ContactInfos, CvProfiles, PageContents,
 Projects, SiteMetrics, Skills, Users, UserRoadmapPlans,
-PageViewLogs, UserLoginLogs, PremiumSubscriptions
+PageViewLogs, UserLoginLogs, PremiumSubscriptions, ContactMessages
 ```
 
 ---
@@ -301,6 +315,7 @@ PageViewLogs, UserLoginLogs, PremiumSubscriptions
 11. `20260523180754_AddCvProfile`
 12. `20260523193226_AddAnalyticsLogs`
 13. `20260531120000_AddPremiumSubscription`
+14. `20260531130000_AddContactMessagesAndProjectEngagement`
 
 **Add new migration:**
 ```bash
@@ -375,4 +390,5 @@ Fonts: `Manrope` (body), `Space Grotesk` (headings) from Google Fonts.
 | 2026-05-23 | Added CV feature: `CvProfile` entity, `CvController`, migration `AddCvProfile`, `CVPage` (public), `CVEditPage` (admin), routes `/cv` and `/cv/edit` |
 | 2026-05-24 | Created `CLAUDE.md`; Redesigned CVPage & CVEditPage with modern 3D glassmorphism UI |
 | 2026-05-24 | CI: workflow auto-detects & applies pending EF migrations on push to main; warns on unmigrated entity changes. Requires GitHub secret `DB_CONNECTION_STRING` |
+| 2026-05-31 | Added features: **Contact inbox** (`ContactMessage` + `/api/contact-messages` + admin endpoints), **public Blog** (`/blog`, `/blog/:slug`), **project likes/views** (`LikeCount`/`ViewCount` + like/view endpoints), **Premium-gated CV PDF export**. Migration `AddContactMessagesAndProjectEngagement`. Tests: full xUnit suite — unit tests (Premium/Contact/User services) + integration tests (`WebApplicationFactory` + EF InMemory + test auth) covering public/auth/admin endpoints |
 | 2026-05-31 | Added **Premium** feature: `PremiumSubscription` entity + table (migration `AddPremiumSubscription`), `PremiumController` + `PremiumSubscriptionService` (mock checkout / admin grant, monthly+yearly plans), `PremiumPage` (`/premium`) with renew/cancel UI, premium badge in homepage nav/user-menu. UI cleanup: removed dead decorative layers + cursor-glow pointermove effect from HomePage, fixed Career Advisor greeting i18n bug, wired contact form to mailto submit |

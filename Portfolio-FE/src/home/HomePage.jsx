@@ -615,6 +615,8 @@ export function HomePage() {
   const [theme, setTheme] = useState("dark");
   const [openedFaqIndex, setOpenedFaqIndex] = useState(0);
   const [copiedEmail, setCopiedEmail] = useState(false);
+  const [contactStatus, setContactStatus] = useState("idle");
+  const [likeState, setLikeState] = useState({});
   const [showBackToTop, setShowBackToTop] = useState(false);
   const [isAdminUser, setIsAdminUser] = useState(false);
   const [isPremiumUser, setIsPremiumUser] = useState(false);
@@ -664,7 +666,9 @@ export function HomePage() {
         impact: project.impact || "",
         stack: project.stack || "",
         demoUrl: project.demoUrl || "#",
-        sourceUrl: project.repositoryUrl || "#"
+        sourceUrl: project.repositoryUrl || "#",
+        likeCount: project.likeCount ?? 0,
+        viewCount: project.viewCount ?? 0
       }));
     }
 
@@ -912,15 +916,51 @@ export function HomePage() {
     return () => window.clearInterval(intervalId);
   }, [resolvedHeroTitle, typingSpeedMs]);
 
-  const handleContactSubmit = (event) => {
+  const handleContactSubmit = async (event) => {
     event.preventDefault();
-    const formData = new FormData(event.currentTarget);
-    const name = (formData.get("name") || "").toString().trim();
-    const email = (formData.get("email") || "").toString().trim();
-    const message = (formData.get("message") || "").toString().trim();
-    const subject = encodeURIComponent(`Portfolio contact from ${name || email || "visitor"}`);
-    const body = encodeURIComponent(`${message}\n\n— ${name}${email ? ` (${email})` : ""}`);
-    window.location.href = `mailto:${displayEmail}?subject=${subject}&body=${body}`;
+    const form = event.currentTarget;
+    const formData = new FormData(form);
+    const payload = {
+      name: (formData.get("name") || "").toString().trim(),
+      email: (formData.get("email") || "").toString().trim(),
+      message: (formData.get("message") || "").toString().trim()
+    };
+    if (!payload.name || !payload.email || !payload.message) {
+      return;
+    }
+
+    setContactStatus("sending");
+    try {
+      await apiClient.postPublic("/api/contact-messages", payload);
+      setContactStatus("sent");
+      form.reset();
+    } catch {
+      setContactStatus("error");
+    }
+  };
+
+  const handleLikeProject = async (project) => {
+    const id = project.id;
+    if (!id || typeof id !== "string" || id.startsWith("p")) {
+      return; // static fallback projects have no real id
+    }
+    const storageKey = `portfolio-liked-${id}`;
+    const current = likeState[id]?.likeCount ?? project.likeCount ?? 0;
+    if (likeState[id]?.liked || localStorage.getItem(storageKey) === "1") {
+      return;
+    }
+
+    // Optimistic update, then reconcile with server.
+    setLikeState((prev) => ({ ...prev, [id]: { likeCount: current + 1, liked: true } }));
+    try {
+      localStorage.setItem(storageKey, "1");
+      const result = await apiClient.postPublic(`/api/projects/${id}/like`, {});
+      if (typeof result?.likeCount === "number") {
+        setLikeState((prev) => ({ ...prev, [id]: { likeCount: result.likeCount, liked: true } }));
+      }
+    } catch {
+      // keep optimistic value; ignore network errors
+    }
   };
 
   const handleCopyEmail = async () => {
@@ -1021,6 +1061,9 @@ export function HomePage() {
               </a>
               <Link to="/cv" className="nav-cv-link">
                 {content.nav.cv}
+              </Link>
+              <Link to="/blog" className="nav-blog-link">
+                Blog
               </Link>
               <Link to="/premium" className="nav-premium-link">
                 {content.nav.premium}
@@ -1310,6 +1353,23 @@ export function HomePage() {
                         <a href={project.demoUrl}>{content.projectLinks.demo}</a>
                         <a href={project.sourceUrl}>{content.projectLinks.source}</a>
                       </div>
+                      {typeof project.id === "string" && !project.id.startsWith("p") ? (
+                        <div className="project-engagement">
+                          <button
+                            type="button"
+                            className={`like-btn ${likeState[project.id]?.liked ? "is-liked" : ""}`}
+                            onClick={() => handleLikeProject(project)}
+                            aria-pressed={Boolean(likeState[project.id]?.liked)}
+                            aria-label={language === "vi" ? "Thả tim dự án" : "Like project"}
+                          >
+                            <span aria-hidden="true">♥</span>
+                            <span>{likeState[project.id]?.likeCount ?? project.likeCount ?? 0}</span>
+                          </button>
+                          <span className="view-count" title={language === "vi" ? "Lượt xem" : "Views"}>
+                            👁 {project.viewCount ?? 0}
+                          </span>
+                        </div>
+                      ) : null}
                     </article>
                   ))}
                 </div>
@@ -1495,9 +1555,21 @@ export function HomePage() {
                       {content.contactFormFields.message}
                       <textarea name="message" rows={4} placeholder={content.contactFormFields.message} required />
                     </label>
-                    <button type="submit" className="button button--primary">
-                      {content.contactFormFields.submit}
+                    <button type="submit" className="button button--primary" disabled={contactStatus === "sending"}>
+                      {contactStatus === "sending"
+                        ? (language === "vi" ? "Đang gửi..." : "Sending...")
+                        : content.contactFormFields.submit}
                     </button>
+                    {contactStatus === "sent" ? (
+                      <p className="contact-form__status is-ok">
+                        {language === "vi" ? "Đã gửi! Cảm ơn bạn đã liên hệ." : "Sent! Thanks for reaching out."}
+                      </p>
+                    ) : null}
+                    {contactStatus === "error" ? (
+                      <p className="contact-form__status is-err">
+                        {language === "vi" ? "Gửi thất bại, vui lòng thử lại." : "Failed to send, please try again."}
+                      </p>
+                    ) : null}
                   </form>
                 </article>
               </section>

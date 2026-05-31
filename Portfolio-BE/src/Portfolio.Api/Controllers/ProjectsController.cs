@@ -22,6 +22,34 @@ public sealed class ProjectsController(IApplicationDbContext dbContext) : Contro
         return Ok(projects);
     }
 
+    [HttpPost("{id:guid}/like")]
+    public async Task<IActionResult> Like(Guid id, CancellationToken cancellationToken)
+    {
+        var project = await dbContext.Projects.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+        if (project is null)
+        {
+            return NotFound();
+        }
+
+        project.LikeCount += 1;
+        await dbContext.SaveChangesAsync(cancellationToken);
+        return Ok(new { project.Id, project.LikeCount, project.ViewCount });
+    }
+
+    [HttpPost("{id:guid}/view")]
+    public async Task<IActionResult> View(Guid id, CancellationToken cancellationToken)
+    {
+        var project = await dbContext.Projects.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+        if (project is null)
+        {
+            return NotFound();
+        }
+
+        project.ViewCount += 1;
+        await dbContext.SaveChangesAsync(cancellationToken);
+        return Ok(new { project.Id, project.LikeCount, project.ViewCount });
+    }
+
     [Authorize(Policy = "AdminOnly")]
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] Project request, CancellationToken cancellationToken)

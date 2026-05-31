@@ -17,5 +17,6 @@ public interface IApplicationDbContext
     DbSet<PageViewLog> PageViewLogs { get; }
     DbSet<UserLoginLog> UserLoginLogs { get; }
     DbSet<PremiumSubscription> PremiumSubscriptions { get; }
+    DbSet<ContactMessage> ContactMessages { get; }
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

@@ -15,4 +15,8 @@ public sealed class Project : BaseAuditableEntity
     public string? RepositoryUrl { get; set; }
     public string? DemoUrl { get; set; }
     public bool IsFeatured { get; set; }
+
+    /// <summary>Public engagement counters (anonymous likes & views).</summary>
+    public int LikeCount { get; set; }
+    public int ViewCount { get; set; }
 }

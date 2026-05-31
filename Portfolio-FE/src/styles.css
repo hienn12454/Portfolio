@@ -241,6 +241,62 @@ html[data-theme="light"] .nav-cv-link:hover {
   min-height: 60vh;
 }
 
+.project-engagement {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  margin-top: 0.75rem;
+  font-size: 0.85rem;
+}
+
+.like-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border: 1px solid var(--surface-border);
+  background: var(--surface);
+  color: var(--text-muted);
+  border-radius: 999px;
+  padding: 0.25rem 0.7rem;
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease, transform 0.12s ease;
+}
+
+.like-btn:hover {
+  color: #ef4444;
+  border-color: #ef4444;
+}
+
+.like-btn.is-liked {
+  color: #ef4444;
+  border-color: #ef4444;
+  background: color-mix(in oklab, #ef4444 12%, var(--surface));
+  cursor: default;
+}
+
+.like-btn span:first-child {
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.view-count {
+  color: var(--text-soft);
+}
+
+.contact-form__status {
+  margin: 0.5rem 0 0;
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.contact-form__status.is-ok {
+  color: var(--accent);
+}
+
+.contact-form__status.is-err {
+  color: #ef4444;
+}
+
 .lang-switch {
   display: inline-flex;
   border: 1px solid #3f3f46;

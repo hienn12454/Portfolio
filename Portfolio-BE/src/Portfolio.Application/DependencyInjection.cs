@@ -1,5 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using Portfolio.Application.Features.CareerAdvisor;
+using Portfolio.Application.Features.Contact;
 using Portfolio.Application.Features.Premium;
 using Portfolio.Application.Features.RoadmapPlans;
 using Portfolio.Application.Features.Users;
@@ -13,6 +14,7 @@ public static class DependencyInjection
         services.AddScoped<ICareerAdvisorService, CareerAdvisorService>();
         services.AddScoped<IUserRoadmapPlanService, UserRoadmapPlanService>();
         services.AddScoped<IPremiumSubscriptionService, PremiumSubscriptionService>();
+        services.AddScoped<IContactMessageService, ContactMessageService>();
         services.AddScoped<ICurrentAppUserService, CurrentAppUserService>();
         return services;
     }

@@ -13,6 +13,8 @@ const PremiumPage = lazy(() => import("./premium/PremiumPage").then((m) => ({ de
 const AuthPage = lazy(() => import("./auth/AuthPage").then((m) => ({ default: m.AuthPage })));
 const AdminPage = lazy(() => import("./admin/AdminPage").then((m) => ({ default: m.AdminPage })));
 const UserProfilePage = lazy(() => import("./profile/UserProfilePage").then((m) => ({ default: m.UserProfilePage })));
+const BlogPage = lazy(() => import("./blog/BlogPage").then((m) => ({ default: m.BlogPage })));
+const BlogPostPage = lazy(() => import("./blog/BlogPage").then((m) => ({ default: m.BlogPostPage })));
 
 // Tracks login analytics globally — runs regardless of which page the user lands on
 function LoginTracker() {
@@ -44,6 +46,8 @@ export default function App() {
             <Route path="/cv" element={<CVPage />} />
             <Route path="/cv/edit" element={<CVEditPage />} />
             <Route path="/premium" element={<PremiumPage />} />
+            <Route path="/blog" element={<BlogPage />} />
+            <Route path="/blog/:slug" element={<BlogPostPage />} />
             <Route path="/auth" element={<AuthPage />} />
             <Route path="/admin" element={<AdminPage />} />
             <Route path="/profile" element={<UserProfilePage />} />
