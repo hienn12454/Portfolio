@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 const trackContent = {
   en: {
@@ -56,22 +56,30 @@ const tracks = {
   ]
 };
 
-export function CareerAdvisorSection({ language, apiClient }) {
+function buildGreeting(language) {
+  return language === "vi"
+    ? "Chào bạn! Chọn hướng đi ở bên trái rồi hỏi mình để nhận roadmap học tập và dự án gợi ý."
+    : "Hi! Pick a track on the left and ask me for a tailored roadmap and project suggestions.";
+}
+
+export function CareerAdvisorSection({ language, apiClient, isPremium = false }) {
   const content = trackContent[language];
   const trackList = tracks[language];
   const [selectedTrack, setSelectedTrack] = useState("backend");
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [messages, setMessages] = useState([
-    {
-      role: "assistant",
-      content:
-        language === "vi"
-          ? "Chào bạn! Chọn hướng đi ở bên trái rồi hỏi mình để nhận roadmap học tập và dự án gợi ý."
-          : "Hi! Pick a track on the left and ask me for a tailored roadmap and project suggestions.",
-      sources: []
-    }
-  ]);
+  const [messages, setMessages] = useState([{ role: "assistant", content: buildGreeting(language), sources: [] }]);
+
+  // Re-localize the greeting when the language changes, but only while the
+  // conversation is still untouched (just the initial assistant message).
+  useEffect(() => {
+    setMessages((current) => {
+      if (current.length === 1 && current[0].role === "assistant") {
+        return [{ role: "assistant", content: buildGreeting(language), sources: [] }];
+      }
+      return current;
+    });
+  }, [language]);
 
   const activeTrack = useMemo(() => trackList.find((item) => item.id === selectedTrack) ?? trackList[0], [selectedTrack, trackList]);
 
@@ -157,7 +165,10 @@ export function CareerAdvisorSection({ language, apiClient }) {
         <article className="career-chatbot">
           <header className="career-chatbot__header">
             <h3>{content.chatbotTitle}</h3>
-            <span>{activeTrack.title}</span>
+            <span>
+              {activeTrack.title}
+              {isPremium ? <em className="career-chatbot__premium"> · ✨ {language === "vi" ? "Không giới hạn" : "Unlimited"}</em> : null}
+            </span>
           </header>
 
           <div className="career-chatbot__messages">

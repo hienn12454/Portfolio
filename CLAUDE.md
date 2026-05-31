@@ -83,6 +83,7 @@ Portfolio/
 | `/` | `HomePage` | Public |
 | `/cv` | `CVPage` | Public |
 | `/cv/edit` | `CVEditPage` | Admin (Clerk) |
+| `/premium` | `PremiumPage` | Public (manage requires auth) |
 | `/auth` | `AuthPage` | Public |
 | `/admin` | `AdminPage` | Admin (Clerk) |
 | `/profile` | `UserProfilePage` | Authenticated |
@@ -132,6 +133,7 @@ const apiClient = useMemo(() => createApiClient(async () => null), []);
 | POST | `/api/career/chat` | Career advisor AI chat |
 | GET | `/api/career/chat/diagnostic` | OpenRouter diagnostic |
 | GET | `/api/auth/config` | Clerk auth URLs |
+| GET | `/api/premium/plans` | Premium plan catalog (monthly/yearly) |
 
 ### Authenticated
 | Method | Path | Description |
@@ -144,6 +146,9 @@ const apiClient = useMemo(() => createApiClient(async () => null), []);
 | GET | `/api/roadmap-plans/mine` | All user plans |
 | GET | `/api/roadmap-plans/mine/{id}` | Specific plan |
 | POST | `/api/roadmap-plans/mine/generate` | Generate new plan |
+| GET | `/api/premium/me` | Current user's premium status + entitlements |
+| POST | `/api/premium/me/subscribe` | Subscribe/renew (mock checkout) |
+| POST | `/api/premium/me/cancel` | Cancel (keeps access until expiry) |
 
 ### Admin Only (`AdminOnly` policy)
 | Method | Path | Description |
@@ -167,6 +172,8 @@ const apiClient = useMemo(() => createApiClient(async () => null), []);
 | GET | `/api/analytics/summary` | Metrics summary |
 | POST | `/api/auth/users/{userId}/profile/import-cv` | Import CV for user |
 | POST | `/api/webhooks/clerk` | Clerk webhooks (Svix) |
+| GET | `/api/premium/admin/subscriptions` | List all premium subscriptions |
+| POST | `/api/premium/admin/users/{userId}/grant` | Admin grant/activate premium |
 
 ---
 
@@ -256,13 +263,25 @@ IsPublic (default:true), AccentColor (default:"#2563eb")
 [{ "icon":"📚","name":"Đọc sách" }]
 ```
 
+### PremiumSubscription ← NEW (migration: AddPremiumSubscription)
+```
+UserId (Guid), Plan ("monthly"|"yearly"), Status ("active"|"cancelled"|"expired")
+StartedAtUtc, ExpiresAtUtc, AmountPaid (decimal), Currency (default:"VND")
+PaymentMethod (default:"mock"), PaymentReference, AutoRenew, CancelledAtUtc
+```
+Each subscribe/renew inserts a new row (billing history); the "current" subscription
+is the valid row with the furthest `ExpiresAtUtc`. Payment is **mock** (instant activation
+or admin grant) — swap `PaymentMethod`/reference for a real gateway later. Entitlements
+returned by `/api/premium/me`: `aiUnlimited`, `advancedCv`, `profileBadge`.
+
 ---
 
 ## DbContext Sets
 
 ```csharp
 Articles, ContactInfos, CvProfiles, PageContents,
-Projects, SiteMetrics, Skills, Users, UserRoadmapPlans
+Projects, SiteMetrics, Skills, Users, UserRoadmapPlans,
+PageViewLogs, UserLoginLogs, PremiumSubscriptions
 ```
 
 ---
@@ -280,6 +299,8 @@ Projects, SiteMetrics, Skills, Users, UserRoadmapPlans
 9. `20260430083211_AddExtendedUserProfileFieldsAndCvImport`
 10. `20260521072920_MakeContactEmailOptional`
 11. `20260523180754_AddCvProfile`
+12. `20260523193226_AddAnalyticsLogs`
+13. `20260531120000_AddPremiumSubscription`
 
 **Add new migration:**
 ```bash
@@ -354,3 +375,4 @@ Fonts: `Manrope` (body), `Space Grotesk` (headings) from Google Fonts.
 | 2026-05-23 | Added CV feature: `CvProfile` entity, `CvController`, migration `AddCvProfile`, `CVPage` (public), `CVEditPage` (admin), routes `/cv` and `/cv/edit` |
 | 2026-05-24 | Created `CLAUDE.md`; Redesigned CVPage & CVEditPage with modern 3D glassmorphism UI |
 | 2026-05-24 | CI: workflow auto-detects & applies pending EF migrations on push to main; warns on unmigrated entity changes. Requires GitHub secret `DB_CONNECTION_STRING` |
+| 2026-05-31 | Added **Premium** feature: `PremiumSubscription` entity + table (migration `AddPremiumSubscription`), `PremiumController` + `PremiumSubscriptionService` (mock checkout / admin grant, monthly+yearly plans), `PremiumPage` (`/premium`) with renew/cancel UI, premium badge in homepage nav/user-menu. UI cleanup: removed dead decorative layers + cursor-glow pointermove effect from HomePage, fixed Career Advisor greeting i18n bug, wired contact form to mailto submit |

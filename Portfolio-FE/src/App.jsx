@@ -7,6 +7,7 @@ import { UserProfilePage } from "./profile/UserProfilePage";
 import { AuthPage } from "./auth/AuthPage";
 import { CVPage } from "./cv/CVPage";
 import { CVEditPage } from "./cv/CVEditPage";
+import { PremiumPage } from "./premium/PremiumPage";
 import { createApiClient } from "./core/http/apiClient";
 
 // Tracks login analytics globally — runs regardless of which page the user lands on
@@ -34,6 +35,7 @@ export default function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/cv" element={<CVPage />} />
         <Route path="/cv/edit" element={<CVEditPage />} />
+        <Route path="/premium" element={<PremiumPage />} />
         <Route path="/auth" element={<AuthPage />} />
         <Route path="/admin" element={<AdminPage />} />
         <Route path="/profile" element={<UserProfilePage />} />

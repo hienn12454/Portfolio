@@ -19,6 +19,7 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
     public DbSet<UserRoadmapPlan> UserRoadmapPlans => Set<UserRoadmapPlan>();
     public DbSet<PageViewLog> PageViewLogs => Set<PageViewLog>();
     public DbSet<UserLoginLog> UserLoginLogs => Set<UserLoginLog>();
+    public DbSet<PremiumSubscription> PremiumSubscriptions => Set<PremiumSubscription>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

@@ -16,5 +16,6 @@ public interface IApplicationDbContext
     DbSet<UserRoadmapPlan> UserRoadmapPlans { get; }
     DbSet<PageViewLog> PageViewLogs { get; }
     DbSet<UserLoginLog> UserLoginLogs { get; }
+    DbSet<PremiumSubscription> PremiumSubscriptions { get; }
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }
