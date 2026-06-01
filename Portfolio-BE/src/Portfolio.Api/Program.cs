@@ -186,7 +186,7 @@ builder.Services.AddScoped<IAuthorizationHandler, AdminRequirementHandler>();
 
 builder.Services
     .AddApplication()
-    .AddInfrastructure(builder.Configuration)
+    .AddInfrastructure(builder.Configuration, builder.Environment.EnvironmentName)
     .AddRateLimiting();
 
 var app = builder.Build();

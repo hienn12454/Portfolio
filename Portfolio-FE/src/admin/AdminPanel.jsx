@@ -374,6 +374,7 @@ export function AdminPanel({ language = "en" }) {
   const [page, setPage] = useState(EMPTY_PAGE);
   const [articles, setArticles] = useState([]);
   const [draftArticle, setDraftArticle] = useState(EMPTY_ARTICLE);
+  const [showArticleForm, setShowArticleForm] = useState(false);
   const [skills, setSkills] = useState([]);
   const [draftSkill, setDraftSkill] = useState(EMPTY_SKILL);
   const [projects, setProjects] = useState([]);
@@ -479,9 +480,14 @@ export function AdminPanel({ language = "en" }) {
           updateProject: "Cập nhật dự án",
           deleteProject: "Xóa dự án",
           clearProjectForm: "Xóa form dự án",
+          newArticle: "Bài viết mới",
           createArticle: "Tạo bài viết",
-          updateArticle: "Cập nhật",
+          updateArticle: "Lưu thay đổi",
           deleteArticle: "Xóa",
+          cancelArticle: "Hủy",
+          publishArticle: "Đăng",
+          unpublishArticle: "Ẩn",
+          clearArticleForm: "Xóa form",
           save: "Lưu thay đổi",
           saved: "Đã lưu thành công."
         }
@@ -508,9 +514,14 @@ export function AdminPanel({ language = "en" }) {
           updateProject: "Update project",
           deleteProject: "Delete project",
           clearProjectForm: "Clear project form",
+          newArticle: "New article",
           createArticle: "Create article",
-          updateArticle: "Update",
+          updateArticle: "Save changes",
           deleteArticle: "Delete",
+          cancelArticle: "Cancel",
+          publishArticle: "Publish",
+          unpublishArticle: "Unpublish",
+          clearArticleForm: "Clear form",
           save: "Save changes",
           saved: "Saved successfully."
         };
@@ -557,6 +568,26 @@ export function AdminPanel({ language = "en" }) {
     }
   }
 
+  function openNewArticleForm() {
+    setDraftArticle(EMPTY_ARTICLE);
+    setShowArticleForm(true);
+  }
+
+  function cancelArticleForm() {
+    setDraftArticle(EMPTY_ARTICLE);
+    setShowArticleForm(false);
+  }
+
+  function autoSlug(title) {
+    return title
+      .toLowerCase()
+      .normalize("NFD").replace(/[̀-ͯ]/g, "")
+      .replace(/đ/g, "d")
+      .replace(/[^a-z0-9\s-]/g, "")
+      .trim()
+      .replace(/\s+/g, "-");
+  }
+
   async function saveArticle() {
     setSaveState("");
     setError("");
@@ -569,6 +600,7 @@ export function AdminPanel({ language = "en" }) {
         setArticles((current) => [created, ...current]);
       }
       setDraftArticle(EMPTY_ARTICLE);
+      setShowArticleForm(false);
       setSaveState(labels.saved);
     } catch (saveError) {
       setError(saveError.message);
@@ -584,6 +616,21 @@ export function AdminPanel({ language = "en" }) {
       setSaveState(labels.saved);
     } catch (saveError) {
       setError(saveError.message);
+    }
+  }
+
+  async function togglePublishArticle(article) {
+    setSaveState("");
+    setError("");
+    try {
+      const updated = await apiClient.putProtected(`/api/articles/${article.id}`, {
+        ...article,
+        isPublished: !article.isPublished,
+      });
+      setArticles((current) => current.map((item) => (item.id === updated.id ? updated : item)));
+      setSaveState(labels.saved);
+    } catch (toggleError) {
+      setError(toggleError.message);
     }
   }
 
@@ -1012,46 +1059,135 @@ export function AdminPanel({ language = "en" }) {
   }
 
   function renderArticlesSection() {
+    const isEditing = showArticleForm;
+    const isNewArticle = isEditing && (!draftArticle.id || draftArticle.id === EMPTY_GUID);
+
     return (
       <article className="contact-form">
-        <h3>{labels.articleTitle}</h3>
-        <form>
-          <label>
-            Title
-            <input value={draftArticle.title} onChange={(event) => setDraftArticle((current) => ({ ...current, title: event.target.value }))} />
-          </label>
-          <label>
-            Slug
-            <input value={draftArticle.slug} onChange={(event) => setDraftArticle((current) => ({ ...current, slug: event.target.value }))} />
-          </label>
-          <label>
-            Summary
-            <textarea rows={2} value={draftArticle.summary} onChange={(event) => setDraftArticle((current) => ({ ...current, summary: event.target.value }))} />
-          </label>
-          <label>
-            Content
-            <textarea rows={4} value={draftArticle.content} onChange={(event) => setDraftArticle((current) => ({ ...current, content: event.target.value }))} />
-          </label>
-          <ToggleSwitch
-            id="article-published"
-            checked={draftArticle.isPublished}
-            onChange={(event) => setDraftArticle((current) => ({ ...current, isPublished: event.target.checked }))}
-            label="Published"
-          />
-          <button type="button" className="button button--primary" onClick={saveArticle}>
-            {draftArticle.id ? labels.updateArticle : labels.createArticle}
-          </button>
-        </form>
+        <div className="adm-section-header">
+          <h3>{labels.articleTitle}</h3>
+          {!isEditing && (
+            <button type="button" className="button button--primary button--small" onClick={openNewArticleForm}>
+              + {labels.newArticle}
+            </button>
+          )}
+        </div>
+
+        {isEditing && (
+          <div className="adm-article-form-panel">
+            <h4 style={{ marginBottom: "1rem", color: "var(--text-muted)", fontWeight: 600 }}>
+              {isNewArticle
+                ? (language === "vi" ? "Tạo bài viết mới" : "Create new article")
+                : (language === "vi" ? `Chỉnh sửa: ${draftArticle.title}` : `Edit: ${draftArticle.title}`)}
+            </h4>
+            <form>
+              <label>
+                {language === "vi" ? "Tiêu đề" : "Title"}
+                <input
+                  value={draftArticle.title}
+                  onChange={(event) => {
+                    const title = event.target.value;
+                    setDraftArticle((current) => ({
+                      ...current,
+                      title,
+                      slug: isNewArticle ? autoSlug(title) : current.slug,
+                    }));
+                  }}
+                  placeholder={language === "vi" ? "Tiêu đề bài viết" : "Article title"}
+                />
+              </label>
+              <label>
+                Slug
+                <input
+                  value={draftArticle.slug}
+                  onChange={(event) => setDraftArticle((current) => ({ ...current, slug: event.target.value }))}
+                  placeholder="my-article-slug"
+                />
+              </label>
+              <label>
+                {language === "vi" ? "Tóm tắt" : "Summary"}
+                <textarea
+                  rows={2}
+                  value={draftArticle.summary}
+                  onChange={(event) => setDraftArticle((current) => ({ ...current, summary: event.target.value }))}
+                  placeholder={language === "vi" ? "Mô tả ngắn về bài viết" : "Short description"}
+                />
+              </label>
+              <label>
+                {language === "vi" ? "Nội dung (Markdown)" : "Content (Markdown)"}
+                <textarea
+                  rows={12}
+                  value={draftArticle.content}
+                  onChange={(event) => setDraftArticle((current) => ({ ...current, content: event.target.value }))}
+                  placeholder={language === "vi" ? "Nội dung bài viết (hỗ trợ Markdown)" : "Article content (Markdown supported)"}
+                  style={{ fontFamily: "monospace", fontSize: "0.85rem" }}
+                />
+              </label>
+              <ToggleSwitch
+                id="article-published"
+                checked={draftArticle.isPublished}
+                onChange={(event) => setDraftArticle((current) => ({ ...current, isPublished: event.target.checked }))}
+                label={language === "vi" ? "Đăng công khai" : "Published"}
+              />
+              <div className="adm-form-actions">
+                <button type="button" className="button button--primary" onClick={saveArticle}>
+                  {isNewArticle ? labels.createArticle : labels.updateArticle}
+                </button>
+                <button type="button" className="button button--ghost" onClick={cancelArticleForm}>
+                  {labels.cancelArticle}
+                </button>
+              </div>
+            </form>
+          </div>
+        )}
+
         <div className="admin-article-list">
+          {articles.length === 0 && (
+            <p style={{ color: "var(--text-muted)", marginTop: "1rem" }}>
+              {language === "vi" ? "Chưa có bài viết nào." : "No articles yet."}
+            </p>
+          )}
           {articles.map((article) => (
             <article key={article.id} className="card">
-              <h4>{article.title}</h4>
-              <p>{article.slug}</p>
+              <div className="adm-article-card-header">
+                <h4>{article.title}</h4>
+                <span className={`adm-status-badge ${article.isPublished ? "adm-status-badge--published" : "adm-status-badge--draft"}`}>
+                  {article.isPublished
+                    ? (language === "vi" ? "Đã đăng" : "Published")
+                    : (language === "vi" ? "Bản nháp" : "Draft")}
+                </span>
+              </div>
+              <p className="adm-article-slug">{article.slug}</p>
+              {article.summary && (
+                <p style={{ color: "var(--text-muted)", fontSize: "0.85rem", marginBottom: "0.5rem" }}>
+                  {article.summary}
+                </p>
+              )}
               <div className="card__links">
-                <button type="button" className="button button--ghost button--small" onClick={() => setDraftArticle(article)}>
-                  {labels.updateArticle}
+                <button
+                  type="button"
+                  className="button button--ghost button--small"
+                  onClick={() => { setDraftArticle(article); setShowArticleForm(true); }}
+                >
+                  {language === "vi" ? "Chỉnh sửa" : "Edit"}
                 </button>
-                <button type="button" className="button button--ghost button--small" onClick={() => deleteArticle(article.id)}>
+                <button
+                  type="button"
+                  className="button button--ghost button--small"
+                  onClick={() => togglePublishArticle(article)}
+                >
+                  {article.isPublished ? labels.unpublishArticle : labels.publishArticle}
+                </button>
+                <button
+                  type="button"
+                  className="button button--ghost button--small"
+                  style={{ color: "var(--error, #ef4444)" }}
+                  onClick={() => {
+                    if (window.confirm(language === "vi" ? `Xóa bài viết "${article.title}"?` : `Delete article "${article.title}"?`)) {
+                      deleteArticle(article.id);
+                    }
+                  }}
+                >
                   {labels.deleteArticle}
                 </button>
               </div>

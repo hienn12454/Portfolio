@@ -29,17 +29,11 @@ public sealed class CustomWebApplicationFactory : WebApplicationFactory<Program>
 
         builder.ConfigureTestServices(services =>
         {
-            // Replace the Npgsql DbContext with an in-memory provider.
-            var toRemove = services
-                .Where(d => d.ServiceType == typeof(DbContextOptions<ApplicationDbContext>)
-                            || d.ServiceType == typeof(DbContextOptions))
-                .ToList();
-            foreach (var descriptor in toRemove)
-            {
-                services.Remove(descriptor);
-            }
-
-            services.AddDbContext<ApplicationDbContext>(options => options.UseInMemoryDatabase(_dbName));
+            // AddInfrastructure skips Npgsql registration when env == "Testing",
+            // so we can safely add InMemory here without triggering EF Core's
+            // "multiple database providers" error.
+            services.AddDbContext<ApplicationDbContext>(options =>
+                options.UseInMemoryDatabase(_dbName));
 
             // Force the test authentication scheme to be the default.
             services.AddAuthentication(TestAuthHandler.SchemeName)
