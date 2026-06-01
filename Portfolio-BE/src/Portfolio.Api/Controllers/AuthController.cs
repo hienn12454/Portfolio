@@ -2,8 +2,10 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
+using System.Text.Json;
 using Portfolio.Application.Abstractions;
 using Portfolio.Application.Features.Users;
+using Portfolio.Domain.Entities;
 
 namespace Portfolio.Api.Controllers;
 
@@ -166,6 +168,12 @@ public sealed class AuthController(
             return BadRequest(new { Message = "ImageBase64 is required." });
         }
 
+        if (!openRouterClient.IsConfigured)
+        {
+            return StatusCode(StatusCodes.Status503ServiceUnavailable,
+                new { Message = "Vision AI service is not configured. Please contact the administrator." });
+        }
+
         var clerkUserId = ResolveClerkUserId(User);
         if (string.IsNullOrWhiteSpace(clerkUserId))
         {
@@ -181,10 +189,12 @@ public sealed class AuthController(
         var parsed = await openRouterClient.ParseCvImageAsync(request.ImageBase64, request.FileName, cancellationToken);
         if (parsed is null)
         {
-            return StatusCode(StatusCodes.Status502BadGateway, new { Message = "CV parsing failed. Please try another image." });
+            return StatusCode(StatusCodes.Status502BadGateway,
+                new { Message = "CV image could not be parsed. The AI model may be unavailable — please try again shortly." });
         }
 
         ApplyCvParseToUser(appUser, parsed);
+        await UpsertCvProfileFromParsedAsync(appUser, parsed, cancellationToken);
         await dbContext.SaveChangesAsync(cancellationToken);
 
         return Ok(new { User = MapUserResponse(appUser), Parsed = parsed });
@@ -199,6 +209,12 @@ public sealed class AuthController(
             return BadRequest(new { Message = "ImageBase64 is required." });
         }
 
+        if (!openRouterClient.IsConfigured)
+        {
+            return StatusCode(StatusCodes.Status503ServiceUnavailable,
+                new { Message = "Vision AI service is not configured. Please contact the administrator." });
+        }
+
         var appUser = await dbContext.Users.FirstOrDefaultAsync(u => u.Id == userId, cancellationToken);
         if (appUser is null)
         {
@@ -208,10 +224,12 @@ public sealed class AuthController(
         var parsed = await openRouterClient.ParseCvImageAsync(request.ImageBase64, request.FileName, cancellationToken);
         if (parsed is null)
         {
-            return StatusCode(StatusCodes.Status502BadGateway, new { Message = "CV parsing failed. Please try another image." });
+            return StatusCode(StatusCodes.Status502BadGateway,
+                new { Message = "CV image could not be parsed. The AI model may be unavailable — please try again shortly." });
         }
 
         ApplyCvParseToUser(appUser, parsed);
+        await UpsertCvProfileFromParsedAsync(appUser, parsed, cancellationToken);
         await dbContext.SaveChangesAsync(cancellationToken);
 
         return Ok(new { User = MapUserResponse(appUser), Parsed = parsed });
@@ -284,6 +302,81 @@ public sealed class AuthController(
         if (!string.IsNullOrWhiteSpace(projectedOccupation))
         {
             appUser.Occupation = projectedOccupation;
+        }
+    }
+
+    /// <summary>
+    /// After a successful CV image import, also sync the CvProfile (public /cv page)
+    /// so that structured CV data and the user profile stay in sync.
+    /// Personal fields (FullName, Email) are only filled in when currently blank to avoid
+    /// overwriting hand-crafted data.  JobTitle, Summary, skills, and languages are always
+    /// updated from the fresh parse result.
+    /// </summary>
+    private async Task UpsertCvProfileFromParsedAsync(
+        Domain.Entities.User appUser,
+        CvParseResult parsed,
+        CancellationToken cancellationToken)
+    {
+        var profile = await dbContext.CvProfiles
+            .OrderByDescending(x => x.UpdatedAtUtc)
+            .ThenByDescending(x => x.CreatedAtUtc)
+            .FirstOrDefaultAsync(cancellationToken);
+
+        if (profile is null)
+        {
+            profile = new CvProfile { Id = Guid.NewGuid() };
+            dbContext.CvProfiles.Add(profile);
+        }
+
+        // Blank personal fields — only fill when not yet set
+        if (string.IsNullOrWhiteSpace(profile.FullName))
+        {
+            var displayName = Normalize(appUser.DisplayName)
+                ?? Normalize($"{appUser.FirstName} {appUser.LastName}".Trim());
+            if (!string.IsNullOrWhiteSpace(displayName))
+                profile.FullName = displayName;
+        }
+
+        if (string.IsNullOrWhiteSpace(profile.Email) && !string.IsNullOrWhiteSpace(appUser.Email))
+            profile.Email = appUser.Email;
+
+        // Always overwrite content fields from fresh parse
+        if (!string.IsNullOrWhiteSpace(parsed.ProfessionalHeadline))
+            profile.JobTitle = parsed.ProfessionalHeadline;
+
+        if (!string.IsNullOrWhiteSpace(parsed.TechnicalSummary))
+            profile.Summary = parsed.TechnicalSummary;
+
+        // Convert "Skill A, Skill B, ..." → SkillGroupsJson
+        if (!string.IsNullOrWhiteSpace(parsed.Skills))
+        {
+            var skillItems = parsed.Skills
+                .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                .Take(30)
+                .Select(s => new { name = s, level = 75 })
+                .ToArray();
+
+            profile.SkillGroupsJson = JsonSerializer.Serialize(new[]
+            {
+                new
+                {
+                    id = Guid.NewGuid().ToString("N"),
+                    category = "Technical Skills",
+                    items = skillItems
+                }
+            });
+        }
+
+        // Convert "English, Vietnamese, ..." → LanguagesJson
+        if (!string.IsNullOrWhiteSpace(parsed.Languages))
+        {
+            var langItems = parsed.Languages
+                .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                .Take(10)
+                .Select(l => new { language = l, proficiency = "intermediate" })
+                .ToArray();
+
+            profile.LanguagesJson = JsonSerializer.Serialize(langItems);
         }
     }
 

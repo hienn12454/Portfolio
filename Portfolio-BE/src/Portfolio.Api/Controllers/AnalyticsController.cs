@@ -7,7 +7,7 @@ using System.Security.Claims;
 
 namespace Portfolio.Api.Controllers;
 
-public sealed record TrackPageViewRequest(string Path, string? Referrer);
+public sealed record TrackPageViewRequest(string? Path, string? Referrer);
 
 [ApiController]
 [Route("api/analytics")]
