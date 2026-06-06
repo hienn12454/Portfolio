@@ -121,7 +121,7 @@ export function AuthPage() {
   // Sync with stored theme
   const savedTheme =
     typeof localStorage !== "undefined"
-      ? localStorage.getItem("theme") || "dark"
+      ? localStorage.getItem("portfolio-theme") || "dark"
       : "dark";
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", savedTheme);

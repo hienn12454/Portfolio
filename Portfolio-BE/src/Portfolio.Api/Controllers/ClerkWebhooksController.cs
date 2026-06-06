@@ -30,6 +30,7 @@ public sealed class ClerkWebhooksController(
         using var reader = new StreamReader(Request.Body);
         var payload = await reader.ReadToEndAsync(cancellationToken);
 
+        // 1) Verify the signature first — a failure here is an authentication problem (401).
         try
         {
             var svix = new Webhook(webhookSecret);
@@ -41,12 +42,28 @@ public sealed class ClerkWebhooksController(
             };
 
             svix.Verify(payload, headers);
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "Invalid Clerk webhook signature.");
+            return Unauthorized();
+        }
 
+        // 2) Parse the (now-trusted) payload — a malformed body is a client error (400), not 401.
+        try
+        {
             using var document = JsonDocument.Parse(payload);
-            var eventType = document.RootElement.GetProperty("type").GetString() ?? "unknown";
-            logger.LogInformation("Clerk webhook received. Event type: {EventType}", eventType);
+            var root = document.RootElement;
 
-            var data = document.RootElement.GetProperty("data");
+            if (!root.TryGetProperty("type", out var typeElement) ||
+                !root.TryGetProperty("data", out var data))
+            {
+                logger.LogWarning("Clerk webhook payload missing 'type' or 'data'.");
+                return BadRequest(new { Message = "Webhook payload must contain 'type' and 'data'." });
+            }
+
+            var eventType = typeElement.GetString() ?? "unknown";
+            logger.LogInformation("Clerk webhook received. Event type: {EventType}", eventType);
 
             switch (eventType)
             {
@@ -61,10 +78,10 @@ public sealed class ClerkWebhooksController(
 
             return Ok();
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is JsonException or KeyNotFoundException or InvalidOperationException)
         {
-            logger.LogWarning(ex, "Invalid Clerk webhook signature.");
-            return Unauthorized();
+            logger.LogWarning(ex, "Malformed Clerk webhook payload.");
+            return BadRequest(new { Message = "Malformed webhook payload." });
         }
     }
 

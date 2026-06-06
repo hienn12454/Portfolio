@@ -13,14 +13,14 @@ public sealed record TrackPageViewRequest(string? Path, string? Referrer);
 [Route("api/analytics")]
 public sealed class AnalyticsController(IApplicationDbContext dbContext) : ControllerBase
 {
+    private const int VietnamUtcOffsetHours = 7;
+
     [HttpPost("page-view")]
     public async Task<IActionResult> TrackPageView(
         [FromBody] TrackPageViewRequest? request,
         CancellationToken cancellationToken)
     {
-        var metrics = await GetOrCreateMetricsAsync(cancellationToken);
-        metrics.TotalPageViews += 1;
-        metrics.LastPageViewAtUtc = DateTime.UtcNow;
+        await BumpMetricAsync(isLogin: false, cancellationToken);
 
         dbContext.PageViewLogs.Add(new PageViewLog
         {
@@ -37,9 +37,7 @@ public sealed class AnalyticsController(IApplicationDbContext dbContext) : Contr
     [HttpPost("login")]
     public async Task<IActionResult> TrackLogin(CancellationToken cancellationToken)
     {
-        var metrics = await GetOrCreateMetricsAsync(cancellationToken);
-        metrics.TotalLogins += 1;
-        metrics.LastLoginAtUtc = DateTime.UtcNow;
+        await BumpMetricAsync(isLogin: true, cancellationToken);
 
         var clerkUserId = User.FindFirst("sub")?.Value
             ?? User.FindFirst(ClaimTypes.NameIdentifier)?.Value
@@ -74,9 +72,10 @@ public sealed class AnalyticsController(IApplicationDbContext dbContext) : Contr
     [HttpGet("summary")]
     public async Task<IActionResult> GetSummary(CancellationToken cancellationToken)
     {
+        // Read the same canonical (earliest-created) row that the writers accumulate onto.
         var metrics = await dbContext.SiteMetrics
             .AsNoTracking()
-            .OrderByDescending(x => x.CreatedAtUtc)
+            .OrderBy(x => x.CreatedAtUtc)
             .FirstOrDefaultAsync(cancellationToken);
         var totalUsers = await dbContext.Users
             .AsNoTracking()
@@ -129,24 +128,26 @@ public sealed class AnalyticsController(IApplicationDbContext dbContext) : Contr
         var startUtc = startDate.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc);
         var endUtc = endDate.ToDateTime(TimeOnly.MaxValue, DateTimeKind.Utc);
 
+        // Bucket events by Vietnam-local day (UTC+7) so chart days line up with the requested
+        // DateOnly range and with the rest of the app, instead of grouping by raw UTC day.
         var pageViewsByDay = await dbContext.PageViewLogs
             .AsNoTracking()
             .Where(p => p.ViewedAtUtc >= startUtc && p.ViewedAtUtc <= endUtc)
-            .GroupBy(p => p.ViewedAtUtc.Date)
+            .GroupBy(p => p.ViewedAtUtc.AddHours(VietnamUtcOffsetHours).Date)
             .Select(g => new { Date = g.Key, Count = g.Count() })
             .ToListAsync(cancellationToken);
 
         var loginsByDay = await dbContext.UserLoginLogs
             .AsNoTracking()
             .Where(l => l.LoggedInAtUtc >= startUtc && l.LoggedInAtUtc <= endUtc)
-            .GroupBy(l => l.LoggedInAtUtc.Date)
+            .GroupBy(l => l.LoggedInAtUtc.AddHours(VietnamUtcOffsetHours).Date)
             .Select(g => new { Date = g.Key, Count = g.Count() })
             .ToListAsync(cancellationToken);
 
         var newUsersByDay = await dbContext.Users
             .AsNoTracking()
             .Where(u => u.CreatedAtUtc >= startUtc && u.CreatedAtUtc <= endUtc)
-            .GroupBy(u => u.CreatedAtUtc.Date)
+            .GroupBy(u => u.CreatedAtUtc.AddHours(VietnamUtcOffsetHours).Date)
             .Select(g => new { Date = g.Key, Count = g.Count() })
             .ToListAsync(cancellationToken);
 
@@ -198,22 +199,67 @@ public sealed class AnalyticsController(IApplicationDbContext dbContext) : Contr
         return Ok(new { recentViews, pathSummary, referrerSummary });
     }
 
-    private async Task<SiteMetric> GetOrCreateMetricsAsync(CancellationToken cancellationToken)
+    // Always converge on the earliest-created row so that, even if a startup race ever
+    // produced duplicate metric rows, every writer accumulates onto the same canonical row
+    // instead of splitting counts across rows (which would under-report totals).
+    private async Task<Guid> EnsureMetricsRowAsync(CancellationToken cancellationToken)
     {
-        // Always converge on the earliest-created row so that, even if a startup race ever
-        // produced duplicate metric rows, every writer accumulates onto the same canonical row
-        // instead of splitting counts across rows (which would under-report totals).
-        var metrics = await dbContext.SiteMetrics
+        var existingId = await dbContext.SiteMetrics
             .OrderBy(x => x.CreatedAtUtc)
+            .Select(x => (Guid?)x.Id)
             .FirstOrDefaultAsync(cancellationToken);
 
-        if (metrics is not null)
+        if (existingId is Guid id)
         {
-            return metrics;
+            return id;
         }
 
-        metrics = new SiteMetric();
+        var metrics = new SiteMetric { Id = Guid.NewGuid() };
         dbContext.SiteMetrics.Add(metrics);
-        return metrics;
+        await dbContext.SaveChangesAsync(cancellationToken);
+        return metrics.Id;
+    }
+
+    private async Task BumpMetricAsync(bool isLogin, CancellationToken cancellationToken)
+    {
+        DateTime? now = DateTime.UtcNow;
+        var metricsId = await EnsureMetricsRowAsync(cancellationToken);
+
+        try
+        {
+            // Atomic DB-side increment avoids lost updates under concurrent traffic.
+            if (isLogin)
+            {
+                await dbContext.SiteMetrics
+                    .Where(m => m.Id == metricsId)
+                    .ExecuteUpdateAsync(s => s
+                        .SetProperty(m => m.TotalLogins, m => m.TotalLogins + 1)
+                        .SetProperty(m => m.LastLoginAtUtc, now), cancellationToken);
+            }
+            else
+            {
+                await dbContext.SiteMetrics
+                    .Where(m => m.Id == metricsId)
+                    .ExecuteUpdateAsync(s => s
+                        .SetProperty(m => m.TotalPageViews, m => m.TotalPageViews + 1)
+                        .SetProperty(m => m.LastPageViewAtUtc, now), cancellationToken);
+            }
+        }
+        catch (Exception ex) when (ex is InvalidOperationException or NotSupportedException)
+        {
+            // Providers without ExecuteUpdate support (e.g. EF InMemory in tests): fall back to RMW.
+            var metrics = await dbContext.SiteMetrics.FirstAsync(m => m.Id == metricsId, cancellationToken);
+            if (isLogin)
+            {
+                metrics.TotalLogins += 1;
+                metrics.LastLoginAtUtc = now;
+            }
+            else
+            {
+                metrics.TotalPageViews += 1;
+                metrics.LastPageViewAtUtc = now;
+            }
+            await dbContext.SaveChangesAsync(cancellationToken);
+        }
     }
 }

@@ -22,12 +22,14 @@ public sealed class ContactMessagesController(IContactMessageService contactMess
             return BadRequest(new { Message = "Name, email and message are required." });
         }
 
-        if (request.Name.Length > 200
+        // Limits mirror the DB column lengths / service storage so oversized input is rejected
+        // up-front instead of being silently truncated on save.
+        if (request.Name.Length > 120
             || request.Email.Length > 254
-            || request.Message.Length > 5000
-            || (request.Subject?.Length ?? 0) > 300)
+            || request.Message.Length > 4000
+            || (request.Subject?.Length ?? 0) > 200)
         {
-            return BadRequest(new { Message = "Name ≤ 200, email ≤ 254, subject ≤ 300, message ≤ 5000 characters." });
+            return BadRequest(new { Message = "Name ≤ 120, email ≤ 254, subject ≤ 200, message ≤ 4000 characters." });
         }
 
         var id = await contactMessageService.CreateAsync(
