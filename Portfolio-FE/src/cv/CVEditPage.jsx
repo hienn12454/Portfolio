@@ -8,7 +8,13 @@ import "./CVEditPage.css";
 // ── helpers ──────────────────────────────────────────────
 function parseSafe(json, fallback = []) {
   if (!json) return fallback;
-  try { return JSON.parse(json); } catch { return fallback; }
+  try {
+    const value = JSON.parse(json);
+    // Callers feed the result straight into array state (.map/.length); a JSON column holding
+    // a non-array (e.g. "null" or "{}") must not break them — fall back when shapes mismatch.
+    if (Array.isArray(fallback) && !Array.isArray(value)) return fallback;
+    return value ?? fallback;
+  } catch { return fallback; }
 }
 
 function newId() { return crypto.randomUUID(); }

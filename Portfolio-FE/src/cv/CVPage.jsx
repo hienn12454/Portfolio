@@ -8,7 +8,12 @@ import "./CVPage.css";
 // ── Helpers ──────────────────────────────────────────
 function parseSafe(json) {
   if (!json) return [];
-  try { return JSON.parse(json); } catch { return []; }
+  try {
+    const value = JSON.parse(json);
+    // Downstream code calls .map/.length on the result, so a JSON column holding a non-array
+    // (e.g. "null" or "{}") must still yield an array rather than throwing.
+    return Array.isArray(value) ? value : [];
+  } catch { return []; }
 }
 
 function hexToRgb(hex) {

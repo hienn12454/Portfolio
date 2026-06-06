@@ -200,8 +200,11 @@ public sealed class AnalyticsController(IApplicationDbContext dbContext) : Contr
 
     private async Task<SiteMetric> GetOrCreateMetricsAsync(CancellationToken cancellationToken)
     {
+        // Always converge on the earliest-created row so that, even if a startup race ever
+        // produced duplicate metric rows, every writer accumulates onto the same canonical row
+        // instead of splitting counts across rows (which would under-report totals).
         var metrics = await dbContext.SiteMetrics
-            .OrderByDescending(x => x.CreatedAtUtc)
+            .OrderBy(x => x.CreatedAtUtc)
             .FirstOrDefaultAsync(cancellationToken);
 
         if (metrics is not null)

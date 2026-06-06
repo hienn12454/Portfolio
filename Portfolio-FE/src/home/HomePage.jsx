@@ -841,8 +841,8 @@ export function HomePage() {
         return;
       }
 
-      const trackerKey = "portfolio-login-tracked";
-
+      // Login analytics is POSTed once globally by <LoginTracker> in App.jsx; here we only
+      // resolve the current user's admin/premium status for the nav UI.
       try {
         const me = await apiClient.getProtected("/api/auth/me");
         setIsAdminUser(me?.user?.role === "Admin");
@@ -852,13 +852,8 @@ export function HomePage() {
         } catch {
           setIsPremiumUser(false);
         }
-        if (sessionStorage.getItem(trackerKey) === "1") {
-          return;
-        }
-        await apiClient.postProtected("/api/analytics/login", {});
-        sessionStorage.setItem(trackerKey, "1");
       } catch {
-        // Ignore analytics errors for auth flow.
+        // Ignore errors resolving auth status for the nav.
       }
     }
 
@@ -1435,8 +1430,11 @@ export function HomePage() {
                   <div>
                     <h2>{content.blogTitle}</h2>
                     <ul className="bullet-list">
-                      {(articles.length > 0 ? articles.map((article) => article.title) : localizedBlogs).map((blog) => (
-                        <li key={blog}>{blog}</li>
+                      {(articles.length > 0
+                        ? articles.map((article) => ({ key: article.id ?? article.slug ?? article.title, label: article.title }))
+                        : localizedBlogs.map((blog, i) => ({ key: `blog-${i}`, label: blog }))
+                      ).map((item) => (
+                        <li key={item.key}>{item.label}</li>
                       ))}
                     </ul>
                   </div>

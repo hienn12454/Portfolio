@@ -183,8 +183,10 @@ public sealed class ClerkWebhooksController(
             }
         }
 
-        var adminUsernames = configuration["Clerk:AdminUsernames"] ?? "admin";
-        if (!string.IsNullOrWhiteSpace(username))
+        // SECURITY: usernames are user-controllable in Clerk, so never grant admin from a
+        // hard-coded default. Only honour an explicitly configured allow-list.
+        var adminUsernames = configuration["Clerk:AdminUsernames"];
+        if (!string.IsNullOrWhiteSpace(adminUsernames) && !string.IsNullOrWhiteSpace(username))
         {
             var isAdminUsername = adminUsernames
                 .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)

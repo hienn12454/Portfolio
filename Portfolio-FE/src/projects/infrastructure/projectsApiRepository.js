@@ -6,6 +6,6 @@ const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL ?? "http://localhost:500
 export const projectsApiRepository = {
   async getAll() {
     const data = await getJson(`${API_BASE_URL}/api/projects`);
-    return data.map(toProjectModel);
+    return Array.isArray(data) ? data.map(toProjectModel) : [];
   }
 };
