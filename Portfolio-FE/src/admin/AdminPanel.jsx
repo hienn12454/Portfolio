@@ -4,6 +4,10 @@ import { createApiClient } from "../core/http/apiClient";
 
 const EMPTY_GUID = "00000000-0000-0000-0000-000000000000";
 
+function ButtonSpinner() {
+  return <span className="button__spinner" aria-hidden="true" />;
+}
+
 function ToggleSwitch({ checked, onChange, label, id }) {
   return (
     <div className="toggle-row">
@@ -384,6 +388,21 @@ export function AdminPanel({ language = "en" }) {
   const [pageOrigins, setPageOrigins] = useState({ pathSummary: [], referrerSummary: [], recentViews: [] });
   const [saveState, setSaveState] = useState("");
   const [activeSection, setActiveSection] = useState("overview");
+  const [savingContact, setSavingContact] = useState(false);
+  const [savingPage, setSavingPage] = useState(false);
+  const [savingSkill, setSavingSkill] = useState(false);
+  const [deletingSkillId, setDeletingSkillId] = useState(null);
+  const [savingProject, setSavingProject] = useState(false);
+  const [deletingProjectId, setDeletingProjectId] = useState(null);
+  const [savingArticle, setSavingArticle] = useState(false);
+  const [deletingArticleId, setDeletingArticleId] = useState(null);
+  const [togglingArticleId, setTogglingArticleId] = useState(null);
+  const busyLabel = language === "vi" ? "Đang xử lý..." : "Working...";
+  const deletingLabel = language === "vi" ? "Đang xóa..." : "Deleting...";
+  const confirmDeleteSkill = (name) =>
+    window.confirm(language === "vi" ? `Xóa kỹ năng "${name}"?` : `Delete skill "${name}"?`);
+  const confirmDeleteProject = (title) =>
+    window.confirm(language === "vi" ? `Xóa dự án "${title}"?` : `Delete project "${title}"?`);
 
   useEffect(() => {
     if (!isSignedIn) {
@@ -527,13 +546,13 @@ export function AdminPanel({ language = "en" }) {
         };
 
   const sections = [
-    { id: "overview", label: labels.analyticsTitle },
-    { id: "about", label: labels.aboutTitle },
-    { id: "skills", label: labels.skillTitle },
-    { id: "projects", label: labels.projectTitle },
-    { id: "articles", label: labels.articleTitle },
-    { id: "contact", label: labels.contactTitle },
-    { id: "cv", label: labels.cvTitle }
+    { id: "overview", label: labels.analyticsTitle, icon: "📊" },
+    { id: "about", label: labels.aboutTitle, icon: "🏠" },
+    { id: "skills", label: labels.skillTitle, icon: "🛠" },
+    { id: "projects", label: labels.projectTitle, icon: "📁" },
+    { id: "articles", label: labels.articleTitle, icon: "📝" },
+    { id: "contact", label: labels.contactTitle, icon: "✉️" },
+    { id: "cv", label: labels.cvTitle, icon: "📄" }
   ];
 
   const latestTechnical = useMemo(() => {
@@ -549,22 +568,28 @@ export function AdminPanel({ language = "en" }) {
   async function saveContact() {
     setSaveState("");
     setError("");
+    setSavingContact(true);
     try {
       await apiClient.putProtected("/api/content/contact", contact);
       setSaveState(labels.saved);
     } catch (saveError) {
       setError(saveError.message);
+    } finally {
+      setSavingContact(false);
     }
   }
 
   async function savePage() {
     setSaveState("");
     setError("");
+    setSavingPage(true);
     try {
       await apiClient.putProtected("/api/content/page", page);
       setSaveState(labels.saved);
     } catch (saveError) {
       setError(saveError.message);
+    } finally {
+      setSavingPage(false);
     }
   }
 
@@ -591,6 +616,7 @@ export function AdminPanel({ language = "en" }) {
   async function saveArticle() {
     setSaveState("");
     setError("");
+    setSavingArticle(true);
     try {
       if (draftArticle.id && draftArticle.id !== EMPTY_GUID) {
         const updated = await apiClient.putProtected(`/api/articles/${draftArticle.id}`, draftArticle);
@@ -604,24 +630,30 @@ export function AdminPanel({ language = "en" }) {
       setSaveState(labels.saved);
     } catch (saveError) {
       setError(saveError.message);
+    } finally {
+      setSavingArticle(false);
     }
   }
 
   async function deleteArticle(id) {
     setSaveState("");
     setError("");
+    setDeletingArticleId(id);
     try {
       await apiClient.deleteProtected(`/api/articles/${id}`);
       setArticles((current) => current.filter((item) => item.id !== id));
       setSaveState(labels.saved);
     } catch (saveError) {
       setError(saveError.message);
+    } finally {
+      setDeletingArticleId(null);
     }
   }
 
   async function togglePublishArticle(article) {
     setSaveState("");
     setError("");
+    setTogglingArticleId(article.id);
     try {
       const updated = await apiClient.putProtected(`/api/articles/${article.id}`, {
         ...article,
@@ -631,12 +663,15 @@ export function AdminPanel({ language = "en" }) {
       setSaveState(labels.saved);
     } catch (toggleError) {
       setError(toggleError.message);
+    } finally {
+      setTogglingArticleId(null);
     }
   }
 
   async function saveSkill() {
     setSaveState("");
     setError("");
+    setSavingSkill(true);
     try {
       if (draftSkill.id && draftSkill.id !== EMPTY_GUID) {
         const updated = await apiClient.putProtected(`/api/skills/${draftSkill.id}`, draftSkill);
@@ -649,24 +684,30 @@ export function AdminPanel({ language = "en" }) {
       setSaveState(labels.saved);
     } catch (saveError) {
       setError(saveError.message);
+    } finally {
+      setSavingSkill(false);
     }
   }
 
   async function deleteSkill(id) {
     setSaveState("");
     setError("");
+    setDeletingSkillId(id);
     try {
       await apiClient.deleteProtected(`/api/skills/${id}`);
       setSkills((current) => current.filter((item) => item.id !== id));
       setSaveState(labels.saved);
     } catch (saveError) {
       setError(saveError.message);
+    } finally {
+      setDeletingSkillId(null);
     }
   }
 
   async function saveProject() {
     setSaveState("");
     setError("");
+    setSavingProject(true);
     try {
       if (draftProject.id && draftProject.id !== EMPTY_GUID) {
         const updated = await apiClient.putProtected(`/api/projects/${draftProject.id}`, draftProject);
@@ -679,18 +720,23 @@ export function AdminPanel({ language = "en" }) {
       setSaveState(labels.saved);
     } catch (saveError) {
       setError(saveError.message);
+    } finally {
+      setSavingProject(false);
     }
   }
 
   async function deleteProject(id) {
     setSaveState("");
     setError("");
+    setDeletingProjectId(id);
     try {
       await apiClient.deleteProtected(`/api/projects/${id}`);
       setProjects((current) => current.filter((item) => item.id !== id));
       setSaveState(labels.saved);
     } catch (saveError) {
       setError(saveError.message);
+    } finally {
+      setDeletingProjectId(null);
     }
   }
 
@@ -914,8 +960,8 @@ export function AdminPanel({ language = "en" }) {
               onChange={(event) => setPage((current) => ({ ...current, contactDescriptionColor: event.target.value }))}
             />
           </label>
-          <button type="button" className="button button--primary" onClick={savePage}>
-            {labels.save}
+          <button type="button" className="button button--primary" onClick={savePage} disabled={savingPage}>
+            {savingPage ? <><ButtonSpinner /> {busyLabel}</> : labels.save}
           </button>
         </form>
       </article>
@@ -946,8 +992,8 @@ export function AdminPanel({ language = "en" }) {
             label="Visible on homepage"
           />
           <div className="form-actions">
-            <button type="button" className="button button--primary" onClick={saveSkill}>
-              {draftSkill.id ? labels.updateSkill : labels.createSkill}
+            <button type="button" className="button button--primary" onClick={saveSkill} disabled={savingSkill}>
+              {savingSkill ? <><ButtonSpinner /> {busyLabel}</> : draftSkill.id ? labels.updateSkill : labels.createSkill}
             </button>
             <button type="button" className="button button--ghost" onClick={() => setDraftSkill(EMPTY_SKILL)}>
               {labels.clearSkillForm}
@@ -963,8 +1009,13 @@ export function AdminPanel({ language = "en" }) {
                 <button type="button" className="button button--ghost button--small" onClick={() => setDraftSkill(skill)}>
                   {labels.updateSkill}
                 </button>
-                <button type="button" className="button button--ghost button--small" onClick={() => deleteSkill(skill.id)}>
-                  {labels.deleteSkill}
+                <button
+                  type="button"
+                  className="button button--danger button--small"
+                  disabled={deletingSkillId === skill.id}
+                  onClick={() => { if (confirmDeleteSkill(skill.name)) deleteSkill(skill.id); }}
+                >
+                  {deletingSkillId === skill.id ? <><ButtonSpinner /> {deletingLabel}</> : labels.deleteSkill}
                 </button>
               </div>
             </article>
@@ -1030,8 +1081,8 @@ export function AdminPanel({ language = "en" }) {
             label="Featured project"
           />
           <div className="form-actions">
-            <button type="button" className="button button--primary" onClick={saveProject}>
-              {draftProject.id ? labels.updateProject : labels.createProject}
+            <button type="button" className="button button--primary" onClick={saveProject} disabled={savingProject}>
+              {savingProject ? <><ButtonSpinner /> {busyLabel}</> : draftProject.id ? labels.updateProject : labels.createProject}
             </button>
             <button type="button" className="button button--ghost" onClick={() => setDraftProject(EMPTY_PROJECT)}>
               {labels.clearProjectForm}
@@ -1047,8 +1098,13 @@ export function AdminPanel({ language = "en" }) {
                 <button type="button" className="button button--ghost button--small" onClick={() => setDraftProject({ ...EMPTY_PROJECT, ...project })}>
                   {labels.updateProject}
                 </button>
-                <button type="button" className="button button--ghost button--small" onClick={() => deleteProject(project.id)}>
-                  {labels.deleteProject}
+                <button
+                  type="button"
+                  className="button button--danger button--small"
+                  disabled={deletingProjectId === project.id}
+                  onClick={() => { if (confirmDeleteProject(project.title)) deleteProject(project.id); }}
+                >
+                  {deletingProjectId === project.id ? <><ButtonSpinner /> {deletingLabel}</> : labels.deleteProject}
                 </button>
               </div>
             </article>
@@ -1130,10 +1186,10 @@ export function AdminPanel({ language = "en" }) {
                 label={language === "vi" ? "Đăng công khai" : "Published"}
               />
               <div className="adm-form-actions">
-                <button type="button" className="button button--primary" onClick={saveArticle}>
-                  {isNewArticle ? labels.createArticle : labels.updateArticle}
+                <button type="button" className="button button--primary" onClick={saveArticle} disabled={savingArticle}>
+                  {savingArticle ? <><ButtonSpinner /> {busyLabel}</> : isNewArticle ? labels.createArticle : labels.updateArticle}
                 </button>
-                <button type="button" className="button button--ghost" onClick={cancelArticleForm}>
+                <button type="button" className="button button--ghost" onClick={cancelArticleForm} disabled={savingArticle}>
                   {labels.cancelArticle}
                 </button>
               </div>
@@ -1174,21 +1230,22 @@ export function AdminPanel({ language = "en" }) {
                 <button
                   type="button"
                   className="button button--ghost button--small"
+                  disabled={togglingArticleId === article.id}
                   onClick={() => togglePublishArticle(article)}
                 >
-                  {article.isPublished ? labels.unpublishArticle : labels.publishArticle}
+                  {togglingArticleId === article.id ? <><ButtonSpinner /> {busyLabel}</> : article.isPublished ? labels.unpublishArticle : labels.publishArticle}
                 </button>
                 <button
                   type="button"
-                  className="button button--ghost button--small"
-                  style={{ color: "var(--error, #ef4444)" }}
+                  className="button button--danger button--small"
+                  disabled={deletingArticleId === article.id}
                   onClick={() => {
                     if (window.confirm(language === "vi" ? `Xóa bài viết "${article.title}"?` : `Delete article "${article.title}"?`)) {
                       deleteArticle(article.id);
                     }
                   }}
                 >
-                  {labels.deleteArticle}
+                  {deletingArticleId === article.id ? <><ButtonSpinner /> {deletingLabel}</> : labels.deleteArticle}
                 </button>
               </div>
             </article>
@@ -1223,8 +1280,8 @@ export function AdminPanel({ language = "en" }) {
             LinkedIn URL
             <input value={contact.linkedInUrl ?? ""} onChange={(event) => setContact((current) => ({ ...current, linkedInUrl: event.target.value }))} />
           </label>
-          <button type="button" className="button button--primary" onClick={saveContact}>
-            {labels.save}
+          <button type="button" className="button button--primary" onClick={saveContact} disabled={savingContact}>
+            {savingContact ? <><ButtonSpinner /> {busyLabel}</> : labels.save}
           </button>
         </form>
       </article>
@@ -1323,7 +1380,7 @@ export function AdminPanel({ language = "en" }) {
                 className={activeSection === section.id ? "filter-chip is-active admin-sidebar__item" : "filter-chip admin-sidebar__item"}
                 onClick={() => setActiveSection(section.id)}
               >
-                {section.label}
+                <span aria-hidden="true">{section.icon}</span> {section.label}
               </button>
             ))}
           </aside>

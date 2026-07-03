@@ -5318,3 +5318,88 @@ html[data-theme="light"] .amb-sym { opacity: 0.18; }
 @media (prefers-reduced-motion: reduce) {
   .amb-sym { animation: none; }
 }
+
+/* ══════════════════════════════════════════════════════════
+   CLAUDE-INSPIRED DESIGN SYSTEM — final token + interaction pass
+   Warm terracotta accent, soft neutrals — applies globally since
+   this is the last :root declaration in the cascade.
+   ══════════════════════════════════════════════════════════ */
+:root,
+html[data-theme="dark"] {
+  --bg: #191817;
+  --bg-elevated: rgba(30, 28, 26, 0.96);
+  --surface: rgba(38, 35, 32, 0.92);
+  --surface-alt: rgba(47, 43, 39, 0.88);
+  --surface-border: rgba(217, 119, 87, 0.20);
+  --text: #F5F1EA;
+  --text-muted: #C9C0B4;
+  --text-soft: #948B80;
+  --brand: #F0C9B8;
+  --accent: #D97757;
+  --accent-2: #BF6A4D;
+  --accent-soft: rgba(217, 119, 87, 0.16);
+  --button-shadow: 0 10px 26px rgba(217, 119, 87, 0.35);
+}
+
+html[data-theme="light"] {
+  --bg: #FAF9F5;
+  --bg-elevated: rgba(255, 255, 255, 0.97);
+  --surface: rgba(255, 255, 255, 0.92);
+  --surface-alt: rgba(250, 246, 240, 0.94);
+  --surface-border: rgba(61, 53, 41, 0.14);
+  --text: #2B2621;
+  --text-muted: #5A5249;
+  --text-soft: #8C8377;
+  --brand: #B3492A;
+  --accent: #C2622F;
+  --accent-2: #A6491F;
+  --accent-soft: rgba(194, 98, 47, 0.12);
+  --button-shadow: 0 8px 20px rgba(194, 98, 47, 0.20);
+}
+
+/* ---- Button system: disabled + tactile press states ---- */
+.button:disabled,
+.button[aria-disabled="true"] {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+  pointer-events: none;
+}
+
+.button--loading {
+  cursor: wait;
+}
+
+.button--primary:active:not(:disabled),
+.button--ghost:active:not(:disabled),
+.button--danger:active:not(:disabled) {
+  transform: translateY(0) scale(0.98);
+  transition-duration: 0.08s;
+}
+
+/* Inline spinner used inside buttons mid-request (pairs with a text swap) */
+.button__spinner {
+  display: inline-block;
+  width: 0.9em;
+  height: 0.9em;
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: buttonSpin 0.7s linear infinite;
+  flex-shrink: 0;
+}
+
+.button--ghost .button__spinner,
+.button--danger .button__spinner {
+  border-color: color-mix(in oklab, var(--text-muted) 45%, transparent);
+  border-top-color: var(--text);
+}
+
+@keyframes buttonSpin {
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .button__spinner { animation-duration: 1.4s; }
+}
