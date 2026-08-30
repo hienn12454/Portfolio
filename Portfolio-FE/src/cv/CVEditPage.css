@@ -287,6 +287,26 @@
   margin-top: 0.1rem;
 }
 
+.cve-field-error {
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: #ef4444;
+  margin-top: 0.1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.cve-input--error,
+.cve-textarea--error {
+  border-color: #ef4444 !important;
+  background: rgba(239, 68, 68, 0.06) !important;
+}
+.cve-input--error:focus,
+.cve-textarea--error:focus {
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.18) !important;
+}
+
 /* Inputs */
 .cve-input,
 .cve-textarea,

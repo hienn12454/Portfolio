@@ -125,7 +125,9 @@ jobs:
 
       - name: Run backend tests
         working-directory: Portfolio-BE
-        run: dotnet test "tests/Portfolio.Api.Tests/Portfolio.Api.Tests.csproj" --no-build -c Release --verbosity normal
+        # Runs every test project in the solution (Portfolio.Api.Tests + Portfolio.Tests) so a
+        # new test project is picked up automatically instead of being silently skipped.
+        run: dotnet test "Portfolio-BE.sln" --no-build -c Release --verbosity normal
 
   deploy_backend_job:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'

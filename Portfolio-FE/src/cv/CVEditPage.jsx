@@ -14,6 +14,73 @@ function parseSafe(json, fallback = []) {
 
 function newId() { return crypto.randomUUID(); }
 
+// ── Field validation (mirrors CvController.ValidateCvProfile on the backend) ──
+const EMAIL_RE = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
+// Vietnamese mobile/landline: 0xxxxxxxxx (10 digits) or +84xxxxxxxxx (9-10 digits).
+const PHONE_RE = /^(0\d{9,10}|\+84\d{9,10})$/;
+const HEX_COLOR_RE = /^#[0-9A-Fa-f]{6}$/;
+
+function validateCvInfo(info) {
+  const errors = {};
+
+  if (!info.fullName?.trim()) {
+    errors.fullName = "Vui lòng nhập họ và tên.";
+  } else if (info.fullName.trim().length > 150) {
+    errors.fullName = "Họ và tên không được vượt quá 150 ký tự.";
+  }
+
+  if (info.jobTitle && info.jobTitle.trim().length > 150) {
+    errors.jobTitle = "Chức danh không được vượt quá 150 ký tự.";
+  }
+
+  if (info.email?.trim()) {
+    const email = info.email.trim();
+    if (email.length > 254 || !EMAIL_RE.test(email)) {
+      errors.email = "Email không hợp lệ. Vui lòng nhập đúng định dạng (vd: ten@example.com).";
+    }
+  }
+
+  if (info.phone?.trim()) {
+    const digitsOnly = info.phone.trim().replace(/[\s\-.]/g, "");
+    if (!PHONE_RE.test(digitsOnly)) {
+      errors.phone = "Số điện thoại không hợp lệ. Vui lòng nhập số Việt Nam (vd: 0912345678 hoặc +84912345678).";
+    }
+  }
+
+  if (info.address && info.address.trim().length > 300) {
+    errors.address = "Địa chỉ không được vượt quá 300 ký tự.";
+  }
+
+  if (info.accentColor?.trim() && !HEX_COLOR_RE.test(info.accentColor.trim())) {
+    errors.accentColor = "Màu chủ đạo không hợp lệ. Vui lòng chọn mã màu dạng #RRGGBB.";
+  }
+
+  for (const [key, label] of [["websiteUrl", "Website"], ["githubUrl", "GitHub"], ["linkedInUrl", "LinkedIn"]]) {
+    const val = info[key];
+    if (val?.trim() && !/^https?:\/\//i.test(val.trim())) {
+      errors[key] = `Đường dẫn ${label} phải bắt đầu bằng http:// hoặc https://.`;
+    }
+  }
+
+  return errors;
+}
+
+// Best-effort extraction of the backend's { message: "..." } out of the Error thrown by
+// getJson() (whose .message looks like `HTTP 400 - {"message":"..."}`) so save failures can
+// surface the real Vietnamese reason instead of a generic fallback.
+function extractApiErrorMessage(err) {
+  const raw = err?.message;
+  if (!raw) return null;
+  const sepIndex = raw.indexOf(" - ");
+  if (sepIndex === -1) return null;
+  try {
+    const body = JSON.parse(raw.slice(sepIndex + 3));
+    return body?.message || body?.Message || null;
+  } catch {
+    return null;
+  }
+}
+
 // ── Vietnamese provinces/cities data ─────────────────────
 const PROVINCES_VN = [
   // Thành phố trực thuộc Trung ương
@@ -95,20 +162,22 @@ const VN_YEARS = Array.from({ length: _CY - 1989 + 4 }, (_, i) => _CY + 3 - i);
 const QUICK_LOCATIONS = ["Hà Nội", "TP. HCM", "Đà Nẵng", "Hải Phòng", "Cần Thơ", "Remote", "Nước ngoài"];
 
 // ── reusable subcomponents ────────────────────────────────
-function FieldRow({ label, children, hint }) {
+function FieldRow({ label, children, hint, error }) {
   return (
-    <div className="cve-field">
+    <div className={`cve-field${error ? " cve-field--error" : ""}`}>
       <label className="cve-label">{label}</label>
       {children}
-      {hint && <span className="cve-hint">{hint}</span>}
+      {error
+        ? <span className="cve-field-error">⚠ {error}</span>
+        : hint && <span className="cve-hint">{hint}</span>}
     </div>
   );
 }
 
-function TextInput({ value, onChange, placeholder, type = "text" }) {
+function TextInput({ value, onChange, placeholder, type = "text", invalid = false }) {
   return (
     <input
-      className="cve-input"
+      className={`cve-input${invalid ? " cve-input--error" : ""}`}
       type={type}
       value={value || ""}
       onChange={(e) => onChange(e.target.value)}
@@ -637,6 +706,8 @@ export function CVEditPage() {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState(null);
+  const [fieldErrors, setFieldErrors] = useState({});
+  const [attemptedSave, setAttemptedSave] = useState(false);
 
   // Personal info
   const [info, setInfo] = useState({
@@ -658,6 +729,13 @@ export function CVEditPage() {
   // Layout — reorderable / togglable main-content sections + read-only view stat
   const [sectionOrder, setSectionOrder] = useState(() => DEFAULT_SECTION_ORDER.map((key) => ({ key, visible: true })));
   const [viewCount, setViewCount] = useState(0);
+
+  // Re-validate live once the user has tried to save at least once, so fixing a field
+  // clears its error immediately instead of waiting for the next Save click.
+  useEffect(() => {
+    if (!attemptedSave) return;
+    setFieldErrors(validateCvInfo(info));
+  }, [info, attemptedSave]);
 
   useEffect(() => {
     apiClient.getProtected("/api/cv/admin").then((data) => {
@@ -691,6 +769,14 @@ export function CVEditPage() {
   }, [apiClient]);
 
   async function handleSave() {
+    setAttemptedSave(true);
+    const validationErrors = validateCvInfo(info);
+    setFieldErrors(validationErrors);
+    if (Object.keys(validationErrors).length > 0) {
+      setError("Vui lòng kiểm tra lại thông tin — một số trường chưa hợp lệ (xem chi tiết bên dưới mỗi ô).");
+      return;
+    }
+
     setSaving(true);
     setError(null);
     try {
@@ -708,7 +794,7 @@ export function CVEditPage() {
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
     } catch (e) {
-      setError("Lưu thất bại. Vui lòng thử lại.");
+      setError(extractApiErrorMessage(e) || "Lưu thất bại. Vui lòng thử lại.");
     } finally {
       setSaving(false);
     }
@@ -777,33 +863,72 @@ export function CVEditPage() {
           {/* Personal Info */}
           <Panel title="👤 Thông tin cá nhân" id="personal">
             <div className="cve-grid-2">
-              <FieldRow label="Họ và tên *">
-                <TextInput value={info.fullName} onChange={(v) => setInfo((i) => ({ ...i, fullName: v }))} placeholder="Nguyễn Trung Hiên" />
+              <FieldRow label="Họ và tên *" error={attemptedSave ? fieldErrors.fullName : undefined}>
+                <TextInput
+                  value={info.fullName}
+                  onChange={(v) => setInfo((i) => ({ ...i, fullName: v }))}
+                  placeholder="Nguyễn Trung Hiên"
+                  invalid={attemptedSave && !!fieldErrors.fullName}
+                />
               </FieldRow>
-              <FieldRow label="Chức danh / Vị trí">
-                <TextInput value={info.jobTitle} onChange={(v) => setInfo((i) => ({ ...i, jobTitle: v }))} placeholder="Fullstack Developer" />
+              <FieldRow label="Chức danh / Vị trí" error={attemptedSave ? fieldErrors.jobTitle : undefined}>
+                <TextInput
+                  value={info.jobTitle}
+                  onChange={(v) => setInfo((i) => ({ ...i, jobTitle: v }))}
+                  placeholder="Fullstack Developer"
+                  invalid={attemptedSave && !!fieldErrors.jobTitle}
+                />
               </FieldRow>
-              <FieldRow label="Email">
-                <TextInput value={info.email} onChange={(v) => setInfo((i) => ({ ...i, email: v }))} placeholder="hiennt@example.com" type="email" />
+              <FieldRow label="Email" error={attemptedSave ? fieldErrors.email : undefined}>
+                <TextInput
+                  value={info.email}
+                  onChange={(v) => setInfo((i) => ({ ...i, email: v }))}
+                  placeholder="hiennt@example.com"
+                  type="email"
+                  invalid={attemptedSave && !!fieldErrors.email}
+                />
               </FieldRow>
-              <FieldRow label="Số điện thoại">
-                <TextInput value={info.phone} onChange={(v) => setInfo((i) => ({ ...i, phone: v }))} placeholder="+84 903 xxx xxx" />
+              <FieldRow label="Số điện thoại" error={attemptedSave ? fieldErrors.phone : undefined}>
+                <TextInput
+                  value={info.phone}
+                  onChange={(v) => setInfo((i) => ({ ...i, phone: v }))}
+                  placeholder="0912 345 678 hoặc +84912345678"
+                  invalid={attemptedSave && !!fieldErrors.phone}
+                />
               </FieldRow>
               <FieldRow label="Ảnh đại diện (URL)">
                 <TextInput value={info.avatarUrl} onChange={(v) => setInfo((i) => ({ ...i, avatarUrl: v }))} placeholder="https://..." type="url" />
               </FieldRow>
-              <FieldRow label="Website">
-                <TextInput value={info.websiteUrl} onChange={(v) => setInfo((i) => ({ ...i, websiteUrl: v }))} placeholder="https://hiennt.website" type="url" />
+              <FieldRow label="Website" error={attemptedSave ? fieldErrors.websiteUrl : undefined}>
+                <TextInput
+                  value={info.websiteUrl}
+                  onChange={(v) => setInfo((i) => ({ ...i, websiteUrl: v }))}
+                  placeholder="https://hiennt.website"
+                  type="url"
+                  invalid={attemptedSave && !!fieldErrors.websiteUrl}
+                />
               </FieldRow>
-              <FieldRow label="GitHub">
-                <TextInput value={info.githubUrl} onChange={(v) => setInfo((i) => ({ ...i, githubUrl: v }))} placeholder="https://github.com/..." type="url" />
+              <FieldRow label="GitHub" error={attemptedSave ? fieldErrors.githubUrl : undefined}>
+                <TextInput
+                  value={info.githubUrl}
+                  onChange={(v) => setInfo((i) => ({ ...i, githubUrl: v }))}
+                  placeholder="https://github.com/..."
+                  type="url"
+                  invalid={attemptedSave && !!fieldErrors.githubUrl}
+                />
               </FieldRow>
-              <FieldRow label="LinkedIn">
-                <TextInput value={info.linkedInUrl} onChange={(v) => setInfo((i) => ({ ...i, linkedInUrl: v }))} placeholder="https://linkedin.com/in/..." type="url" />
+              <FieldRow label="LinkedIn" error={attemptedSave ? fieldErrors.linkedInUrl : undefined}>
+                <TextInput
+                  value={info.linkedInUrl}
+                  onChange={(v) => setInfo((i) => ({ ...i, linkedInUrl: v }))}
+                  placeholder="https://linkedin.com/in/..."
+                  type="url"
+                  invalid={attemptedSave && !!fieldErrors.linkedInUrl}
+                />
               </FieldRow>
             </div>
             {/* Address picker spans full width */}
-            <FieldRow label="Địa chỉ">
+            <FieldRow label="Địa chỉ" error={attemptedSave ? fieldErrors.address : undefined}>
               <AddressPicker value={info.address} onChange={(v) => setInfo((i) => ({ ...i, address: v }))} />
             </FieldRow>
           </Panel>
@@ -949,11 +1074,11 @@ export function CVEditPage() {
                   ))}
                 </div>
               </FieldRow>
-              <FieldRow label="Màu chủ đạo" hint="Màu accent hiển thị trên CV">
+              <FieldRow label="Màu chủ đạo" hint="Màu accent hiển thị trên CV" error={attemptedSave ? fieldErrors.accentColor : undefined}>
                 <div className="cve-color-picker">
                   <input
                     type="color"
-                    value={info.accentColor}
+                    value={HEX_COLOR_RE.test(info.accentColor || "") ? info.accentColor : "#2563eb"}
                     onChange={(e) => setInfo((i) => ({ ...i, accentColor: e.target.value }))}
                     className="cve-color-swatch"
                   />
@@ -961,6 +1086,7 @@ export function CVEditPage() {
                     value={info.accentColor}
                     onChange={(v) => setInfo((i) => ({ ...i, accentColor: v }))}
                     placeholder="#2563eb"
+                    invalid={attemptedSave && !!fieldErrors.accentColor}
                   />
                 </div>
               </FieldRow>
