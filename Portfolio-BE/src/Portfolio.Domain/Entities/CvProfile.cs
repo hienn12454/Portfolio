@@ -26,4 +26,16 @@ public sealed class CvProfile : BaseAuditableEntity
 
     public bool IsPublic { get; set; } = true;
     public string AccentColor { get; set; } = "#2563eb";
+
+    // Template selection ("classic" | "modern" | "compact") — server-driven default so every
+    // visitor sees the admin's chosen template; visitors may still override it locally.
+    public string Template { get; set; } = "classic";
+
+    // Ordered visibility list for reorderable main-content sections, e.g.
+    // [{"key":"work","visible":true},{"key":"education","visible":true},{"key":"awards","visible":true}]
+    // Null = default order, all visible.
+    public string? SectionOrderJson { get; set; }
+
+    // Public page-view counter — server-managed, incremented via POST /api/cv/view.
+    public int ViewCount { get; set; }
 }

@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useAuth } from "@clerk/react";
 import { createApiClient } from "../core/http/apiClient";
 import { useThemeSync } from "../core/useThemeSync";
+import { TEMPLATES, DEFAULT_SECTION_ORDER } from "./cvShared";
 import "./CVPage.css";
 
 // ── Helpers ──────────────────────────────────────────
@@ -18,11 +19,45 @@ function hexToRgb(hex) {
   return `${r},${g},${b}`;
 }
 
-const TEMPLATES = [
-  { id: "classic", label: "Classic",  icon: "▣" },
-  { id: "modern",  label: "Modern",   icon: "◈" },
-  { id: "compact", label: "Compact",  icon: "☰" },
-];
+function resolveSectionOrder(sectionOrderJson) {
+  if (!sectionOrderJson) return DEFAULT_SECTION_ORDER.map((key) => ({ key, visible: true }));
+  const parsed = parseSafe(sectionOrderJson);
+  if (!Array.isArray(parsed) || parsed.length === 0) return DEFAULT_SECTION_ORDER.map((key) => ({ key, visible: true }));
+  return parsed;
+}
+
+function isSectionVisible(sectionOrder, key) {
+  const entry = sectionOrder.find((s) => s.key === key);
+  return entry ? entry.visible !== false : true;
+}
+
+// ── vCard (.vcf) contact export ────────────────────────
+function buildVCard(cv) {
+  const lines = [
+    "BEGIN:VCARD",
+    "VERSION:3.0",
+    `FN:${cv.fullName || ""}`,
+    cv.jobTitle    ? `TITLE:${cv.jobTitle}` : null,
+    cv.email       ? `EMAIL:${cv.email}` : null,
+    cv.phone       ? `TEL:${cv.phone}` : null,
+    cv.address     ? `ADR:;;${cv.address};;;;` : null,
+    cv.websiteUrl  ? `URL:${cv.websiteUrl}` : null,
+    "END:VCARD",
+  ].filter(Boolean);
+  return lines.join("\n");
+}
+
+function downloadVCard(cv) {
+  const blob = new Blob([buildVCard(cv)], { type: "text/vcard;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `${(cv.fullName || "cv").trim().replace(/\s+/g, "_")}.vcf`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
 
 // ── Shared Sub-components ─────────────────────────────
 function SkillBar({ level, color }) {
@@ -76,7 +111,7 @@ function TimelineEntry({ title, subtitle, period, location, description, bullets
 }
 
 // ── Template: Classic (sidebar + main) ───────────────
-function CVTemplateClassic({ cv, color, works, edus, skillGroups, certs, langs, awards, hobbies }) {
+function CVTemplateClassic({ cv, color, works, edus, skillGroups, certs, langs, awards, hobbies, sectionOrder }) {
   return (
     <div className="cv-document" id="cv-print">
       {/* LEFT SIDEBAR */}
@@ -206,61 +241,65 @@ function CVTemplateClassic({ cv, color, works, edus, skillGroups, certs, langs, 
           </div>
         )}
 
-        {works.length > 0 && (
-          <div className="cv-main-card cv-main-card--teal">
-            <div className="cv-section">
-              <h2 className="cv-section__title">Kinh nghiệm làm việc</h2>
-              <div className="cv-timeline">
-                {works.map((exp, i) => (
-                  <TimelineEntry key={i}
-                    title={exp.position || exp.title} subtitle={exp.company}
-                    period={exp.startDate ? `${exp.startDate} — ${exp.isCurrent ? "Hiện tại" : exp.endDate || ""}` : exp.period}
-                    location={exp.location} description={exp.description}
-                    bullets={exp.bullets || exp.achievements} />
-                ))}
+        {sectionOrder.filter((s) => s.visible !== false).map((s) => {
+          if (s.key === "work" && works.length > 0) return (
+            <div className="cv-main-card cv-main-card--teal" key="work">
+              <div className="cv-section">
+                <h2 className="cv-section__title">Kinh nghiệm làm việc</h2>
+                <div className="cv-timeline">
+                  {works.map((exp, i) => (
+                    <TimelineEntry key={i}
+                      title={exp.position || exp.title} subtitle={exp.company}
+                      period={exp.startDate ? `${exp.startDate} — ${exp.isCurrent ? "Hiện tại" : exp.endDate || ""}` : exp.period}
+                      location={exp.location} description={exp.description}
+                      bullets={exp.bullets || exp.achievements} />
+                  ))}
+                </div>
               </div>
             </div>
-          </div>
-        )}
-
-        {edus.length > 0 && (
-          <div className="cv-main-card cv-main-card--violet">
-            <div className="cv-section">
-              <h2 className="cv-section__title">Học vấn</h2>
-              <div className="cv-timeline">
-                {edus.map((edu, i) => (
-                  <TimelineEntry key={i}
-                    title={edu.degree || edu.title} subtitle={edu.school || edu.institution}
-                    period={edu.startDate ? `${edu.startDate} — ${edu.endDate || "Hiện tại"}` : edu.period}
-                    description={[edu.field, edu.gpa ? `GPA: ${edu.gpa}` : null, edu.description].filter(Boolean).join(" · ") || undefined}
-                    bullets={edu.achievements} />
-                ))}
+          );
+          if (s.key === "education" && edus.length > 0) return (
+            <div className="cv-main-card cv-main-card--violet" key="education">
+              <div className="cv-section">
+                <h2 className="cv-section__title">Học vấn</h2>
+                <div className="cv-timeline">
+                  {edus.map((edu, i) => (
+                    <TimelineEntry key={i}
+                      title={edu.degree || edu.title} subtitle={edu.school || edu.institution}
+                      period={edu.startDate ? `${edu.startDate} — ${edu.endDate || "Hiện tại"}` : edu.period}
+                      description={[edu.field, edu.gpa ? `GPA: ${edu.gpa}` : null, edu.description].filter(Boolean).join(" · ") || undefined}
+                      bullets={edu.achievements} />
+                  ))}
+                </div>
               </div>
             </div>
-          </div>
-        )}
-
-        {awards.length > 0 && (
-          <div className="cv-main-card cv-main-card--green">
-            <div className="cv-section">
-              <h2 className="cv-section__title">Giải thưởng & Thành tích</h2>
-              <div className="cv-timeline">
-                {awards.map((award, i) => (
-                  <TimelineEntry key={i}
-                    title={award.title || award.name} subtitle={award.issuer || award.organization}
-                    period={award.date} description={award.description} />
-                ))}
+          );
+          if (s.key === "awards" && awards.length > 0) return (
+            <div className="cv-main-card cv-main-card--green" key="awards">
+              <div className="cv-section">
+                <h2 className="cv-section__title">Giải thưởng & Thành tích</h2>
+                <div className="cv-timeline">
+                  {awards.map((award, i) => (
+                    <TimelineEntry key={i}
+                      title={award.title || award.name} subtitle={award.issuer || award.organization}
+                      period={award.date} description={award.description} />
+                  ))}
+                </div>
               </div>
             </div>
-          </div>
-        )}
+          );
+          return null;
+        })}
       </main>
     </div>
   );
 }
 
 // ── Template: Modern (full-width hero + card grid) ────
-function CVTemplateModern({ cv, color, works, edus, skillGroups, certs, langs, awards, hobbies }) {
+function CVTemplateModern({ cv, color, works, edus, skillGroups, certs, langs, awards, hobbies, sectionOrder }) {
+  const showWork      = isSectionVisible(sectionOrder, "work");
+  const showEducation = isSectionVisible(sectionOrder, "education");
+  const showAwards    = isSectionVisible(sectionOrder, "awards");
   return (
     <div className="cv-tpl-modern" id="cv-print">
       {/* Hero banner */}
@@ -353,7 +392,7 @@ function CVTemplateModern({ cv, color, works, edus, skillGroups, certs, langs, a
       )}
 
       {/* Work experience */}
-      {works.length > 0 && (
+      {showWork && works.length > 0 && (
         <div className="cvm-section-wrap">
           <h2 className="cvm-full-title" style={{ "--cvm-t-color": color }}>Kinh nghiệm làm việc</h2>
           <div className="cvm-timeline-grid">
@@ -369,9 +408,9 @@ function CVTemplateModern({ cv, color, works, edus, skillGroups, certs, langs, a
       )}
 
       {/* Education + Awards side by side */}
-      {(edus.length > 0 || awards.length > 0) && (
+      {((showEducation && edus.length > 0) || (showAwards && awards.length > 0)) && (
         <div className="cvm-two-col-wrap">
-          {edus.length > 0 && (
+          {showEducation && edus.length > 0 && (
             <div className="cvm-section-wrap cvm-section-wrap--half">
               <h2 className="cvm-full-title" style={{ "--cvm-t-color": "#6248b0" }}>Học vấn</h2>
               {edus.map((edu, i) => (
@@ -383,7 +422,7 @@ function CVTemplateModern({ cv, color, works, edus, skillGroups, certs, langs, a
               ))}
             </div>
           )}
-          {awards.length > 0 && (
+          {showAwards && awards.length > 0 && (
             <div className="cvm-section-wrap cvm-section-wrap--half">
               <h2 className="cvm-full-title" style={{ "--cvm-t-color": "#2b7a4b" }}>Giải thưởng & Thành tích</h2>
               {awards.map((award, i) => (
@@ -400,7 +439,10 @@ function CVTemplateModern({ cv, color, works, edus, skillGroups, certs, langs, a
 }
 
 // ── Template: Compact (single-column, ATS-friendly) ───
-function CVTemplateCompact({ cv, color, works, edus, skillGroups, certs, langs, awards }) {
+function CVTemplateCompact({ cv, color, works, edus, skillGroups, certs, langs, awards, sectionOrder }) {
+  const showWork      = isSectionVisible(sectionOrder, "work");
+  const showEducation = isSectionVisible(sectionOrder, "education");
+  const showAwards    = isSectionVisible(sectionOrder, "awards");
   return (
     <div className="cv-tpl-compact" id="cv-print">
       {/* Header */}
@@ -454,7 +496,7 @@ function CVTemplateCompact({ cv, color, works, edus, skillGroups, certs, langs, 
 
         {/* Two-column: Work + Education */}
         <div className="cvc-two-col">
-          {works.length > 0 && (
+          {showWork && works.length > 0 && (
             <section className="cvc-section">
               <h2 className="cvc-section-title" style={{ "--cvc-color": color }}>Kinh nghiệm làm việc</h2>
               {works.map((exp, i) => (
@@ -474,7 +516,7 @@ function CVTemplateCompact({ cv, color, works, edus, skillGroups, certs, langs, 
               ))}
             </section>
           )}
-          {edus.length > 0 && (
+          {showEducation && edus.length > 0 && (
             <section className="cvc-section">
               <h2 className="cvc-section-title" style={{ "--cvc-color": "#6248b0" }}>Học vấn</h2>
               {edus.map((edu, i) => (
@@ -497,7 +539,7 @@ function CVTemplateCompact({ cv, color, works, edus, skillGroups, certs, langs, 
         </div>
 
         {/* Bottom row: langs + certs + awards */}
-        {(langs.length > 0 || certs.length > 0 || awards.length > 0) && (
+        {(langs.length > 0 || certs.length > 0 || (showAwards && awards.length > 0)) && (
           <div className="cvc-bottom-row">
             {langs.length > 0 && (
               <section className="cvc-section">
@@ -522,7 +564,7 @@ function CVTemplateCompact({ cv, color, works, edus, skillGroups, certs, langs, 
                 ))}
               </section>
             )}
-            {awards.length > 0 && (
+            {showAwards && awards.length > 0 && (
               <section className="cvc-section">
                 <h2 className="cvc-section-title" style={{ "--cvc-color": "#2b7a4b" }}>Giải thưởng</h2>
                 {awards.map((award, i) => (
@@ -551,8 +593,10 @@ export function CVPage() {
   const [isPremium, setIsPremium] = useState(false);
   const [cv, setCv]           = useState(null);
   const [loading, setLoading] = useState(true);
+  // `template` is an explicit visitor override (persisted to localStorage). When null, the
+  // page falls back to the CV owner's server-saved `cv.template` — see `activeTemplate` below.
   const [template, setTemplate] = useState(() => {
-    try { return localStorage.getItem("cv-template") || "classic"; } catch { return "classic"; }
+    try { return localStorage.getItem("cv-template") || null; } catch { return null; }
   });
   const [templateKey, setTemplateKey] = useState(0);
   const [scrollPct, setScrollPct]     = useState(0);
@@ -560,11 +604,15 @@ export function CVPage() {
   const [localColor, setLocalColor]   = useState(() => {
     try { return localStorage.getItem("cv-local-color") || null; } catch { return null; }
   });
-  const [showColorHint, setShowColorHint] = useState(false);
+  const [showColorHint, setShowColorHint]         = useState(false);
+  const [showScorePanel, setShowScorePanel]       = useState(false);
+  const [showShareModal, setShowShareModal]       = useState(false);
+  const [showTemplateGallery, setShowTemplateGallery] = useState(false);
   const colorPickerRef = useRef(null);
 
   // ── Persist choices ──
   useEffect(() => {
+    if (!template) return;
     try { localStorage.setItem("cv-template", template); } catch { /* ignore */ }
   }, [template]);
   useEffect(() => {
@@ -580,6 +628,16 @@ export function CVPage() {
       .then((data) => { setCv(data); setLoading(false); })
       .catch(() => setLoading(false));
   }, [apiClient]);
+
+  // ── Track public page views (once per browser session) ──
+  useEffect(() => {
+    if (!cv) return;
+    const key = "portfolio-cv-viewed";
+    if (sessionStorage.getItem(key) === "1") return;
+    apiClient.postPublic("/api/cv/view", {})
+      .then(() => sessionStorage.setItem(key, "1"))
+      .catch(() => { /* view tracking is best-effort */ });
+  }, [cv, apiClient]);
 
   // ── Premium status (gates PDF export) ──
   useEffect(() => {
@@ -603,10 +661,13 @@ export function CVPage() {
 
   // ── Switch template (keyed animation) ──
   const switchTemplate = useCallback((id) => {
-    if (id === template) return;
-    setTemplate(id);
-    setTemplateKey((k) => k + 1);
-  }, [template]);
+    setShowTemplateGallery(false);
+    setTemplate((current) => {
+      if (id === current) return current;
+      setTemplateKey((k) => k + 1);
+      return id;
+    });
+  }, []);
 
   // ── Share ──
   const handleShare = useCallback(async () => {
@@ -655,26 +716,32 @@ export function CVPage() {
   const awards      = parseSafe(cv.awardsJson);
   const hobbies     = parseSafe(cv.hobbiesJson);
 
-  // ── CV Completeness ──
-  const completenessChecks = [
-    !!cv.fullName?.trim(),
-    !!cv.jobTitle?.trim(),
-    !!(cv.email?.trim() || cv.phone?.trim()),
-    !!cv.summary?.trim(),
-    !!(cv.address || cv.websiteUrl || cv.githubUrl || cv.linkedInUrl),
-    works.length > 0,
-    edus.length > 0,
-    skillGroups.length > 0,
-    langs.length > 0,
-    certs.length > 0,
+  // ── CV Completeness / Score ──
+  const scoreItems = [
+    { label: "Họ và tên",                       ok: !!cv.fullName?.trim(),  anchor: "personal" },
+    { label: "Chức danh / vị trí",               ok: !!cv.jobTitle?.trim(),  anchor: "personal" },
+    { label: "Email hoặc số điện thoại",         ok: !!(cv.email?.trim() || cv.phone?.trim()), anchor: "personal" },
+    { label: "Giới thiệu bản thân",              ok: !!cv.summary?.trim(),   anchor: "summary" },
+    { label: "Địa chỉ / liên kết mạng xã hội",   ok: !!(cv.address || cv.websiteUrl || cv.githubUrl || cv.linkedInUrl), anchor: "personal" },
+    { label: "Kinh nghiệm làm việc",             ok: works.length > 0,       anchor: "work" },
+    { label: "Học vấn",                          ok: edus.length > 0,        anchor: "education" },
+    { label: "Kỹ năng",                          ok: skillGroups.length > 0, anchor: "skills" },
+    { label: "Ngôn ngữ",                         ok: langs.length > 0,       anchor: "languages" },
+    { label: "Chứng chỉ",                        ok: certs.length > 0,       anchor: "certs" },
   ];
-  const completeness      = Math.round((completenessChecks.filter(Boolean).length / completenessChecks.length) * 100);
+  const completeness      = Math.round((scoreItems.filter((s) => s.ok).length / scoreItems.length) * 100);
   const completenessColor = completeness >= 80 ? "#22c55e" : completeness >= 50 ? "#f59e0b" : "#ef4444";
   const ringR             = 11;
   const ringC             = 2 * Math.PI * ringR;  // ~69.1
   const ringDash          = (completeness / 100) * ringC;
 
-  const sharedProps = { cv, color, rgb, works, edus, skillGroups, certs, langs, awards, hobbies };
+  // Visitor override (localStorage) wins over the CV owner's server-saved default template.
+  const activeTemplate = template || cv.template || "classic";
+  const sectionOrder   = resolveSectionOrder(cv.sectionOrderJson);
+  const shareUrl        = typeof window !== "undefined" ? window.location.href : "";
+  const qrUrl            = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&margin=8&data=${encodeURIComponent(shareUrl)}`;
+
+  const sharedProps = { cv, color, rgb, works, edus, skillGroups, certs, langs, awards, hobbies, sectionOrder };
 
   return (
     <div className="cv-root" style={{ "--cv-accent": color, "--cv-accent-rgb": rgb }}>
@@ -701,40 +768,75 @@ export function CVPage() {
               <button
                 key={t.id}
                 type="button"
-                className={`cv-tpl-btn${template === t.id ? " is-active" : ""}`}
+                className={`cv-tpl-btn${activeTemplate === t.id ? " is-active" : ""}`}
                 onClick={() => switchTemplate(t.id)}
                 title={t.label}
-                style={template === t.id ? { "--tpl-active-color": color } : undefined}
+                style={activeTemplate === t.id ? { "--tpl-active-color": color } : undefined}
               >
                 <span className="cv-tpl-btn__icon">{t.icon}</span>
                 <span className="cv-tpl-btn__label">{t.label}</span>
               </button>
             ))}
+            <button
+              type="button"
+              className="cv-tpl-gallery-btn"
+              onClick={() => setShowTemplateGallery(true)}
+              title="Xem thư viện mẫu CV"
+            >
+              🖼
+            </button>
           </div>
 
           {/* Right: actions */}
           <div className="cv-topbar__actions">
 
-            {/* CV Completeness ring */}
-            <div
-              className="cv-completeness"
-              title={`CV hoàn thiện ${completeness}% (${completenessChecks.filter(Boolean).length}/${completenessChecks.length} mục)`}
-            >
-              <svg viewBox="0 0 26 26" className="cv-completeness__svg" aria-hidden>
-                <circle cx="13" cy="13" r={ringR} fill="none" stroke="#e2e8f0" strokeWidth="2.5" />
-                <circle
-                  cx="13" cy="13" r={ringR}
-                  fill="none"
-                  stroke={completenessColor}
-                  strokeWidth="2.5"
-                  strokeDasharray={`${ringDash} ${ringC}`}
-                  strokeLinecap="round"
-                  style={{ transformOrigin: "center", transform: "rotate(-90deg)" }}
-                />
-              </svg>
-              <span className="cv-completeness__pct" style={{ color: completenessColor }}>
-                {completeness}%
-              </span>
+            {/* CV Score — click to open detail checklist */}
+            <div className="cv-score-wrap">
+              <button
+                type="button"
+                className="cv-completeness"
+                onClick={() => setShowScorePanel((v) => !v)}
+                title={`CV hoàn thiện ${completeness}% — bấm để xem chi tiết`}
+              >
+                <svg viewBox="0 0 26 26" className="cv-completeness__svg" aria-hidden>
+                  <circle cx="13" cy="13" r={ringR} fill="none" stroke="#e2e8f0" strokeWidth="2.5" />
+                  <circle
+                    cx="13" cy="13" r={ringR}
+                    fill="none"
+                    stroke={completenessColor}
+                    strokeWidth="2.5"
+                    strokeDasharray={`${ringDash} ${ringC}`}
+                    strokeLinecap="round"
+                    style={{ transformOrigin: "center", transform: "rotate(-90deg)" }}
+                  />
+                </svg>
+                <span className="cv-completeness__pct" style={{ color: completenessColor }}>
+                  {completeness}%
+                </span>
+              </button>
+
+              {showScorePanel && (
+                <>
+                  <div className="cv-score-backdrop" onClick={() => setShowScorePanel(false)} />
+                  <div className="cv-score-panel">
+                    <div className="cv-score-panel__head">
+                      <strong>Độ mạnh CV</strong>
+                      <span style={{ color: completenessColor }}>{completeness}%</span>
+                    </div>
+                    <ul className="cv-score-list">
+                      {scoreItems.map((item, i) => (
+                        <li key={i} className={item.ok ? "is-ok" : "is-missing"}>
+                          <span className="cv-score-list__icon">{item.ok ? "✓" : "○"}</span>
+                          <span className="cv-score-list__label">{item.label}</span>
+                          {!item.ok && (
+                            <Link to={`/cv/edit#${item.anchor}`} className="cv-score-list__fix">Bổ sung →</Link>
+                          )}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </>
+              )}
             </div>
 
             {/* Color picker */}
@@ -771,11 +873,11 @@ export function CVPage() {
             {/* Share */}
             <button
               type="button"
-              className={`cv-btn${copied ? " cv-btn--success" : " cv-btn--outline"}`}
-              onClick={handleShare}
-              title="Sao chép link CV"
+              className="cv-btn cv-btn--outline"
+              onClick={() => setShowShareModal(true)}
+              title="Chia sẻ CV"
             >
-              {copied ? "✓ Đã copy" : "🔗 Share"}
+              🔗 Chia sẻ
             </button>
 
             {/* Download / Print — gated behind Premium */}
@@ -803,9 +905,9 @@ export function CVPage() {
 
       {/* ── Rendered template (keyed for enter animation) ── */}
       <div className="cv-template-wrap cv-tpl-enter" key={templateKey}>
-        {template === "classic" && <CVTemplateClassic {...sharedProps} />}
-        {template === "modern"  && <CVTemplateModern  {...sharedProps} />}
-        {template === "compact" && <CVTemplateCompact {...sharedProps} />}
+        {activeTemplate === "classic" && <CVTemplateClassic {...sharedProps} />}
+        {activeTemplate === "modern"  && <CVTemplateModern  {...sharedProps} />}
+        {activeTemplate === "compact" && <CVTemplateCompact {...sharedProps} />}
       </div>
 
       {/* ── Footer ── */}
@@ -815,6 +917,65 @@ export function CVPage() {
           <span className="cv-footer__note">hiennt.website</span>
         </div>
       </footer>
+
+      {/* ── Share modal: link + QR + vCard ── */}
+      {showShareModal && (
+        <div className="cv-modal-overlay" onClick={() => setShowShareModal(false)}>
+          <div className="cv-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="cv-modal__head">
+              <h3>🔗 Chia sẻ CV</h3>
+              <button type="button" className="cv-modal__close" onClick={() => setShowShareModal(false)}>✕</button>
+            </div>
+            <div className="cv-modal__body cv-share-modal">
+              <img src={qrUrl} alt="QR code liên kết CV" className="cv-share-qr" width={160} height={160} />
+              <div className="cv-share-link-row">
+                <input readOnly className="cv-share-link-input" value={shareUrl} onFocus={(e) => e.target.select()} />
+                <button
+                  type="button"
+                  className={`cv-btn${copied ? " cv-btn--success" : " cv-btn--primary"}`}
+                  onClick={handleShare}
+                >
+                  {copied ? "✓ Đã copy" : "Copy link"}
+                </button>
+              </div>
+              <button type="button" className="cv-btn cv-btn--outline cv-share-vcard" onClick={() => downloadVCard(cv)}>
+                📇 Tải danh thiếp (.vcf)
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Template gallery modal ── */}
+      {showTemplateGallery && (
+        <div className="cv-modal-overlay" onClick={() => setShowTemplateGallery(false)}>
+          <div className="cv-modal cv-modal--wide" onClick={(e) => e.stopPropagation()}>
+            <div className="cv-modal__head">
+              <h3>🖼 Thư viện mẫu CV</h3>
+              <button type="button" className="cv-modal__close" onClick={() => setShowTemplateGallery(false)}>✕</button>
+            </div>
+            <div className="cv-modal__body cv-tpl-gallery">
+              {TEMPLATES.map((t) => (
+                <button
+                  key={t.id}
+                  type="button"
+                  className={`cv-tpl-gallery-card${activeTemplate === t.id ? " is-active" : ""}`}
+                  onClick={() => switchTemplate(t.id)}
+                >
+                  <span className={`cv-tpl-gallery-preview cv-tpl-gallery-preview--${t.id}`} style={{ "--tpl-color": color }} aria-hidden>
+                    <span className="cv-tpl-gallery-preview__block" />
+                    <span className="cv-tpl-gallery-preview__block" />
+                    <span className="cv-tpl-gallery-preview__block" />
+                  </span>
+                  <span className="cv-tpl-gallery-card__label">{t.icon} {t.label}</span>
+                  <span className="cv-tpl-gallery-card__desc">{t.desc}</span>
+                  {activeTemplate === t.id && <span className="cv-tpl-gallery-card__badge">Đang dùng</span>}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

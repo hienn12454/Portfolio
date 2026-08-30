@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useAuth } from "@clerk/react";
 import { createApiClient } from "../core/http/apiClient";
 import { useThemeSync } from "../core/useThemeSync";
+import { TEMPLATES, DEFAULT_SECTION_ORDER, SECTION_LABELS } from "./cvShared";
 import "./CVEditPage.css";
 
 // ── helpers ──────────────────────────────────────────────
@@ -583,6 +584,51 @@ function Panel({ title, children, badge, id }) {
   );
 }
 
+// ── Section order / visibility (drag to reorder, eye toggle to hide) ──────
+function SectionOrderList({ items, onChange }) {
+  const dragIndex = useRef(null);
+
+  function handleDrop(i) {
+    const from = dragIndex.current;
+    dragIndex.current = null;
+    if (from === null || from === i) return;
+    const next = [...items];
+    const [moved] = next.splice(from, 1);
+    next.splice(i, 0, moved);
+    onChange(next);
+  }
+
+  function toggleVisible(i) {
+    onChange(items.map((it, idx) => idx === i ? { ...it, visible: it.visible === false } : it));
+  }
+
+  return (
+    <div className="cve-section-order">
+      {items.map((item, i) => (
+        <div
+          key={item.key}
+          className={`cve-section-order__row${item.visible === false ? " is-hidden" : ""}`}
+          draggable
+          onDragStart={() => { dragIndex.current = i; }}
+          onDragOver={(e) => e.preventDefault()}
+          onDrop={() => handleDrop(i)}
+        >
+          <span className="cve-section-order__handle" title="Kéo để sắp xếp thứ tự">⠿</span>
+          <span className="cve-section-order__label">{SECTION_LABELS[item.key] || item.key}</span>
+          <button
+            type="button"
+            className="cve-section-order__eye"
+            onClick={() => toggleVisible(i)}
+            title={item.visible === false ? "Đang ẩn trên CV — bấm để hiện lại" : "Đang hiển thị — bấm để ẩn"}
+          >
+            {item.visible === false ? "🙈 Đang ẩn" : "👁 Đang hiện"}
+          </button>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 // ── Main Editor Page ──────────────────────────────────────
 export function CVEditPage() {
   useThemeSync();
@@ -597,6 +643,7 @@ export function CVEditPage() {
     fullName: "", jobTitle: "", email: "", phone: "",
     address: "", avatarUrl: "", websiteUrl: "", githubUrl: "",
     linkedInUrl: "", summary: "", accentColor: "#2563eb", isPublic: true,
+    template: "classic",
   });
 
   // Sections
@@ -607,6 +654,10 @@ export function CVEditPage() {
   const [langs, setLangs] = useState([]);
   const [awards, setAwards] = useState([]);
   const [hobbies, setHobbies] = useState([]);
+
+  // Layout — reorderable / togglable main-content sections + read-only view stat
+  const [sectionOrder, setSectionOrder] = useState(() => DEFAULT_SECTION_ORDER.map((key) => ({ key, visible: true })));
+  const [viewCount, setViewCount] = useState(0);
 
   useEffect(() => {
     apiClient.getProtected("/api/cv/admin").then((data) => {
@@ -622,6 +673,7 @@ export function CVEditPage() {
         githubUrl: data.githubUrl || "",
         linkedInUrl: data.linkedInUrl || "",
         summary: data.summary || "",
+        template: data.template || "classic",
         accentColor: data.accentColor || "#2563eb",
         isPublic: data.isPublic !== false,
       });
@@ -632,6 +684,9 @@ export function CVEditPage() {
       setLangs(parseSafe(data.languagesJson));
       setAwards(parseSafe(data.awardsJson));
       setHobbies(parseSafe(data.hobbiesJson, []));
+      const savedOrder = parseSafe(data.sectionOrderJson, []);
+      setSectionOrder(savedOrder.length > 0 ? savedOrder : DEFAULT_SECTION_ORDER.map((key) => ({ key, visible: true })));
+      setViewCount(data.viewCount || 0);
     }).catch(() => {});
   }, [apiClient]);
 
@@ -648,6 +703,7 @@ export function CVEditPage() {
         languagesJson: JSON.stringify(langs),
         awardsJson: JSON.stringify(awards),
         hobbiesJson: JSON.stringify(hobbies),
+        sectionOrderJson: JSON.stringify(sectionOrder),
       });
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
@@ -676,7 +732,10 @@ export function CVEditPage() {
         <div className="cve-header__content">
           <div>
             <h1 className="cve-header__title">Chỉnh sửa CV</h1>
-            <p className="cve-header__sub">Thiết kế CV của bạn — sẽ hiển thị tại <strong>hiennt.website/cv</strong></p>
+            <p className="cve-header__sub">
+              Thiết kế CV của bạn — sẽ hiển thị tại <strong>hiennt.website/cv</strong>
+              <span className="cve-header__viewcount" title="Số lượt xem CV công khai">· 👁 {viewCount.toLocaleString("vi-VN")} lượt xem</span>
+            </p>
           </div>
           <div className="cve-header__actions">
             <Link to="/cv" target="_blank" className="cve-btn cve-btn--outline">👁 Xem CV</Link>
@@ -706,6 +765,7 @@ export function CVEditPage() {
             { id: "languages",label: "🌐 Ngôn ngữ" },
             { id: "awards",   label: "🏆 Giải thưởng" },
             { id: "hobbies",  label: "🎯 Sở thích" },
+            { id: "layout",   label: "🧩 Bố cục CV" },
             { id: "settings", label: "⚙️ Cài đặt" },
           ].map(({ id, label }) => (
             <a key={id} className="cve-nav-item" href={`#${id}`}>{label}</a>
@@ -861,9 +921,34 @@ export function CVEditPage() {
             </FieldRow>
           </Panel>
 
+          {/* Layout — reorder / show-hide main-content sections */}
+          <Panel title="🧩 Bố cục CV" id="layout">
+            <FieldRow
+              label="Thứ tự & hiển thị các mục"
+              hint="Kéo ⠿ để sắp xếp lại, bấm biểu tượng mắt để ẩn/hiện một mục trên CV công khai (áp dụng đầy đủ cho mẫu Classic; các mẫu khác chỉ áp dụng ẩn/hiện)"
+            >
+              <SectionOrderList items={sectionOrder} onChange={setSectionOrder} />
+            </FieldRow>
+          </Panel>
+
           {/* Settings */}
           <Panel title="⚙️ Cài đặt" id="settings">
             <div className="cve-grid-2">
+              <FieldRow label="Mẫu CV mặc định" hint="Mẫu hiển thị đầu tiên với khách xem CV của bạn">
+                <div className="cve-tpl-picker">
+                  {TEMPLATES.map((t) => (
+                    <button
+                      type="button"
+                      key={t.id}
+                      className={`cve-tpl-picker__btn${info.template === t.id ? " is-active" : ""}`}
+                      onClick={() => setInfo((i) => ({ ...i, template: t.id }))}
+                      title={t.desc}
+                    >
+                      {t.icon} {t.label}
+                    </button>
+                  ))}
+                </div>
+              </FieldRow>
               <FieldRow label="Màu chủ đạo" hint="Màu accent hiển thị trên CV">
                 <div className="cve-color-picker">
                   <input

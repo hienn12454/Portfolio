@@ -77,8 +77,30 @@ public sealed class CvController(IApplicationDbContext dbContext) : ControllerBa
         existing.HobbiesJson = request.HobbiesJson;
         existing.IsPublic = request.IsPublic;
         existing.AccentColor = request.AccentColor;
+        existing.Template = string.IsNullOrWhiteSpace(request.Template) ? "classic" : request.Template;
+        existing.SectionOrderJson = request.SectionOrderJson;
+        // ViewCount is server-managed (see POST /api/cv/view) — never overwritten by admin edits.
 
         await dbContext.SaveChangesAsync(cancellationToken);
         return Ok(existing);
+    }
+
+    [HttpPost("view")]
+    public async Task<IActionResult> View(CancellationToken cancellationToken)
+    {
+        var cv = await dbContext.CvProfiles
+            .Where(x => x.IsPublic)
+            .OrderByDescending(x => x.UpdatedAtUtc)
+            .ThenByDescending(x => x.CreatedAtUtc)
+            .FirstOrDefaultAsync(cancellationToken);
+
+        if (cv is null)
+        {
+            return NotFound();
+        }
+
+        cv.ViewCount += 1;
+        await dbContext.SaveChangesAsync(cancellationToken);
+        return Ok(new { cv.ViewCount });
     }
 }

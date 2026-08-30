@@ -139,6 +139,7 @@ const apiClient = useMemo(() => createApiClient(async () => null), []);
 | POST | `/api/contact-messages` | Submit contact form message |
 | POST | `/api/projects/{id}/like` | Increment project like count |
 | POST | `/api/projects/{id}/view` | Increment project view count |
+| POST | `/api/cv/view` | Increment public CV page-view count |
 
 ### Authenticated
 | Method | Path | Description |
@@ -244,13 +245,16 @@ UserId (Guid), Track ("it"), Specialty, SourceRoadmapSlug
 PlanMarkdown, DailyTechnical, DailyForDate (DateOnly)
 ```
 
-### CvProfile ← NEW (migration: AddCvProfile)
+### CvProfile ← NEW (migration: AddCvProfile; extended: AddCvProfileEnhancements)
 ```
 FullName, JobTitle, Email, Phone, Address, AvatarUrl
 WebsiteUrl, GithubUrl, LinkedInUrl, Summary
 WorkExperiencesJson, EducationsJson, SkillGroupsJson
 CertificationsJson, LanguagesJson, AwardsJson, HobbiesJson
 IsPublic (default:true), AccentColor (default:"#2563eb")
+Template (default:"classic"; "classic"|"modern"|"compact" — server-driven default template)
+SectionOrderJson (nullable — reorder/hide Work/Education/Awards main-content sections)
+ViewCount (server-managed, incremented via POST /api/cv/view)
 ```
 
 **JSON field shapes:**
@@ -316,6 +320,7 @@ PageViewLogs, UserLoginLogs, PremiumSubscriptions, ContactMessages
 12. `20260523193226_AddAnalyticsLogs`
 13. `20260531120000_AddPremiumSubscription`
 14. `20260531130000_AddContactMessagesAndProjectEngagement`
+15. `20260830120000_AddCvProfileEnhancements`
 
 **Add new migration:**
 ```bash
@@ -391,4 +396,5 @@ Fonts: `Manrope` (body), `Space Grotesk` (headings) from Google Fonts.
 | 2026-05-24 | Created `CLAUDE.md`; Redesigned CVPage & CVEditPage with modern 3D glassmorphism UI |
 | 2026-05-24 | CI: workflow auto-detects & applies pending EF migrations on push to main; warns on unmigrated entity changes. Requires GitHub secret `DB_CONNECTION_STRING` |
 | 2026-05-31 | Added features: **Contact inbox** (`ContactMessage` + `/api/contact-messages` + admin endpoints), **public Blog** (`/blog`, `/blog/:slug`), **project likes/views** (`LikeCount`/`ViewCount` + like/view endpoints), **Premium-gated CV PDF export**. Migration `AddContactMessagesAndProjectEngagement`. Tests: full xUnit suite — unit tests (Premium/Contact/User services) + integration tests (`WebApplicationFactory` + EF InMemory + test auth) covering public/auth/admin endpoints |
+| 2026-08-30 | **TopCV-inspired CV page overhaul**: CV score popover (clickable completeness ring with itemized checklist linking to the editor), share modal (link + QR code + vCard download), visual template-gallery modal replacing the pill switcher, server-driven default template + admin-editable section order/visibility for Work/Education/Awards, public CV view counter. Migration `AddCvProfileEnhancements` (`CvProfile.Template`, `SectionOrderJson`, `ViewCount`); new endpoint `POST /api/cv/view`. Editor (`CVEditPage`) gained a "🧩 Bố cục CV" drag-reorder panel and a view-count stat |
 | 2026-05-31 | Added **Premium** feature: `PremiumSubscription` entity + table (migration `AddPremiumSubscription`), `PremiumController` + `PremiumSubscriptionService` (mock checkout / admin grant, monthly+yearly plans), `PremiumPage` (`/premium`) with renew/cancel UI, premium badge in homepage nav/user-menu. UI cleanup: removed dead decorative layers + cursor-glow pointermove effect from HomePage, fixed Career Advisor greeting i18n bug, wired contact form to mailto submit |
