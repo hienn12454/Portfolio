@@ -1053,28 +1053,51 @@ html[data-theme="light"] .nav-cv-link:hover {
 }
 
 .chat-message {
-  max-width: min(92%, 700px);
-  border-radius: 0.7rem;
-  background: color-mix(in oklab, var(--surface) 78%, transparent);
+  max-width: min(88%, 640px);
+  border-radius: 1.1rem 1.1rem 1.1rem 0.3rem;
+  background: var(--bg-elevated);
   border: 1px solid var(--surface-border);
-  padding: 0.55rem 0.65rem;
+  padding: 0.75rem 1rem;
+  box-shadow: 0 2px 10px rgba(2, 8, 23, 0.06);
+  position: relative;
+}
+
+.chat-message__role {
+  display: block;
+  font-family: var(--font-ui, "DM Sans", system-ui, sans-serif);
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 0.3rem;
 }
 
 .chat-message p {
   margin: 0;
   white-space: pre-wrap;
+  font-size: 0.92rem;
+  line-height: 1.6;
 }
 
 .chat-message small {
-  margin-top: 0.35rem;
+  margin-top: 0.45rem;
   display: block;
+  font-family: var(--font-ui, "DM Sans", system-ui, sans-serif);
+  font-size: 0.7rem;
   color: var(--text-soft);
 }
 
 .chat-message--user {
   margin-left: auto;
-  background: color-mix(in oklab, var(--accent-soft) 72%, var(--surface));
+  border-radius: 1.1rem 1.1rem 0.3rem 1.1rem;
+  background: var(--accent);
+  border-color: var(--accent);
+  box-shadow: 0 4px 14px var(--accent-soft);
 }
+
+.chat-message--user .chat-message__role { color: rgba(255, 255, 255, 0.85); }
+.chat-message--user p { color: #fff; }
 
 .career-chatbot__loading {
   margin: 0.2rem 0 0 !important;
@@ -5317,4 +5340,150 @@ html[data-theme="light"] .amb-sym { opacity: 0.18; }
 
 @media (prefers-reduced-motion: reduce) {
   .amb-sym { animation: none; }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   CAREER DIRECTION LAB — skills → career → roadmap → courses wizard
+   Uses only existing theme tokens (--bg/--surface/--accent/...) so it
+   follows whichever theme values are currently active.
+   ═══════════════════════════════════════════════════════════════ */
+.cdl-head { max-width: 640px; margin-bottom: 1.4rem; }
+.cdl-head p { color: var(--text-muted); }
+
+.cdl-shell {
+  border: 1px solid var(--surface-border);
+  background: var(--surface);
+  border-radius: 1.1rem;
+  overflow: hidden;
+}
+
+.cdl-stepper {
+  display: flex;
+  align-items: center;
+  padding: 1.3rem 1.6rem 1.1rem;
+  border-bottom: 1px solid var(--surface-border);
+  background: var(--bg-elevated);
+  flex-wrap: wrap;
+  gap: 0.3rem;
+}
+.cdl-stepper__item { display: flex; align-items: center; gap: 0.6rem; }
+.cdl-stepper__row { display: flex; align-items: center; gap: 0.55rem; }
+.cdl-stepper__circle {
+  width: 1.9rem; height: 1.9rem; border-radius: 999px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.78rem; font-weight: 700;
+  border: 2px solid var(--surface-border); color: var(--text-muted);
+  background: var(--surface);
+  flex-shrink: 0;
+}
+.cdl-stepper__circle.is-active { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+.cdl-stepper__circle.is-done { border-color: var(--accent); color: #fff; background: var(--accent); }
+.cdl-stepper__label { font-size: 0.8rem; font-weight: 600; color: var(--text-muted); }
+.cdl-stepper__line { width: 2.2rem; height: 2px; background: var(--surface-border); margin: 0 0.3rem; }
+.cdl-stepper__line.is-done { background: var(--accent); }
+
+.cdl-body { padding: 1.6rem; min-height: 14rem; }
+.cdl-step h3 { margin: 0 0 0.3rem; }
+.cdl-hint { color: var(--text-muted); font-size: 0.85rem; margin: 0 0 1rem; }
+.cdl-generating { color: var(--text-muted); font-style: italic; }
+
+.cdl-skill-group { margin-bottom: 1.1rem; }
+.cdl-skill-group__label {
+  font-size: 0.72rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase;
+  color: var(--text-soft); margin-bottom: 0.5rem;
+}
+.cdl-chip-row { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+
+.cdl-career-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0.9rem; }
+.cdl-career-card {
+  position: relative; text-align: left; cursor: pointer;
+  border: 1.5px solid var(--surface-border); background: var(--bg-elevated);
+  border-radius: 0.9rem; padding: 1.1rem 1.2rem; display: flex; flex-direction: column; gap: 0.5rem;
+  transition: border-color 0.15s ease, transform 0.15s ease;
+}
+.cdl-career-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+.cdl-career-card.is-selected { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.cdl-career-card h4 { margin: 0; font-size: 1.02rem; }
+.cdl-career-card p { margin: 0; color: var(--text-muted); font-size: 0.82rem; line-height: 1.5; }
+.cdl-career-card__match { position: absolute; top: 1rem; right: 1.1rem; text-align: right; }
+.cdl-career-card__match b { display: block; font-size: 1.1rem; color: var(--accent); }
+.cdl-career-card__match span { font-size: 0.62rem; font-weight: 700; text-transform: uppercase; color: var(--text-soft); }
+.cdl-career-card__bar { height: 4px; border-radius: 999px; background: var(--surface-alt); overflow: hidden; margin-top: 0.2rem; }
+.cdl-career-card__bar-fill { height: 100%; border-radius: 999px; background: var(--accent); }
+
+.cdl-plan-card { margin-bottom: 1.3rem; }
+.cdl-plan-daily { font-weight: 600; margin: 0.2rem 0 0.8rem; }
+.cdl-plan-source { color: var(--text-soft); font-size: 0.76rem; margin: 0.8rem 0 0; }
+.cdl-plan-markdown h4 { font-size: 0.95rem; margin: 0.9rem 0 0.4rem; }
+.cdl-plan-markdown h4:first-child { margin-top: 0; }
+.cdl-plan-markdown p { color: var(--text-muted); font-size: 0.86rem; line-height: 1.65; margin: 0.3rem 0; }
+.cdl-plan-markdown ul { margin: 0.3rem 0 0.6rem; padding-left: 1.1rem; color: var(--text-muted); font-size: 0.86rem; line-height: 1.6; }
+
+.cdl-roadmap-overview h4 { font-size: 0.95rem; margin: 0 0 0.7rem; }
+.cdl-tag-row { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem; }
+.cdl-tag {
+  font-size: 0.72rem; font-weight: 700; padding: 0.28rem 0.65rem; border-radius: 999px;
+  background: var(--surface-alt); color: var(--text-muted); border: 1px solid var(--surface-border);
+}
+.cdl-tag--have { background: color-mix(in oklab, #22c55e 16%, transparent); color: #16a34a; border-color: color-mix(in oklab, #22c55e 32%, transparent); }
+.cdl-tag--gap { background: var(--accent-soft); color: var(--accent); border-color: color-mix(in oklab, var(--accent) 32%, transparent); }
+.cdl-tag--paid { background: color-mix(in oklab, #0891b2 16%, transparent); color: #0891b2; border-color: color-mix(in oklab, #0891b2 32%, transparent); }
+
+.cdl-milestones { display: flex; flex-direction: column; }
+.cdl-milestone { display: flex; gap: 0.9rem; padding-bottom: 1.3rem; position: relative; }
+.cdl-milestone:not(:last-child)::before {
+  content: ""; position: absolute; left: 0.95rem; top: 2.2rem; bottom: 0; width: 2px;
+  background: var(--surface-border);
+}
+.cdl-milestone__num {
+  width: 2rem; height: 2rem; border-radius: 999px; flex-shrink: 0;
+  border: 2px solid var(--accent); color: var(--accent); background: var(--bg-elevated);
+  display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.8rem;
+  position: relative; z-index: 1;
+}
+.cdl-milestone b { display: block; margin-bottom: 0.5rem; font-size: 0.92rem; }
+.cdl-topic {
+  font-size: 0.74rem; font-weight: 600; color: var(--text-muted);
+  background: var(--bg-elevated); border: 1px solid var(--surface-border);
+  padding: 0.3rem 0.65rem; border-radius: 0.5rem;
+}
+
+.cdl-course-toolbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.6rem; }
+.cdl-dd { position: relative; }
+.cdl-dd__menu {
+  position: absolute; top: calc(100% + 0.4rem); right: 0; min-width: 9rem;
+  background: var(--bg-elevated); border: 1px solid var(--surface-border); border-radius: 0.6rem;
+  box-shadow: 0 14px 30px rgba(2, 8, 23, 0.28); padding: 0.3rem; z-index: 20;
+  display: flex; flex-direction: column; gap: 0.15rem;
+}
+.cdl-dd__menu button {
+  text-align: left; border: none; background: transparent; color: var(--text);
+  font-size: 0.8rem; font-weight: 600; padding: 0.5rem 0.6rem; border-radius: 0.4rem; cursor: pointer;
+}
+.cdl-dd__menu button:hover { background: var(--surface-alt); }
+
+.cdl-course-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 0.8rem; }
+.cdl-course-card {
+  border: 1.5px solid var(--surface-border); background: var(--bg-elevated);
+  border-radius: 0.8rem; padding: 1rem; display: flex; flex-direction: column; gap: 0.5rem;
+}
+.cdl-course-card b { font-size: 0.88rem; }
+.cdl-course-meta { color: var(--text-soft); font-size: 0.74rem; }
+
+.cdl-foot {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1.1rem 1.6rem; border-top: 1px solid var(--surface-border); background: var(--bg-elevated);
+}
+
+.cdl-history { margin-top: 1.2rem; }
+.cdl-history-card { margin-top: 0.8rem; }
+.cdl-history-card h4 { margin: 0.2rem 0 0.6rem; }
+
+@media (max-width: 720px) {
+  .cdl-stepper { gap: 0.5rem 0.2rem; }
+  .cdl-stepper__label { display: none; }
+  .cdl-stepper__line { width: 1rem; }
+  .cdl-career-grid { grid-template-columns: 1fr; }
+  .cdl-course-grid { grid-template-columns: 1fr; }
+  .cdl-foot { flex-wrap: wrap; gap: 0.6rem; }
 }

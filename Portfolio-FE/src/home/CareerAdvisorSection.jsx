@@ -17,6 +17,8 @@ const trackContent = {
     ],
     sourceLabel: "RAG sources",
     chatbotTitle: "IT Career AI Advisor",
+    youLabel: "You",
+    aiLabel: "AI Advisor",
     loading: "Thinking...",
     errorFallback: "Chatbot is temporarily unavailable. Please try again in a moment."
   },
@@ -36,6 +38,8 @@ const trackContent = {
     ],
     sourceLabel: "Nguồn tri thức RAG",
     chatbotTitle: "AI tư vấn nghề IT",
+    youLabel: "Bạn",
+    aiLabel: "AI tư vấn",
     loading: "AI đang phân tích...",
     errorFallback: "Chatbot tạm thời chưa sẵn sàng. Vui lòng thử lại sau."
   }
@@ -174,6 +178,7 @@ export function CareerAdvisorSection({ language, apiClient, isPremium = false })
           <div className="career-chatbot__messages">
             {messages.map((message, index) => (
               <div key={`${message.role}-${index}`} className={message.role === "user" ? "chat-message chat-message--user" : "chat-message"}>
+                <span className="chat-message__role">{message.role === "user" ? content.youLabel : content.aiLabel}</span>
                 <p>{message.content}</p>
                 {message.role === "assistant" && message.sources.length > 0 ? (
                   <small>

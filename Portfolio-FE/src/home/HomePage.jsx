@@ -4,7 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { usePublicPortfolioData } from "./usePublicPortfolioData";
 import { createApiClient } from "../core/http/apiClient";
 import { CareerAdvisorSection } from "./CareerAdvisorSection";
-import { UserRoadmapPlannerSection } from "./UserRoadmapPlannerSection";
+import { CareerDirectionLab } from "./CareerDirectionLab";
 
 const contentByLanguage = {
   en: {
@@ -1451,7 +1451,7 @@ export function HomePage() {
             >
             <div className="vault-panel vault-panel--lab">
               <CareerAdvisorSection language={language} apiClient={apiClient} isPremium={isPremiumUser} />
-              <UserRoadmapPlannerSection language={language} isSignedIn={isSignedIn} apiClient={apiClient} />
+              <CareerDirectionLab language={language} isSignedIn={isSignedIn} apiClient={apiClient} />
             </div>
             </div>
 

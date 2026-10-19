@@ -107,7 +107,8 @@ public sealed class UserRoadmapPlanService(
             return "Learn one core concept and implement a small hands-on lab.";
         }
 
-        var index = Math.Abs(dateTimeProvider.VietnamToday.GetHashCode()) % topicList.Count;
+        // Avoid Math.Abs(int.MinValue) overflow (GetHashCode() can return any int).
+        var index = (int)((uint)dateTimeProvider.VietnamToday.GetHashCode() % (uint)topicList.Count);
         return topicList[index];
     }
 

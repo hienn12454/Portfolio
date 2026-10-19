@@ -47,7 +47,7 @@ Portfolio/
 │       ├── home/
 │       │   ├── HomePage.jsx           ← landing page (/)
 │       │   ├── CareerAdvisorSection.jsx
-│       │   ├── UserRoadmapPlannerSection.jsx
+│       │   ├── CareerDirectionLab.jsx    ← skills → career → roadmap → courses wizard
 │       │   └── usePublicPortfolioData.js ← loads all public data on mount
 │       ├── profile/
 │       │   └── UserProfilePage.jsx    ← authenticated user profile editor
@@ -392,6 +392,7 @@ Fonts: `Manrope` (body), `Space Grotesk` (headings) from Google Fonts.
 
 | Date | Change |
 |------|--------|
+| 2026-10-19 | **Career Direction Lab**: replaced the plain track/specialty form (`UserRoadmapPlannerSection`, removed) with `CareerDirectionLab.jsx` — a 4-step wizard (skills to improve → target role with a client-computed match % → real AI roadmap plan via the existing `/api/roadmap-plans/mine/generate` → curated course picks with a filter dropdown). No new backend endpoints; reuses the existing roadmap-plans API. New CSS uses only existing theme tokens (`--bg`/`--accent`/`--surface`/...). Also gave `CareerAdvisorSection`'s chat bubbles a less generic look (asymmetric bubble shape, sender label, distinct user/assistant styling) and fixed a `Math.Abs(int.MinValue)` overflow edge case in `UserRoadmapPlanService.PickDailyTechnical`. Added `UserRoadmapPlansControllerTests.cs` (previously zero coverage for `/api/roadmap-plans`) |
 | 2026-05-23 | Added CV feature: `CvProfile` entity, `CvController`, migration `AddCvProfile`, `CVPage` (public), `CVEditPage` (admin), routes `/cv` and `/cv/edit` |
 | 2026-05-24 | Created `CLAUDE.md`; Redesigned CVPage & CVEditPage with modern 3D glassmorphism UI |
 | 2026-05-24 | CI: workflow auto-detects & applies pending EF migrations on push to main; warns on unmigrated entity changes. Requires GitHub secret `DB_CONNECTION_STRING` |
