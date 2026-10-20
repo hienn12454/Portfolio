@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth, useClerk } from "@clerk/react";
-import { createApiClient } from "../core/http/apiClient";
+import { createApiClient, extractApiErrorMessage } from "../core/http/apiClient";
 import { useThemeSync } from "../core/useThemeSync";
+import { LoadingSpinner } from "../core/ui/LoadingStates";
 
 const EMPTY_PROFILE = {
   displayName: "",
@@ -96,7 +97,7 @@ export function UserProfilePage() {
         setProfile(mapUserToProfile(user));
         setIsAdminUser(user?.role === "Admin");
       } catch (loadError) {
-        setError(loadError.message);
+        setError(extractApiErrorMessage(loadError) ?? "Không thể tải hồ sơ. Vui lòng thử lại.");
       } finally {
         setLoading(false);
       }
@@ -142,7 +143,7 @@ export function UserProfilePage() {
       setProfile(normalizedProfile);
       setMessage("Hồ sơ đã được cập nhật thành công.");
     } catch (saveError) {
-      setError(saveError.message);
+      setError(extractApiErrorMessage(saveError) ?? "Lưu hồ sơ thất bại. Vui lòng thử lại.");
     } finally {
       setSaving(false);
     }
@@ -267,7 +268,7 @@ export function UserProfilePage() {
       setLastCvInsights(result?.parsed ?? null);
       setMessage("AI đã đọc CV và tự động điền thông tin hồ sơ.");
     } catch (importError) {
-      setError(importError.message || "Không thể phân tích CV lúc này.");
+      setError(extractApiErrorMessage(importError) ?? importError.message ?? "Không thể phân tích CV lúc này.");
     } finally {
       if (mode === "self") {
         setCvAnalyzing(false);
@@ -358,9 +359,10 @@ export function UserProfilePage() {
             <div className="profile-cv-tools">
               <h3>Import hồ sơ từ ảnh CV bằng AI</h3>
               <p>Tải ảnh CV để AI tự trích xuất technical, GPA, skills, project và tự điền vào portfolio profile.</p>
-              <button type="button" className="button button--primary" onClick={() => cvInputRef.current?.click()}>
+              <button type="button" className="button button--primary" onClick={() => cvInputRef.current?.click()} disabled={cvAnalyzing}>
                 {cvAnalyzing ? "AI đang phân tích CV..." : "Tải ảnh CV và tự động điền hồ sơ"}
               </button>
+              {cvAnalyzing ? <LoadingSpinner message="Có thể mất tới 1 phút — AI đang đọc ảnh CV của bạn…" /> : null}
               <input
                 ref={cvInputRef}
                 type="file"
@@ -377,9 +379,10 @@ export function UserProfilePage() {
                   User ID (GUID)
                   <input value={adminTargetUserId} onChange={(event) => setAdminTargetUserId(event.target.value)} />
                 </label>
-                <button type="button" className="button button--ghost" onClick={() => adminCvInputRef.current?.click()}>
+                <button type="button" className="button button--ghost" onClick={() => adminCvInputRef.current?.click()} disabled={adminCvAnalyzing}>
                   {adminCvAnalyzing ? "Đang phân tích CV user..." : "Tải ảnh CV cho user này"}
                 </button>
+                {adminCvAnalyzing ? <LoadingSpinner message="Có thể mất tới 1 phút — AI đang đọc ảnh CV…" /> : null}
                 <input
                   ref={adminCvInputRef}
                   type="file"

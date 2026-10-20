@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { extractApiErrorMessage } from "../core/http/apiClient";
 
 const trackContent = {
   en: {
@@ -128,7 +129,7 @@ export function CareerAdvisorSection({ language, apiClient, isPremium = false })
         ...current,
         {
           role: "assistant",
-          content: error?.message ?? content.errorFallback,
+          content: extractApiErrorMessage(error) ?? content.errorFallback,
           sources: []
         }
       ]);

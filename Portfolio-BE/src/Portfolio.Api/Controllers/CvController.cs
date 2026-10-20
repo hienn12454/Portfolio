@@ -1,15 +1,21 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Portfolio.Api.Extensions;
 using Portfolio.Application.Abstractions;
 using Portfolio.Domain.Entities;
+using System.Security.Claims;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 
 namespace Portfolio.Api.Controllers;
 
 [ApiController]
 [Route("api/cv")]
-public sealed class CvController(IApplicationDbContext dbContext) : ControllerBase
+public sealed class CvController(
+    IApplicationDbContext dbContext,
+    IOpenRouterClient openRouterClient,
+    RateLimitPolicy rateLimitPolicy) : ControllerBase
 {
     // Vietnamese mobile/landline: 0xxxxxxxxx (10 digits) or +84xxxxxxxxx (9-10 digits).
     // Separators (space/dash/dot) are stripped before matching.
@@ -182,5 +188,85 @@ public sealed class CvController(IApplicationDbContext dbContext) : ControllerBa
         cv.ViewCount += 1;
         await dbContext.SaveChangesAsync(cancellationToken);
         return Ok(new { cv.ViewCount });
+    }
+
+    [Authorize(Policy = "AdminOnly")]
+    [HttpPost("review")]
+    public async Task<IActionResult> Review(CancellationToken cancellationToken)
+    {
+        var clientId = ResolveClerkUserId(User) ?? "cv-review-anonymous";
+        if (!rateLimitPolicy.IsAllowed($"cv-review:{clientId}", requestsPerMinute: 5))
+        {
+            return StatusCode(StatusCodes.Status429TooManyRequests,
+                new { Message = "Bạn vừa yêu cầu đánh giá CV quá nhiều lần. Vui lòng thử lại sau một phút." });
+        }
+
+        var cv = await dbContext.CvProfiles
+            .AsNoTracking()
+            .OrderByDescending(x => x.UpdatedAtUtc)
+            .ThenByDescending(x => x.CreatedAtUtc)
+            .FirstOrDefaultAsync(cancellationToken);
+
+        if (cv is null)
+        {
+            return NotFound(new { Message = "Chưa có CV để đánh giá." });
+        }
+
+        var cvProfileJson = JsonSerializer.Serialize(new
+        {
+            cv.FullName,
+            cv.JobTitle,
+            cv.Summary,
+            WorkExperiences = ParseSafe(cv.WorkExperiencesJson),
+            Educations = ParseSafe(cv.EducationsJson),
+            SkillGroups = ParseSafe(cv.SkillGroupsJson),
+            Certifications = ParseSafe(cv.CertificationsJson),
+            Languages = ParseSafe(cv.LanguagesJson),
+            Awards = ParseSafe(cv.AwardsJson)
+        });
+
+        var review = await openRouterClient.GetCvReviewAsync(cvProfileJson, cancellationToken)
+            ?? BuildFallbackReview();
+
+        return Ok(review);
+    }
+
+    private static JsonElement ParseSafe(string? json)
+    {
+        if (string.IsNullOrWhiteSpace(json))
+        {
+            return JsonDocument.Parse("[]").RootElement;
+        }
+
+        try
+        {
+            return JsonDocument.Parse(json).RootElement;
+        }
+        catch (JsonException)
+        {
+            return JsonDocument.Parse("[]").RootElement;
+        }
+    }
+
+    private static CvReviewResult BuildFallbackReview()
+    {
+        return new CvReviewResult(
+            OverallScore: 50,
+            Summary: "Dịch vụ AI đang tạm thời chưa sẵn sàng — đây là nhận xét chung, hãy thử đánh giá lại sau.",
+            Strengths: ["CV đã có đủ cấu trúc cơ bản để bắt đầu đánh giá."],
+            Improvements:
+            [
+                "Đảm bảo có đầy đủ thông tin liên hệ, kinh nghiệm làm việc và kỹ năng.",
+                "Thêm số liệu cụ thể (vd: tăng hiệu năng X%, dẫn dắt Y người) vào phần mô tả kinh nghiệm.",
+                "Kiểm tra lại chính tả và định dạng trước khi nộp."
+            ],
+            AtsNotes: ["Dùng tiêu đề chức danh rõ ràng, tránh ký hiệu đặc biệt trong tên mục để hệ thống ATS đọc được chính xác."]);
+    }
+
+    private static string? ResolveClerkUserId(ClaimsPrincipal user)
+    {
+        return user.FindFirst("sub")?.Value
+            ?? user.FindFirst(ClaimTypes.NameIdentifier)?.Value
+            ?? user.FindFirst("user_id")?.Value;
     }
 }

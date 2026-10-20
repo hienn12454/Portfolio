@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@clerk/react";
-import { createApiClient } from "../core/http/apiClient";
+import { createApiClient, extractApiErrorMessage } from "../core/http/apiClient";
+import { LoadingSpinner, ErrorMessage } from "../core/ui/LoadingStates";
 import { useThemeSync } from "../core/useThemeSync";
 import { TEMPLATES, DEFAULT_SECTION_ORDER, SECTION_LABELS } from "./cvShared";
 import "./CVEditPage.css";
@@ -65,21 +66,6 @@ function validateCvInfo(info) {
   return errors;
 }
 
-// Best-effort extraction of the backend's { message: "..." } out of the Error thrown by
-// getJson() (whose .message looks like `HTTP 400 - {"message":"..."}`) so save failures can
-// surface the real Vietnamese reason instead of a generic fallback.
-function extractApiErrorMessage(err) {
-  const raw = err?.message;
-  if (!raw) return null;
-  const sepIndex = raw.indexOf(" - ");
-  if (sepIndex === -1) return null;
-  try {
-    const body = JSON.parse(raw.slice(sepIndex + 3));
-    return body?.message || body?.Message || null;
-  } catch {
-    return null;
-  }
-}
 
 // ── Vietnamese provinces/cities data ─────────────────────
 const PROVINCES_VN = [
@@ -730,6 +716,11 @@ export function CVEditPage() {
   const [sectionOrder, setSectionOrder] = useState(() => DEFAULT_SECTION_ORDER.map((key) => ({ key, visible: true })));
   const [viewCount, setViewCount] = useState(0);
 
+  // AI CV Review
+  const [cvReview, setCvReview] = useState(null);
+  const [reviewLoading, setReviewLoading] = useState(false);
+  const [reviewError, setReviewError] = useState(null);
+
   // Re-validate live once the user has tried to save at least once, so fixing a field
   // clears its error immediately instead of waiting for the next Save click.
   useEffect(() => {
@@ -800,6 +791,19 @@ export function CVEditPage() {
     }
   }
 
+  async function handleReviewCv() {
+    setReviewLoading(true);
+    setReviewError(null);
+    try {
+      const result = await apiClient.postProtected("/api/cv/review", {}, { timeoutMs: 180_000 });
+      setCvReview(result);
+    } catch (e) {
+      setReviewError(extractApiErrorMessage(e) || "Không thể phân tích CV lúc này. Vui lòng thử lại sau.");
+    } finally {
+      setReviewLoading(false);
+    }
+  }
+
   function addWork() { setWorks((w) => [...w, { id: newId(), position: "", company: "", isCurrent: false }]); }
   function addEdu() { setEdus((e) => [...e, { id: newId(), degree: "", school: "" }]); }
   function addSkillGroup() { setSkillGroups((g) => [...g, { id: newId(), category: "", items: [] }]); }
@@ -852,6 +856,7 @@ export function CVEditPage() {
             { id: "awards",   label: "🏆 Giải thưởng" },
             { id: "hobbies",  label: "🎯 Sở thích" },
             { id: "layout",   label: "🧩 Bố cục CV" },
+            { id: "ai-review", label: "🤖 Đánh giá AI" },
             { id: "settings", label: "⚙️ Cài đặt" },
           ].map(({ id, label }) => (
             <a key={id} className="cve-nav-item" href={`#${id}`}>{label}</a>
@@ -1054,6 +1059,73 @@ export function CVEditPage() {
             >
               <SectionOrderList items={sectionOrder} onChange={setSectionOrder} />
             </FieldRow>
+          </Panel>
+
+          {/* AI CV Review */}
+          <Panel title="🤖 Đánh giá CV bằng AI" id="ai-review" badge="Mới">
+            <FieldRow
+              label="Phân tích CV của bạn bằng AI"
+              hint="AI sẽ chấm điểm tổng quan, chỉ ra điểm mạnh, điểm cần cải thiện và gợi ý để CV dễ được hệ thống ATS đọc hơn."
+            >
+              <button
+                type="button"
+                className={`cve-btn cve-btn--outline ${reviewLoading ? "cve-btn--loading" : ""}`}
+                onClick={handleReviewCv}
+                disabled={reviewLoading}
+              >
+                {reviewLoading ? "Đang phân tích..." : "✨ Phân tích CV"}
+              </button>
+            </FieldRow>
+
+            {reviewLoading ? (
+              <LoadingSpinner message="Đang phân tích CV bằng AI — có thể mất tới 1 phút…" />
+            ) : null}
+
+            {!reviewLoading && reviewError ? (
+              <ErrorMessage
+                message={reviewError}
+                onRetry={reviewError.includes("quá nhiều lần") ? undefined : handleReviewCv}
+              />
+            ) : null}
+
+            {!reviewLoading && !reviewError && cvReview ? (
+              <div className="cve-review">
+                <div className="cve-review__score">
+                  <span className="cve-review__score-num">
+                    {cvReview.overallScore}
+                    <small>/100</small>
+                  </span>
+                  <div className="cve-review__score-bar">
+                    <div
+                      className="cve-review__score-bar-fill"
+                      style={{ width: `${Math.max(0, Math.min(100, cvReview.overallScore))}%` }}
+                    />
+                  </div>
+                </div>
+                <p className="cve-review__summary">{cvReview.summary}</p>
+
+                <div className="cve-review__lists">
+                  <div className="cve-review__list cve-review__list--strengths">
+                    <h4>✅ Điểm mạnh</h4>
+                    <ul>
+                      {(cvReview.strengths || []).map((item, idx) => <li key={idx}>{item}</li>)}
+                    </ul>
+                  </div>
+                  <div className="cve-review__list cve-review__list--improvements">
+                    <h4>💡 Cần cải thiện</h4>
+                    <ul>
+                      {(cvReview.improvements || []).map((item, idx) => <li key={idx}>{item}</li>)}
+                    </ul>
+                  </div>
+                  <div className="cve-review__list cve-review__list--ats">
+                    <h4>🔍 Gợi ý ATS</h4>
+                    <ul>
+                      {(cvReview.atsNotes || []).map((item, idx) => <li key={idx}>{item}</li>)}
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            ) : null}
           </Panel>
 
           {/* Settings */}

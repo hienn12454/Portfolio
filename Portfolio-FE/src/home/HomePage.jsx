@@ -51,6 +51,16 @@ const contentByLanguage = {
       signIn: "Sign in",
       signUp: "Sign up"
     },
+    userMenu: {
+      trigger: "Profile",
+      profile: "Profile",
+      myCv: "My CV",
+      premiumManage: "Manage Premium",
+      premiumUpgrade: "Upgrade to Premium",
+      dashboard: "Dashboard",
+      editCv: "Edit CV",
+      signOut: "Sign out"
+    },
     themeDark: "Dark",
     themeLight: "Light",
     workspaceLabel: "Vault",
@@ -121,6 +131,16 @@ const contentByLanguage = {
     auth: {
       signIn: "Đăng nhập",
       signUp: "Đăng ký"
+    },
+    userMenu: {
+      trigger: "Hồ sơ",
+      profile: "Hồ sơ",
+      myCv: "CV của tôi",
+      premiumManage: "Quản lý Premium",
+      premiumUpgrade: "Nâng cấp Premium",
+      dashboard: "Dashboard",
+      editCv: "Chỉnh sửa CV",
+      signOut: "Đăng xuất"
     },
     themeDark: "Tối",
     themeLight: "Sáng",
@@ -1111,27 +1131,27 @@ export function HomePage() {
                     aria-haspopup="menu"
                     aria-expanded={isUserMenuOpen}
                   >
-                    Profile
+                    {content.userMenu.trigger}
                   </button>
                   {isUserMenuOpen ? (
                     <div className="user-menu__dropdown" role="menu">
                       <Link to="/profile" role="menuitem" onClick={() => setIsUserMenuOpen(false)}>
-                        Hồ sơ
+                        {content.userMenu.profile}
                       </Link>
                       <Link to="/cv" role="menuitem" className="user-menu__cv-link" onClick={() => setIsUserMenuOpen(false)}>
-                        CV của tôi
+                        {content.userMenu.myCv}
                       </Link>
                       <Link to="/premium" role="menuitem" onClick={() => setIsUserMenuOpen(false)}>
-                        {isPremiumUser ? "Quản lý Premium" : "Nâng cấp Premium"}
+                        {isPremiumUser ? content.userMenu.premiumManage : content.userMenu.premiumUpgrade}
                       </Link>
                       {isAdminUser ? (
                         <Link to="/admin" role="menuitem" onClick={() => setIsUserMenuOpen(false)}>
-                          Dashboard
+                          {content.userMenu.dashboard}
                         </Link>
                       ) : null}
                       {isAdminUser ? (
                         <Link to="/cv/edit" role="menuitem" onClick={() => setIsUserMenuOpen(false)}>
-                          Chỉnh sửa CV
+                          {content.userMenu.editCv}
                         </Link>
                       ) : null}
                       <button
@@ -1143,7 +1163,7 @@ export function HomePage() {
                           await signOut({ redirectUrl: "/" });
                         }}
                       >
-                        Đăng xuất
+                        {content.userMenu.signOut}
                       </button>
                     </div>
                   ) : null}
@@ -1349,10 +1369,16 @@ export function HomePage() {
                           <p>{project.impact}</p>
                         </>
                       ) : null}
-                      <div className="card__links">
-                        <a href={project.demoUrl}>{content.projectLinks.demo}</a>
-                        <a href={project.sourceUrl}>{content.projectLinks.source}</a>
-                      </div>
+                      {(project.demoUrl && project.demoUrl !== "#") || (project.sourceUrl && project.sourceUrl !== "#") ? (
+                        <div className="card__links">
+                          {project.demoUrl && project.demoUrl !== "#" ? (
+                            <a href={project.demoUrl} target="_blank" rel="noreferrer">{content.projectLinks.demo}</a>
+                          ) : null}
+                          {project.sourceUrl && project.sourceUrl !== "#" ? (
+                            <a href={project.sourceUrl} target="_blank" rel="noreferrer">{content.projectLinks.source}</a>
+                          ) : null}
+                        </div>
+                      ) : null}
                       {typeof project.id === "string" && !project.id.startsWith("p") ? (
                         <div className="project-engagement">
                           <button

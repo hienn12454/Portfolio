@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@clerk/react";
-import { createApiClient } from "../core/http/apiClient";
+import { createApiClient, extractApiErrorMessage } from "../core/http/apiClient";
+import { ErrorMessage } from "../core/ui/LoadingStates";
 import "./PremiumPage.css";
 
 const content = {
@@ -33,6 +34,7 @@ const content = {
     mockNote: "Demo checkout — activation is instant, no real payment is charged.",
     signInPrompt: "Please sign in to manage your Premium plan.",
     processing: "Processing...",
+    genericError: "Something went wrong. Please try again.",
     planNames: { monthly: "Monthly", yearly: "Yearly" }
   },
   vi: {
@@ -63,6 +65,7 @@ const content = {
     mockNote: "Thanh toán demo — kích hoạt tức thì, không thu tiền thật.",
     signInPrompt: "Vui lòng đăng nhập để quản lý gói Premium.",
     processing: "Đang xử lý...",
+    genericError: "Có lỗi xảy ra. Vui lòng thử lại.",
     planNames: { monthly: "Theo tháng", yearly: "Theo năm" }
   }
 };
@@ -150,7 +153,7 @@ export function PremiumPage() {
       const result = await apiClient.postProtected("/api/premium/me/subscribe", { plan: planId });
       setStatus(result);
     } catch (err) {
-      setError(err?.message ?? "Error");
+      setError(extractApiErrorMessage(err) ?? t.genericError);
     } finally {
       setBusyPlan(null);
     }
@@ -166,7 +169,7 @@ export function PremiumPage() {
       const result = await apiClient.postProtected("/api/premium/me/cancel", {});
       setStatus(result);
     } catch (err) {
-      setError(err?.message ?? "Error");
+      setError(extractApiErrorMessage(err) ?? t.genericError);
     } finally {
       setIsCancelling(false);
     }
@@ -194,7 +197,7 @@ export function PremiumPage() {
         </ul>
       </section>
 
-      {error ? <p className="container premium-error">{error}</p> : null}
+      {error ? <div className="container"><ErrorMessage message={error} /></div> : null}
 
       {!isSignedIn ? (
         <p className="container premium-signin">{t.signInPrompt}</p>

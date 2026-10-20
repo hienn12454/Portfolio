@@ -27,6 +27,23 @@ async function createAuthHeaders(getToken) {
   };
 }
 
+// Best-effort extraction of the backend's { message: "..." } out of the Error thrown by
+// getJson() (whose .message looks like `HTTP 400 - {"message":"..."}`) so callers can surface
+// the real backend reason instead of a generic fallback. Returns null when nothing usable is
+// found, so callers should still fall back to their own generic copy.
+export function extractApiErrorMessage(err) {
+  const raw = err?.message;
+  if (!raw) return null;
+  const sepIndex = raw.indexOf(" - ");
+  if (sepIndex === -1) return null;
+  try {
+    const body = JSON.parse(raw.slice(sepIndex + 3));
+    return body?.message || body?.Message || null;
+  } catch {
+    return null;
+  }
+}
+
 export function createApiClient(getToken) {
   return {
     getPublic(path) {

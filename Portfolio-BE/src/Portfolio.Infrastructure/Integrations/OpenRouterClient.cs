@@ -374,6 +374,104 @@ public sealed class OpenRouterClient(
         }
     }
 
+    public async Task<CvReviewResult?> GetCvReviewAsync(
+        string cvProfileJson,
+        CancellationToken cancellationToken)
+    {
+        var apiKey = configuration["OpenRouter:ApiKey"];
+        if (string.IsNullOrWhiteSpace(apiKey))
+        {
+            return null;
+        }
+
+        var baseUrl = (configuration["OpenRouter:BaseUrl"] ?? "https://openrouter.ai/api/v1").Trim().TrimEnd('/');
+        var modelId = (configuration["OpenRouter:ModelId"] ?? configuration["OpenRouter:Model"] ?? "qwen/qwen3-coder:free").Trim();
+        var referer = configuration["OpenRouter:HttpReferer"] ?? "https://localhost";
+        var appTitle = configuration["OpenRouter:SiteTitle"] ?? configuration["OpenRouter:AppTitle"] ?? "Portfolio Planner";
+
+        var payload = new
+        {
+            model = modelId,
+            temperature = 0.3,
+            max_tokens = 900,
+            response_format = new { type = "json_object" },
+            messages = new object[]
+            {
+                new
+                {
+                    role = "system",
+                    content =
+                        """
+                        Bạn là chuyên gia tuyển dụng IT và hệ thống ATS (Applicant Tracking System).
+                        Đánh giá CV được cung cấp dưới dạng JSON và trả về JSON hợp lệ, đúng schema sau:
+                        {
+                          "overallScore": number (0-100, mức độ sẵn sàng ứng tuyển của CV),
+                          "summary": "1-2 câu nhận xét tổng quan bằng tiếng Việt",
+                          "strengths": ["điểm mạnh 1", "điểm mạnh 2", ...] (3-5 mục, cụ thể),
+                          "improvements": ["điều cần cải thiện 1", ...] (3-5 mục, càng cụ thể và hành động được càng tốt),
+                          "atsNotes": ["lưu ý tương thích ATS 1", ...] (2-4 mục)
+                        }
+                        Nếu CV thiếu dữ liệu quan trọng (vd: chưa có kinh nghiệm, chưa có kỹ năng), hãy nêu rõ trong improvements
+                        thay vì suy diễn. Không thêm bất kỳ văn bản nào ngoài JSON.
+                        """
+                },
+                new
+                {
+                    role = "user",
+                    content = $"Dữ liệu CV (JSON):\n{cvProfileJson}"
+                }
+            }
+        };
+
+        var httpClient = httpClientFactory.CreateClient(HttpClientName);
+        using var request = new HttpRequestMessage(HttpMethod.Post, $"{baseUrl}/chat/completions")
+        {
+            Content = new StringContent(JsonSerializer.Serialize(payload, JsonOptions), Encoding.UTF8, "application/json")
+        };
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", apiKey);
+        request.Headers.TryAddWithoutValidation("HTTP-Referer", referer);
+        request.Headers.TryAddWithoutValidation("X-OpenRouter-Title", appTitle);
+
+        try
+        {
+            using var response = await httpClient.SendAsync(request, cancellationToken);
+            var body = await response.Content.ReadAsStringAsync(cancellationToken);
+            if (!response.IsSuccessStatusCode)
+            {
+                logger.LogWarning(
+                    "CV review failed at OpenRouter. Status: {StatusCode}; Body: {Body}",
+                    (int)response.StatusCode,
+                    Truncate(body, 1200));
+                return null;
+            }
+
+            using var root = JsonDocument.Parse(body);
+            var content = ExtractMessageContent(root.RootElement);
+            if (string.IsNullOrWhiteSpace(content))
+            {
+                return null;
+            }
+
+            var parsed = JsonSerializer.Deserialize<CvReviewModel>(content, RelaxedJsonOptions);
+            if (parsed is null)
+            {
+                return null;
+            }
+
+            return new CvReviewResult(
+                OverallScore: Math.Clamp(parsed.OverallScore ?? 0, 0, 100),
+                Summary: parsed.Summary ?? string.Empty,
+                Strengths: parsed.Strengths ?? [],
+                Improvements: parsed.Improvements ?? [],
+                AtsNotes: parsed.AtsNotes ?? []);
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "CV review request failed.");
+            return null;
+        }
+    }
+
     private async Task<string> RequestCompletionAsync(
         string systemPrompt,
         string userPrompt,
@@ -779,5 +877,14 @@ public sealed class OpenRouterClient(
         public string? Company { get; set; }
         public int? EstimatedYearsOfExperience { get; set; }
         public decimal? Gpa { get; set; }
+    }
+
+    private sealed class CvReviewModel
+    {
+        public int? OverallScore { get; set; }
+        public string? Summary { get; set; }
+        public List<string>? Strengths { get; set; }
+        public List<string>? Improvements { get; set; }
+        public List<string>? AtsNotes { get; set; }
     }
 }

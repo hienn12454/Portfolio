@@ -216,4 +216,80 @@ public class CvControllerTests
 
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
+
+    [Fact]
+    public async Task Review_NonAdmin_ReturnsForbidden()
+    {
+        using var factory = new CustomWebApplicationFactory();
+        var client = factory.CreateClient();
+        client.DefaultRequestHeaders.Add("X-Test-Sub", "plain-" + Guid.NewGuid());
+
+        var response = await client.PostAsync("/api/cv/review", null);
+
+        response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
+    }
+
+    [Fact]
+    public async Task Review_NoCvProfile_ReturnsNotFound()
+    {
+        var sub = "admin-" + Guid.NewGuid();
+        using var factory = new CustomWebApplicationFactory();
+        await SeedAdminAsync(factory, sub);
+        var client = factory.CreateClient();
+        client.DefaultRequestHeaders.Add("X-Test-Sub", sub);
+
+        var response = await client.PostAsync("/api/cv/review", null);
+
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
+    [Fact]
+    public async Task Review_Admin_ReturnsFallbackReview()
+    {
+        var sub = "admin-" + Guid.NewGuid();
+        using var factory = new CustomWebApplicationFactory();
+        await SeedAdminAsync(factory, sub);
+        await factory.SeedAsync(db =>
+        {
+            db.CvProfiles.Add(new CvProfile { Id = Guid.NewGuid(), FullName = "Nguyễn Văn A", IsPublic = true });
+            return Task.CompletedTask;
+        });
+        var client = factory.CreateClient();
+        client.DefaultRequestHeaders.Add("X-Test-Sub", sub);
+
+        // No OpenRouter:ApiKey is configured in the test host, so OpenRouterClient.GetCvReviewAsync
+        // deterministically returns null and the controller falls back to BuildFallbackReview().
+        var response = await client.PostAsync("/api/cv/review", null);
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        using var doc = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
+        doc.RootElement.GetProperty("overallScore").GetInt32().Should().BeInRange(0, 100);
+        doc.RootElement.GetProperty("summary").GetString().Should().NotBeNullOrWhiteSpace();
+        doc.RootElement.GetProperty("strengths").GetArrayLength().Should().BeGreaterThan(0);
+        doc.RootElement.GetProperty("improvements").GetArrayLength().Should().BeGreaterThan(0);
+        doc.RootElement.GetProperty("atsNotes").GetArrayLength().Should().BeGreaterThan(0);
+    }
+
+    [Fact]
+    public async Task Review_RateLimited_ReturnsTooManyRequestsAfterSixCalls()
+    {
+        var sub = "admin-" + Guid.NewGuid();
+        using var factory = new CustomWebApplicationFactory();
+        await SeedAdminAsync(factory, sub);
+        await factory.SeedAsync(db =>
+        {
+            db.CvProfiles.Add(new CvProfile { Id = Guid.NewGuid(), FullName = "Nguyễn Văn A", IsPublic = true });
+            return Task.CompletedTask;
+        });
+        var client = factory.CreateClient();
+        client.DefaultRequestHeaders.Add("X-Test-Sub", sub);
+
+        HttpResponseMessage? last = null;
+        for (var i = 0; i < 6; i++)
+        {
+            last = await client.PostAsync("/api/cv/review", null);
+        }
+
+        last!.StatusCode.Should().Be(HttpStatusCode.TooManyRequests);
+    }
 }

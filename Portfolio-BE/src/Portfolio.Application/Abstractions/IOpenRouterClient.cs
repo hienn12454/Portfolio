@@ -9,6 +9,13 @@ public sealed record OpenRouterDiagnosticResult(
 
 public sealed record CvProjectInsight(string Name, string Description, string TechStack);
 
+public sealed record CvReviewResult(
+    int OverallScore,
+    string Summary,
+    IReadOnlyCollection<string> Strengths,
+    IReadOnlyCollection<string> Improvements,
+    IReadOnlyCollection<string> AtsNotes);
+
 public sealed record CvParseResult(
     string ProfessionalHeadline,
     string TechnicalSummary,
@@ -47,5 +54,9 @@ public interface IOpenRouterClient
     Task<CvParseResult?> ParseCvImageAsync(
         string base64ImageContent,
         string? fileName,
+        CancellationToken cancellationToken);
+
+    Task<CvReviewResult?> GetCvReviewAsync(
+        string cvProfileJson,
         CancellationToken cancellationToken);
 }

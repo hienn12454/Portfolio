@@ -162,6 +162,7 @@ const apiClient = useMemo(() => createApiClient(async () => null), []);
 | GET | `/api/auth/admin-check` | Verify admin access |
 | GET | `/api/cv/admin` | Any CV profile |
 | PUT | `/api/cv` | Upsert CV profile |
+| POST | `/api/cv/review` | AI-powered CV review (score + strengths/improvements/ATS notes); rate-limited 5/min per admin, deterministic fallback when OpenRouter is unavailable |
 | GET | `/api/articles/admin` | All articles |
 | POST | `/api/articles` | Create article |
 | PUT | `/api/articles/{id}` | Update article |
@@ -392,6 +393,7 @@ Fonts: `Manrope` (body), `Space Grotesk` (headings) from Google Fonts.
 
 | Date | Change |
 |------|--------|
+| 2026-10-20 | **AI CV Review + flow optimization pass**: new `IOpenRouterClient.GetCvReviewAsync` + `POST /api/cv/review` (admin-only, rate-limited 5/min via the previously-unused `RateLimitPolicy`) scores the current CV (0-100) and returns strengths/improvements/ATS notes, with a deterministic Vietnamese fallback when OpenRouter is unavailable. New "🤖 Đánh giá CV bằng AI" panel in `CVEditPage.jsx`. Added 4 tests to `CvControllerTests.cs` (non-admin 403, no-CV 404, fallback shape, rate-limit 429). Consolidated error/loading UX across the app: promoted `extractApiErrorMessage` from `CVEditPage.jsx` into a shared `apiClient.js` export and wired it (plus the previously dead `LoadingStates.jsx` `LoadingSpinner`/`ErrorMessage`) into `PremiumPage.jsx`, `UserProfilePage.jsx`, `CareerAdvisorSection.jsx`, and `CareerDirectionLab.jsx` (also fixed the "generating" step-3 state never being visibly reachable). Fixed two `HomePage.jsx` bugs: dead `#` project demo/source links now hide instead of rendering a dead anchor, and the user dropdown menu ("Hồ sơ"/"CV của tôi"/"Đăng xuất"/...) is now i18n'd via `content.userMenu.*` instead of hardcoded Vietnamese |
 | 2026-10-19 | **Career Direction Lab**: replaced the plain track/specialty form (`UserRoadmapPlannerSection`, removed) with `CareerDirectionLab.jsx` — a 4-step wizard (skills to improve → target role with a client-computed match % → real AI roadmap plan via the existing `/api/roadmap-plans/mine/generate` → curated course picks with a filter dropdown). No new backend endpoints; reuses the existing roadmap-plans API. New CSS uses only existing theme tokens (`--bg`/`--accent`/`--surface`/...). Also gave `CareerAdvisorSection`'s chat bubbles a less generic look (asymmetric bubble shape, sender label, distinct user/assistant styling) and fixed a `Math.Abs(int.MinValue)` overflow edge case in `UserRoadmapPlanService.PickDailyTechnical`. Added `UserRoadmapPlansControllerTests.cs` (previously zero coverage for `/api/roadmap-plans`) |
 | 2026-05-23 | Added CV feature: `CvProfile` entity, `CvController`, migration `AddCvProfile`, `CVPage` (public), `CVEditPage` (admin), routes `/cv` and `/cv/edit` |
 | 2026-05-24 | Created `CLAUDE.md`; Redesigned CVPage & CVEditPage with modern 3D glassmorphism UI |

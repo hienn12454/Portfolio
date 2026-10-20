@@ -1,4 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { extractApiErrorMessage } from "../core/http/apiClient";
+import { LoadingSpinner, ErrorMessage } from "../core/ui/LoadingStates";
 
 // ── i18n copy for UI chrome (wizard steps, buttons, hints) ──────────
 const labelsByLanguage = {
@@ -18,7 +20,7 @@ const labelsByLanguage = {
     continueBtn: "Continue",
     seeRoadmapBtn: "Generate my roadmap →",
     seeCoursesBtn: "See course picks →",
-    generating: "Generating your roadmap…",
+    generating: "Generating your roadmap — this can take up to a minute…",
     backBtn: "Back",
     restartBtn: "Build a new plan",
     dailyToday: "Today's focus",
@@ -55,7 +57,7 @@ const labelsByLanguage = {
     continueBtn: "Tiếp tục",
     seeRoadmapBtn: "Tạo lộ trình của tôi →",
     seeCoursesBtn: "Xem khoá học gợi ý →",
-    generating: "Đang tạo lộ trình cho bạn…",
+    generating: "Đang tạo lộ trình cho bạn — có thể mất tới 1 phút…",
     backBtn: "Quay lại",
     restartBtn: "Tạo lộ trình mới",
     dailyToday: "Trọng tâm hôm nay",
@@ -342,7 +344,7 @@ export function CareerDirectionLab({ language, isSignedIn, apiClient }) {
       setTodayPlan(result);
       setPlans((current) => [result, ...current]);
     } catch (submitError) {
-      setError(submitError?.message ?? t.genericError);
+      setError(extractApiErrorMessage(submitError) ?? t.genericError);
       setStep(2); // generation failed — send the user back to retry instead of showing an empty roadmap step
     } finally {
       setGenerating(false);
@@ -440,7 +442,7 @@ export function CareerDirectionLab({ language, isSignedIn, apiClient }) {
             ))}
           </div>
 
-          {error ? <p className="error">{error}</p> : null}
+          {error ? <ErrorMessage message={error} /> : null}
 
           <div className="cdl-body">
             {loadingInitial ? <p>…</p> : null}
@@ -499,7 +501,7 @@ export function CareerDirectionLab({ language, isSignedIn, apiClient }) {
             {!loadingInitial && step === 3 ? (
               <div className="cdl-step">
                 {generating ? (
-                  <p className="cdl-generating">{t.generating}</p>
+                  <LoadingSpinner message={t.generating} />
                 ) : todayPlan ? (
                   <>
                     <div className="card cdl-plan-card">
